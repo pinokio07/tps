@@ -176,7 +176,7 @@
             $src = asset('/img/default-logo-light.png');
           }
       @endphp
-      <img src="{{ $src }}" alt="Logo Icon" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <img src="{{ $src }}" alt="Logo Icon" class="brand-image elevation-3" style="opacity: .8">
       <span class="brand-text @if($subDomain == 'fms') text-bold text-white @else font-weight-light @endif">{{ env('APP_NAME', 'Cargo')}}</span>
     </a>
 

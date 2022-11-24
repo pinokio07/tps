@@ -1,6 +1,6 @@
 @extends('layouts.master')
-@section('title') Dashboard @endsection
-@section('page_name') Dashboard Admin @endsection
+@section('title') Branches @endsection
+@section('page_name') Branch Lists @endsection
 
 @section('content')
   <!-- Main content -->
@@ -10,9 +10,13 @@
         <div class="col-md-12">
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Halaman Dashboard</h3>
+              <h3 class="card-title">Branches</h3>
             </div>
-          </div>
+            <div class="card-body">      
+              @include('buttons.add', ['link' => url()->current().'/create'])      
+              @include('table.admin')
+            </div>
+          </div>          
         </div>
       </div>
     </div><!-- /.container-fluid -->

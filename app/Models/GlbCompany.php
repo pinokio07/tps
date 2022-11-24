@@ -15,4 +15,9 @@ class GlbCompany extends Model
     {
       return (!$this->GC_Logo) ? asset('/img/defaultLogo.png') : asset('/img/companies/'.$this->GC_Logo);
     }
+
+    public function branches()
+    {
+      return $this->hasMany(GlbBranch::class, 'company_id');
+    }
 }

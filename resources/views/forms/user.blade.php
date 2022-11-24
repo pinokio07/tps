@@ -127,14 +127,29 @@
                         style="width: 100%;"
                         @isset($from) disabled @endisset>
                   @forelse ($roles as $role)
-                    <option value="{{$role->name}}" @if($user->hasRole($role->name)) selected @endif>{{Str::title($role->name)}}</option>
+                    <option value="{{$role->name}}" @selected($user->hasRole($role->name))>{{Str::title($role->name)}}</option>
                   @empty
                     <option disabled>No Roles Available</option>
                   @endforelse
                 </select>
               </div>
             </div>
-            
+            <div class="form-group row">
+              <label for="branches" class="col-sm-2 col-form-label">Company</label>
+              <div class="col-sm-10">
+                <select name="branches[]" id="branches" class="select2bs4" 
+                        multiple="multiple" 
+                        data-placeholder="Choose Company-Branch" 
+                        style="width: 100%;"
+                        @isset($from) disabled @endisset>
+                  @forelse ($branches as $branch)
+                    <option value="{{$branch->id}}" @selected($user->branches && $user->branches->contains('id', $branch->id))>{{Str::upper($branch->CB_FullName.' - '. $branch->company->GC_Name)}}</option>
+                  @empty
+                    <option disabled>No Branch-Company Available</option>
+                  @endforelse
+                </select>
+              </div>
+            </div>
           @endif          
 
           @if(!isset($from))

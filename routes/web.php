@@ -25,7 +25,6 @@ Route::group(['middleware' => 'auth'], function(){
   //Super-Admin Routes
   Route::group(['middleware' => 'role:super-admin', 'as' => 'admin.'], function(){
     Route::get('/administrator', 'AdminDashboardController@index')->name('dashboard');
-    Route::put('/administrator', 'AdminDashboardController@update');
     Route::get('/administrator/profile', 'AuthController@profile')->name('profile');
     Route::put('/administrator/profile/{user}', 'AuthController@update')->name('profile.update');
     

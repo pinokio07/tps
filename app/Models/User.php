@@ -61,4 +61,9 @@ class User extends Authenticatable
     {
       return (!$this->avatar) ? asset('/img/default-avatar.png') : asset('/img/users/'.$this->avatar);
     }
+
+    public function branches()
+    {
+      return $this->belongsToMany(GlbBranch::class, 'tps_branch_user', 'user_id', 'branch_id')->withPivot('active')->withTimeStamps();
+    }
 }

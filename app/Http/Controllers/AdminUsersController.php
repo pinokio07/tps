@@ -110,8 +110,9 @@ class AdminUsersController extends Controller
     {
         $user = new User;
         $roles = Role::where('name', '<>', 'super-admin')->get();
+        $branches = GlbBranch::with('company')->where('CB_IsActive', true)->get();
 
-        return view('admin.users.create-edit', compact(['user', 'roles']));
+        return view('admin.users.create-edit', compact(['user', 'roles', 'branches']));
     }
 
     /**
@@ -138,7 +139,11 @@ class AdminUsersController extends Controller
 
         if($request->role != ''){
           $newUser->assignRole($request->role);
-        }        
+        }
+        
+        if($request->branches != ''){
+          $newUser->branches()->attach($request->branches);
+        }
 
         if($request->hasFile('avatar')){
           $ext = $request->file('avatar')->getClientOriginalExtension();
@@ -166,8 +171,9 @@ class AdminUsersController extends Controller
     public function show(User $user)
     {
         $roles = $user->roles;
+        $branches = GlbBranch::with('company')->where('CB_IsActive', true)->get();
         
-        return view('admin.users.view', compact(['user', 'roles']));
+        return view('admin.users.create-edit', compact(['user', 'roles', 'branches']));
     }
 
     /**
@@ -184,7 +190,9 @@ class AdminUsersController extends Controller
           $roles = Role::where('name', '<>', 'super-admin')->get();
         }
                
-        return view('admin.users.create-edit', compact(['user', 'roles']));
+        $branches = GlbBranch::with('company')->where('CB_IsActive', true)->get();
+        
+        return view('admin.users.create-edit', compact(['user', 'roles', 'branches']));
     }
 
     /**
@@ -230,7 +238,13 @@ class AdminUsersController extends Controller
           $user->syncRoles($request->role);
         } else {
           $user->detachRoles();
-        }        
+        }
+
+        if($request->branches != ''){
+          $user->branches()->sync($request->branches);
+        } else {
+          $user->branches()->detach();
+        }
 
         if($request->hasFile('avatar')){
           $ext = $request->file('avatar')->getClientOriginalExtension();
