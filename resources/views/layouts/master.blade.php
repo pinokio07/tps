@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ env('APP_NAME', 'TPS')}} | @yield('title')</title>
+  <title>{{ config('app.name', 'TPS')}} | @yield('title')</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <!-- Icon -->
   <link rel="icon" href="{{ asset('/img/default-logo-dark.png')}}">  
@@ -177,7 +177,7 @@
           }
       @endphp
       <img src="{{ $src }}" alt="Logo Icon" class="brand-image elevation-3" style="opacity: .8">
-      <span class="brand-text @if($subDomain == 'fms') text-bold text-white @else font-weight-light @endif">{{ env('APP_NAME', 'Cargo')}}</span>
+      <span class="brand-text @if($subDomain == 'fms') text-bold text-white @else font-weight-light @endif">{{ config('app.name', 'TPS')}}</span>
     </a>
 
     <!-- Sidebar -->
