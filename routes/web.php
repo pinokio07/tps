@@ -92,4 +92,83 @@ Route::group(['middleware' => 'auth'], function(){
   
   });
   //End Super-Admin Routes
+
+  //Menu Routes
+  try {
+    
+    $menus = \App\Models\MenuItem::where('menu_id', '<>', 1)
+                                 ->where('active', true)
+                                 ->get();
+
+    if($menus){
+      foreach($menus as $menu){
+        $mainUrl = $menu->link();
+        $mainTitle = Str::lower($menu->title);
+        $singular = Str::singular(Str::replace(['-',' '],'_', $mainTitle));
+        $routeName = Str::replace('/','.',ltrim($mainUrl,'/'));
+        $permit = str_replace(['.', '-'], '_', $routeName);
+        
+        ($menu->permission != '') 
+              ? $middle = "can:$menu->permission" 
+              : $middle = 'auth';        
+
+        if($mainUrl != '#' && $menu->controller != ''){
+          $cont = $menu->controller;
+          Route::get($mainUrl, $cont .'Controller@index')
+                ->name($routeName)
+                ->middleware($middle);
+
+          Route::get($mainUrl.'/create', $cont .'Controller@create')
+                ->name($routeName.'.create')
+                ->middleware('can:create_'.$permit);
+
+          Route::post($mainUrl, $cont .'Controller@store')
+                ->name($routeName.'.store')
+                ->middleware('can:create_'.$permit);
+
+          Route::get($mainUrl.'/{'. $singular .'}', $cont .'Controller@show')
+                ->name($routeName.'.show')
+                ->middleware('can:view_'.$permit);
+
+          Route::get($mainUrl.'/{'. $singular .'}/edit', $cont .'Controller@edit')
+                ->name($routeName.'.edit')
+                ->middleware('can:edit_'.$permit);
+
+          Route::put($mainUrl.'/{'. $singular .'}', $cont .'Controller@update')
+                ->name($routeName.'.update')
+                ->middleware('can:edit_'.$permit);
+
+          Route::delete($mainUrl.'/{'. $singular .'}', $cont .'Controller@destroy')
+                ->name($routeName.'.delete')
+                ->middleware('can:delete_'.$permit);
+
+          //Select2 Route
+          Route::get('/select2'.$mainUrl, $cont . 'Controller@select2')
+               ->name('select2.'.$routeName);
+          //Download Route
+          Route::get('/download'.$mainUrl, $cont . 'Controller@download')
+               ->name('download.'.$routeName);
+          //Upload Route
+          Route::post('/upload'.$mainUrl, $cont . 'Controller@upload')
+               ->name('upload.'.$routeName);
+
+        } elseif($mainUrl != '#' && $menu->controller == ''){
+
+          $page = getPage('pages.'.$mainTitle.'.index');
+
+          Route::get($mainUrl, function() use ($page){
+            return view($page);
+          })->middleware($middle);
+
+        }
+
+      }
+    }     
+      
+  } catch (\Throwable $th) {
+
+    throw $th;
+    
+  }
+  //End Menu Routes  
 });
