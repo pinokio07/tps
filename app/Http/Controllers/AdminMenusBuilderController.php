@@ -102,9 +102,7 @@ class AdminMenusBuilderController extends Controller
           'url' => 'required'
         ]);
 
-        if($data){
-
-          // dd($request->all());
+        if($data){          
 
           $item = MenuItem::findOrFail($id);
           if($item->url != '#'){

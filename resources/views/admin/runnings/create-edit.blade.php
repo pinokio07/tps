@@ -130,21 +130,7 @@
                               {{ $disabled }}
                               value="{{ old('leading_zero') ?? $running_code->leading_zero ?? '1' }}">
                       </div>
-                    </div>
-                    <div class="col-4">
-                      <div class="form-group form-group-sm">
-                        <label for="specific">Company Spesific</label>
-                        <select name="specific" 
-                                id="specific" 
-                                class="custom-select custom-select-sm"
-                                {{ $disabled }}>
-                          <option value="0"
-                            @if($running_code->specific == '0') selected @endif>No</option>
-                          <option value="1"
-                            @if($running_code->specific == '1') selected @endif>Yes</option>                          
-                        </select>
-                      </div>
-                    </div>
+                    </div>                    
                     <div class="col-12">
                       <small>
                         <b>Pattern usage:</b><br>                        
@@ -183,7 +169,6 @@
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Company</th>
                       <th>Month</th>
                       <th>Year</th>
                       <th>Sequence</th>
@@ -193,7 +178,6 @@
                     @forelse ($running_code->details as $detail)
                       <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ optional($detail->company)->GC_Name ?? '-' }}</td>
                         <td>{{ $detail->month }}</td>
                         <td>{{ $detail->year }}</td>
                         <td>

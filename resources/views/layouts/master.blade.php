@@ -1,10 +1,10 @@
-<?php $subDomain = subDomain(); ?>
+<?php $subDomain = subDomain(); $activeCompany = activeCompany(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ env('APP_NAME', 'Cargo')}} | @yield('title')</title>
+  <title>{{ env('APP_NAME', 'TPS')}} | @yield('title')</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <!-- Icon -->
   <link rel="icon" href="{{ asset('/img/default-logo-dark.png')}}">  
@@ -146,9 +146,8 @@
       <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">                
         <a class="nav-link" data-toggle="dropdown" href="#">  
-          @if(!Auth::user()->hasRole('super-admin') && activeCompany() != '')
-            <?php $branch = activeCompany(); ?>
-            {{ $branch->CB_FullName.' - '.$branch->company->GC_Name ?? '' }}
+          @if(!Auth::user()->hasRole('super-admin') && $activeCompany != '')
+            {{ $activeCompany->GC_Name ?? '' }}
           @endif
           <i class="far fa-user ml-1"></i>          
         </a>

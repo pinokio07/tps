@@ -6,16 +6,7 @@
       <a href="{{ $item->link() }}" class="dropdown-item">
         {{ $item->title }}
       </a>
-    @endcan
-    {{-- @if($item->permission != '' && auth()->user()->can("$item->permission"))
-      <a href="{{ $item->link() }}" class="dropdown-item">
-        {{ $item->title }}
-      </a>
-    @elseif($item->permission == '')
-    <a href="{{ $item->link() }}" class="dropdown-item">
-      {{ $item->title }}
-    </a>
-    @endif --}}
+    @endcan    
   @endforeach
 @endif
 
