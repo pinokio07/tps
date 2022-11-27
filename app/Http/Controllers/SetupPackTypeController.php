@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\RefCurrency;
+use App\Models\RefPackType;
 use App\Exports\SetupExport;
 use App\Imports\SetupImport;
 use DataTables;
 use Excel;
 
-class SetupCurrencyController extends Controller
+class SetupPackTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,7 +19,7 @@ class SetupCurrencyController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-          $query = RefCurrency::query();
+          $query = RefPackType::query();
 
           return DataTables::eloquent($query)
                           ->addIndexColumn()                           
@@ -28,10 +28,8 @@ class SetupCurrencyController extends Controller
 
         $items = collect([
           'id' => 'id',
-          'RX_IsActive' => 'Active',
-          'RX_Code' => 'Code',          
-          'RX_Desc' => 'Description',
-          'RX_Symbol' => 'Symbol'
+          'F3_Code' => 'Code',
+          'F3_Description' => 'Description',
         ]);
 
         return view('pages.setup.indexall', compact(['items']));
@@ -39,28 +37,29 @@ class SetupCurrencyController extends Controller
 
     public function download()
     {
-      $model = '\App\Models\RefCurrency';
-      return Excel::download(new SetupExport($model), 'currencies.xlsx');
+      $model = '\App\Models\RefPackType';
+      return Excel::download(new SetupExport($model), 'pack-type.xlsx');
     }
 
     public function upload(Request $request)
     {
-        $model = '\App\Models\RefCurrency';
+        $model = '\App\Models\RefPackType';
         Excel::import(new SetupImport($model), $request->upload);
           
-        return redirect('/setup/currencies')->with('sukses', 'Upload Success.');
+        return redirect('/setup/pack-type')->with('sukses', 'Upload Success.');
     }
 
     public function select2(Request $request)
-    {        
+    {
         $data = [];
 
         if($request->has('q') && $request->q != ''){
             $search = $request->q;
-            $data = RefCurrency::select("id","RX_Code", "RX_Symbol", "RX_Desc")
-                                ->where('RX_Code','LIKE',"%$search%")
-                                ->orWhere('RX_Symbol','LIKE',"%$search%")
-                                ->orWhere('RX_Desc','LIKE',"%$search%")
+            $data = ReffPackType::select("id","F3_Code","F3_Description")
+                                ->where(function($query) use($search){
+                                  $query->where('F3_Code','LIKE',"%$search%")
+                                        ->orWhere('F3_Description','LIKE',"%$search%");
+                                })
                                 ->get();
         }
 

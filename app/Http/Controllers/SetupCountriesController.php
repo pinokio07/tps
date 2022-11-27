@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\RefCountry;
+use App\Exports\SetupExport;
+use App\Imports\SetupImport;
+use DataTables;
+use Excel;
 
 class SetupCountriesController extends Controller
 {
@@ -12,75 +16,42 @@ class SetupCountriesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if($request->ajax()){
+          $query = RefCountry::query();
+
+          return DataTables::eloquent($query)
+                           ->addIndexColumn()                           
+                           ->toJson();
+        }
+
+        $items = collect([
+          'id' => 'id',
+          'RN_IsActive' => 'Active',
+          'RN_Code' => 'Code',          
+          'RN_Desc' => 'Description',
+          'RN_EconomicGrouping' => 'Economic Grouping',
+          'RN_CountryDialingCode' => 'Dialing Code',
+          'RN_RX_NKLocalCurrency' => 'Local Currency',
+
+        ]);
+
+        return view('pages.setup.indexall', compact(['items']));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function download()
     {
-        //
+      $model = '\App\Models\RefCountry';
+      return Excel::download(new SetupExport($model), 'countries.xlsx');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function upload(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $model = '\App\Models\RefCountry';
+        Excel::import(new SetupImport($model), $request->upload);
+          
+        return redirect('/setup/countries')->with('sukses', 'Upload Success.');
     }
 
     public function select2(Request $request)
