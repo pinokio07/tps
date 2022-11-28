@@ -116,12 +116,6 @@ class AdminMenusBuilderController extends Controller
             $permissionName = $this->getPermissionName($request->url);
             $groupName = $this->getGroupName($request->url);
 
-            if($request->active == 'on'){
-              $item->update(['active' => true]);
-            } else {
-              $item->update(['active' => false]);
-            }
-
             if($request->controller == 'on'){
             
               $item->controller = $controllerName;
@@ -157,7 +151,13 @@ class AdminMenusBuilderController extends Controller
               $item->save();
             }
 
-          }    
+          }
+          
+          if($request->active == 'on'){
+            $item->update(['active' => true]);
+          } else {
+            $item->update(['active' => false]);
+          }
 
           return redirect('/administrator/menus/'.$menu->id.'/builder')->with('sukses', 'Edit Item Success.');
 

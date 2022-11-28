@@ -5,6 +5,7 @@ namespace App\Imports;
 use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use DB;
 
 class SetupImport implements ToCollection
 {
@@ -25,7 +26,16 @@ class SetupImport implements ToCollection
           if($key > 0 && $col[1] != ''){
             unset($col[0]);            
             $data = $headers->combine($col);
-            $this->model::firstOrCreate($data->toArray());
+            DB::beginTransaction();
+
+            try {
+              $this->model::firstOrCreate($data->toArray());
+              DB::commit();
+            } catch (\Throwable $th) {
+              DB::rollback();
+              throw $th;
+            }
+            
           }
         }
     }
