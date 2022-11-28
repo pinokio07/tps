@@ -1,25 +1,27 @@
 <table>
   <thead>
     <tr>
+      <th>No</th>
       @forelse ($headers as $h)
-        @if($loop->first)
-          <th>No</th>
-        @elseif(!in_array($h, $exc))
-          <th>{{ $h }}</th>
+
+        @if(!in_array($h, $exc))
+          <th @if($h == 'id') style="background-color: red;" @endif>{{ $h }}</th>
         @endif
-      @empty        
+
+      @empty
       @endforelse
     </tr>
   </thead>
   <tbody>
     @forelse ($data as $keys => $d)
       <tr>
+        <td>{{ $loop->iteration }}</td>
         @forelse ($headers as $head)
-          @if($loop->first)
-            <td>{{ $loop->parent->iteration }}</td>
-          @elseif(!in_array($head, $exc))
-            <td>{{ $d->$head }}</td>
+
+          @if(!in_array($head, $exc))
+            <td @if($head == 'id') style="background-color: red;" @endif>{{ $d->$head }}</td>
           @endif
+
         @empty          
         @endforelse        
       </tr>      

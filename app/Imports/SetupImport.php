@@ -23,17 +23,33 @@ class SetupImport implements ToCollection
         $headers->shift();
         $kolom = 0;
         foreach ($rows as $key => $col) {
-          if($key > 0 && $col[1] != ''){
+          if($key > 0 && $col[2] != ''){
+            
             unset($col[0]);            
             $data = $headers->combine($col);
+
             DB::beginTransaction();
 
             try {
-              $this->model::firstOrCreate($data->toArray());
+
+              if($data['id'] != ''){
+                $existing = $this->model::find($data['id']);
+
+                if($existing){
+                  $existing->update($data->except(['id'])->toArray());
+                }
+
+              } else {
+                $this->model::firstOrCreate($data->toArray());
+              }
+              
               DB::commit();
+
             } catch (\Throwable $th) {
+
               DB::rollback();
               throw $th;
+
             }
             
           }
