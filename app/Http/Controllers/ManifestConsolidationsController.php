@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Models\Master;
+use DataTables;
+use DB;
 
 class ManifestConsolidationsController extends Controller
 {
@@ -11,9 +15,54 @@ class ManifestConsolidationsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if($request->ajax()){
+          $query = Master::query();
+
+          return DataTables::eloquent($query)
+                           ->addIndexColumn()
+                           ->editColumn('AirlineCode', function($row){
+                            $url = url()->current().'/'.$row->id.'/edit#tab-summary-content';
+
+                            $show = '<a href="'.$url.'">'.$row->AirlineCode.'</a>';
+
+                            return $show;
+                           })
+                           ->editColumn('ArrivalDate', function($row){
+                            if($row->ArrivalDate){
+                              $time = Carbon::parse($row->ArrivalDate);
+                              $display = $time->format('d/m/Y');
+                              $timestamp = $time->timestamp;
+                            } else {
+                              $display = "-";
+                              $timestamp = 0;
+                            }
+
+                            $show = [
+                              'display' => $display,
+                              'timestamp' => $timestamp
+                            ];
+
+                            return $show; 
+                           })
+                           ->rawColumns(['AirlineCode'])
+                           ->toJson();
+        }
+
+        $items = collect([
+          'id' => 'id',
+          'AirlineCode' => 'Airline Code',
+          'MAWBNumber' => 'MAWB Number',
+          'ArrivalDate' => 'Arrival Date',
+          'MasukGudang' => 'Masuk Gudang',
+          'PUNumber' => 'PU Number',
+          'mNoOfPackages' => 'Total Collie',
+          'mGrossWeight' => 'Gross Weight',
+          'HAWBCount' => 'HAWB Count',
+        ]);
+
+        return view('pages.manifest.consolidations.index', compact(['items']));
     }
 
     /**
@@ -23,7 +72,9 @@ class ManifestConsolidationsController extends Controller
      */
     public function create()
     {
-        //
+        $item = new Master;
+
+        return view('pages.manifest.consolidations.create-edit', compact(['item']));
     }
 
     /**
@@ -54,9 +105,11 @@ class ManifestConsolidationsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Master $consolidation)
     {
-        //
+        $item = $consolidation;
+
+        return view('pages.manifest.consolidations.create-edit', compact(['item']));
     }
 
     /**

@@ -445,6 +445,21 @@
 
     return n < 0 ? '(' + returnString + ')' : returnString;
   }
+
+  function select2bs4() {
+    $('.select2bs4').select2({
+      placeholder: 'Select...',
+      theme: 'bootstrap4'
+    });
+  }
+
+  function select2bs4Clear() {
+    $('.select2bs4').select2({
+      placeholder: 'Select...',
+      theme: 'bootstrap4',
+      allowClear: true,
+    });
+  }
   
   $(function(){
     

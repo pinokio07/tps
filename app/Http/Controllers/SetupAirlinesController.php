@@ -70,4 +70,22 @@ class SetupAirlinesController extends Controller
           
         return redirect('/setup/airlines')->with('sukses', 'Upload Success.');
     }
+
+    public function select2(Request $request)
+    {
+      $data = [];
+      if($request->has('q') && $request->q != ''){
+          $search = $request->q;
+          $data = RefAirline::select("id", "RM_TwoCharacterCode", "RM_AirlineName1")
+                                ->where('RM_IsActive', true)
+                                ->where(function($query) use ($search){
+                                  $query->where('RM_TwoCharacterCode', 'LIKE', "%$search%")
+                                        ->orWhere('RM_AirlineName1', 'LIKE', "%$search%");
+                                })
+                                ->limit(5)
+                                ->get();
+      }
+
+      return response()->json($data);
+    }
 }

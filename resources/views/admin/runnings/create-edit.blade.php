@@ -111,12 +111,14 @@
                                 id="reset" 
                                 class="custom-select custom-select-sm"
                                 {{ $disabled }}>
+                          <option value="daily"
+                            @selected($running_code->reset == 'daily')>Daily</option>
                           <option value="month"
-                            @if($running_code->reset == 'month') selected @endif>Monthly</option>
+                            @selected($running_code->reset == 'month')>Monthly</option>
                           <option value="year"
-                            @if($running_code->reset == 'year') selected @endif>Yearly</option>
+                            @selected($running_code->reset == 'year')>Yearly</option>
                           <option value="never"
-                            @if($running_code->reset == 'never') selected @endif>Never</option>
+                            @selected($running_code->reset == 'never')>Never</option>
                         </select>
                       </div>
                     </div>
@@ -169,6 +171,7 @@
                   <thead>
                     <tr>
                       <th>No</th>
+                      <th>Date</th>
                       <th>Month</th>
                       <th>Year</th>
                       <th>Sequence</th>
@@ -178,6 +181,7 @@
                     @forelse ($running_code->details as $detail)
                       <tr>
                         <td>{{ $loop->iteration }}</td>
+                        <td>{{ $detail->date }}</td>
                         <td>{{ $detail->month }}</td>
                         <td>{{ $detail->year }}</td>
                         <td>

@@ -70,14 +70,19 @@ class AdminRunningCodesController extends Controller
 
           if($running_code->reset == 'year'){
             $month = null;
+            $day = null;
+          } elseif($running_code->reset == 'month'){
+            $day = null;
           } elseif($running_code->reset == 'never'){
             $month = null;
             $year = null;
+            $day = null;
           }
 
           $details = RunningCodeDetail::updateOrCreate([
             'header_id' => $running_code->id
           ],[
+            'day' => $day,
             'month' => $month,
             'year' => $year
           ]);
@@ -97,7 +102,8 @@ class AdminRunningCodesController extends Controller
     {
         $running_code->load(['details' => function($d){
           $d->orderBy('year')
-            ->orderBy('month');
+            ->orderBy('month')
+            ->orderBy('date');
         }]);
         $disabled = 'disabled';
 
@@ -114,7 +120,8 @@ class AdminRunningCodesController extends Controller
     {
         $running_code->load(['details' => function($d){
           $d->orderBy('year')
-            ->orderBy('month');
+            ->orderBy('month')
+            ->orderBy('date');
         }]);
         $disabled = 'false';
 
@@ -140,23 +147,50 @@ class AdminRunningCodesController extends Controller
           $date = today();
           $month = $date->format('m');
           $year = $date->format('Y');
-          $running_code->update($request->all());
+          $running_code->update($request->only([
+                                  'title',
+                                  'module',
+                                  'name',
+                                  'pattern',
+                                  'reset',
+                                  'leading_zero'
+                                ]));
           $disabled = 'false';
   
-          if($running_code->reset == 'month'){
+          if($running_code->reset == 'daily'){
             $terakhir = $running_code->terakhir();
 
             $detail = $running_code->details()->firstOrCreate([
                                           'header_id' => $running_code->id,
+                                          'date' => $date->format('d'),
                                           'month' => $month,
                                           'year' => $year
                                         ],[
                                           'updated_at' => now()
                                         ]); 
-            if($terakhir && $terakhir->month == ''){
+            if($terakhir && $terakhir->date == ''){
               $detail->sequence = $terakhir->sequence;
               $detail->save();
             } 
+          } elseif($running_code->reset == 'month'){
+            $bulanIni = $running_code->bulanIni($month);
+            $seq = 1;
+            if($bulanIni){
+              $seq = $bulanIni->sum('sequence');      
+            } 
+
+            $detail = $running_code->details()->updateOrCreate([
+                                          'date' => null,
+                                          'month' => $month,
+                                          'year' => $year
+                                        ],[                                          
+                                          'sequence' => $seq
+                                        ]); 
+
+            $running_code->details()->where('id', '<>', $detail->id)
+                                    ->where('year', $year)
+                                    ->where('month', $month)
+                                    ->delete();
           } elseif($running_code->reset == 'year'){
             $tahunIni = $running_code->tahunIni($year);       
             $seq = 1;
@@ -164,6 +198,7 @@ class AdminRunningCodesController extends Controller
               $seq = $tahunIni->sum('sequence');      
             } 
             $detail = $running_code->details()->updateOrCreate([
+                                        'date' => null,
                                         'month' => null,
                                         'year' => $year
                                       ],[

@@ -21,6 +21,11 @@ class RunningCodeHeader extends Model
       return $this->details()->orderBy('created_at', 'desc')->first();
     }
 
+    public function bulanIni($month)
+    {
+      return $this->details()->where('month', $month);
+    }
+
     public function tahunIni($year)
     {
       return $this->details()->where('year', $year);
