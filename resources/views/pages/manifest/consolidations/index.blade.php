@@ -80,7 +80,13 @@
               @endforelse          
             ],
             buttons: [                
-                'excelHtml5', 'pdfHtml5', 'print',
+                'excelHtml5',
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+                'print',
             ],
             initComplete: function () {
               this.api().columns([2,3,4,5,6,7,8]).every( function () {

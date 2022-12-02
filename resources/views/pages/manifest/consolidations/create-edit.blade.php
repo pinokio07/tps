@@ -1,13 +1,20 @@
 @extends('layouts.master')
 @section('title') Consolidations @endsection
 @section('page_name') Consolidations @endsection
+
 @section('header')
-  <style>
-    label{
-      margin-bottom: 0px !important;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ asset('adminlte') }}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/jszip/jszip.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/pdfmake/pdfmake.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/pdfmake/vfs_fonts.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 @endsection
+
 @section('content')
 <!-- Main content -->
 <section class="content">
@@ -65,9 +72,9 @@
                     <!-- Organization Details Form -->
                     <div class="col-12">
                       <div class="card card-primary card-outline">
-                        <div class="card-header">
+                        {{-- <div class="card-header">
                           <h3 class="card-title">Details</h3>
-                        </div>
+                        </div> --}}
                         <form id="formDetails"
                               @if($item->id)
                               action="{{ route('manifest.consolidations.update', ['consolidation' => $item->id]) }}"
@@ -395,7 +402,7 @@
                                 <input type="text" 
                                        name="mGrossWeight" 
                                        id="mGrossWeight" 
-                                       class="form-control form-control-sm"
+                                       class="form-control form-control-sm berat"
                                        placeholder="Gross Weight"
                                        value="{{ old('mGrossWeight')
                                                  ?? $item->mGrossWeight
@@ -409,7 +416,7 @@
                                 <input type="text" 
                                        name="mChargeableWeight" 
                                        id="mChargeableWeight" 
-                                       class="form-control form-control-sm"
+                                       class="form-control form-control-sm berat"
                                        placeholder="Chargable Weight"
                                        value="{{ old('mChargeableWeight')
                                                  ?? $item->mChargeableWeight
@@ -560,10 +567,11 @@
                       </div>
                     </div>                   
                   </div>
+
                 </div>
                 <div class="tab-pane fade" id="tab-houses-content" role="tabpanel" aria-labelledby="tab-houses">
                   <div class="row mt-2">
-                   HOUSES               
+                   @include('pages.manifest.consolidations.tab-house')               
                   </div>
                 </div>
                 <div class="tab-pane fade" id="tab-summary-content" role="tabpanel" aria-labelledby="tab-summary">
@@ -630,6 +638,16 @@
           mask: "999 9999 9999",
           removeMaskOnSubmit: true
         });
+
+        $('.berat').inputmask({
+          alias: "decimal",
+          rightAlign: false,
+          integerDigits: 5,
+          digits: 6,
+          digitsOptional: false,
+          placeholder: "0",
+          allowMinus: false
+        });
     });
     function showTab(){
       if(window.location.hash){
@@ -643,6 +661,19 @@
     }
     jQuery(document).ready(function(){ 
       findNpwp();
+      showTab();
+
+      $('#tblHouses').DataTable({
+        buttons: [                
+            'excelHtml5',
+            {
+                extend: 'pdfHtml5',
+                orientation: 'landscape',
+                pageSize: 'LEGAL'
+            },
+            'print',
+        ],
+      }).buttons().container().appendTo('#tblHouses_wrapper .col-md-6:eq(0)');
 
       $('.select2kpbc').select2({
         placeholder: 'Select...',
@@ -755,8 +786,7 @@
 
         $('#PUDate').val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
       });
-      showTab();
-      console.log(window.location.hash);
+            
     });
   </script>
 @endsection

@@ -55,7 +55,10 @@
   <script src="{{asset('adminlte')}}/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
   <!-- PDF Js -->
   {{-- <script src="{{ asset('adminlte/plugins/pdfjs/build/pdf.js') }}"></script> --}}
-  <style>    
+  <style>
+    label{
+      margin-bottom: 0px !important;
+    }
     .modal-xls {
       max-width: 90vmax;
     }

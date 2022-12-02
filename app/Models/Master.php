@@ -55,7 +55,7 @@ class Master extends Model
       return $this->belongsTo(RefBondedWarehouse::class, 'OriginWarehouse', 'warehouse_code');
     }
 
-    public function house()
+    public function houses()
     {
       return $this->hasMany(House::class, 'MasterID');
     }

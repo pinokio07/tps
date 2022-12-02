@@ -137,7 +137,7 @@ class ManifestConsolidationsController extends Controller
      */
     public function edit(Master $consolidation)
     {
-        $item = $consolidation;
+        $item = $consolidation->load(['houses']);
 
         return view('pages.manifest.consolidations.create-edit', compact(['item']));
     }
