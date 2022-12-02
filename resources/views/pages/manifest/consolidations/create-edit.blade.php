@@ -103,30 +103,23 @@
                                     {{ $item->KPBC }} - {{ $item->customs->UrKdkpbc }}
                                   </option>
                                   @endif
-                                </select>
-                                <!-- NM_SARANA_ANGKUT -->
-                                <input type="hidden" 
-                                       name="NM_SARANA_ANGKUT"
-                                       id="NM_SARANA_ANGKUT"
-                                       value="{{ old('NM_SARANA_ANGKUT') 
-                                                 ?? $item->NM_SARANA_ANGKUT
-                                                 ?? '' }}">
+                                </select>                                
                               </div>
                               <!-- KPBC -->
-                              <label for="NM_PEMBERITAHU" 
+                              <label for="mBRANCH" 
                                      class="col-sm-3 col-lg-1 col-form-label">
                                      Company <span class="text-danger">*</span></label>
                               <div class="col-9 col-lg-3">
-                                <select name="NM_PEMBERITAHU" 
-                                        id="NM_PEMBERITAHU" 
+                                <select name="mBRANCH" 
+                                        id="mBRANCH" 
                                         style="width: 100%;"
                                         class="select2bs4"
                                         required>
                                  @forelse (auth()->user()->branches as $branch)
-                                    <option value="{{ $branch->company->GC_Name }}"
-                                        @selected($item->NM_PEMBERITAHU == $branch->company->GC_Name)
+                                    <option value="{{ $branch->id }}"
+                                        @selected($item->mBRANCH == $branch->id)
                                         data-npwp="{{ $branch->company->GC_TaxID }}">
-                                      {{ $branch->company->GC_Name }}
+                                      {{ $branch->company->GC_Name }} | {{ $branch->CB_Code }}
                                     </option>
                                  @empty
                                    
@@ -532,7 +525,7 @@
                               <!-- No Segel PLP BC -->
                               <label for="NO_SEGEL" 
                                      class="col-sm-3 col-lg-1 col-form-label">
-                                     No Segel PLP BC </label>
+                                     No Segel PLP BC <span class="text-danger">*</span></label>
                               <div class="col-9 col-lg-3">
                                 <input type="text" 
                                        name="NO_SEGEL" 
@@ -644,7 +637,7 @@
       }      
     }
     function findNpwp() {
-      var npwp = $('#NM_PEMBERITAHU').find(':selected').attr('data-npwp');
+      var npwp = $('#mBRANCH').find(':selected').attr('data-npwp');
 
       $('#NPWP').val(npwp);
     }
@@ -703,7 +696,7 @@
             return {
               results:  $.map(data, function (item) {
                     return {
-                        text: item.RM_TwoCharacterCode + " - "+ item.RM_AirlineName1,
+                        text: item.RM_TwoCharacterCode + " - "+ item.RM_AirlineName1.toUpperCase(),
                         id: item.RM_TwoCharacterCode,
                         name: item.RM_AirlineName1
                     }
@@ -744,7 +737,7 @@
       $(document).on('change', '.select2airline', function(){
         var name = $(this).find(':selected').attr('data-name');
 
-        $('#NM_SARANA_ANGKUT').val(name);
+        $('#NM_SARANA_ANGKUT').val(name.toUpperCase());
       });
       $(document).on('input paste', '#arrivals', function(){
         var tgl = $(this).val().split(' ');

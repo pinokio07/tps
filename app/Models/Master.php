@@ -25,6 +25,11 @@ class Master extends Model
       return ($this->MAWBDate) ? Carbon::parse($this->MAWBDate)->format('d-m-Y') : '';
     }
 
+    public function branch()
+    {
+      return $this->belongsTo(GlbBranch::class, 'mBRANCH');
+    }
+
     public function customs()
     {
       return $this->belongsTo(RefCustomsOffice::class, 'KPBC', 'Kdkpbc');
@@ -48,6 +53,16 @@ class Master extends Model
     public function warehouseLine1()
     {
       return $this->belongsTo(RefBondedWarehouse::class, 'OriginWarehouse', 'warehouse_code');
+    }
+
+    public function house()
+    {
+      return $this->hasMany(House::class, 'MasterID');
+    }
+
+    public function logs()
+    {
+      return $this->morphMany(TpsLog::class, 'logable');
     }
     
 }
