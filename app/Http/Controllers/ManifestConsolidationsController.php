@@ -85,7 +85,7 @@ class ManifestConsolidationsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**
@@ -121,7 +121,7 @@ class ManifestConsolidationsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      dd($request->all());
     }
 
     /**

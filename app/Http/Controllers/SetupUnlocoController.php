@@ -101,7 +101,7 @@ class SetupUnlocoController extends Controller
 
         if($request->has('q') && $request->q != ''){
             $search = $request->q;
-            $data = Unloco::select("RL_PK","RL_Code","RL_PortName", "RL_RN_NKCountryCode")
+            $data = RefUnloco::select("id","RL_Code","RL_PortName", "RL_RN_NKCountryCode")
                                 ->where('RL_Code','LIKE',"%$search%")
                                 ->orWhere('RL_PortName','LIKE',"%$search%")
                                 ->orWhere('RL_NameWithDiacriticals', 'LIKE',"%$search%")

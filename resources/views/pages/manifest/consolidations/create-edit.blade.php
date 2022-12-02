@@ -63,17 +63,95 @@
                   
                   <div class="row mt-2">
                     <!-- Organization Details Form -->
-                    <div class="col-md-8">
+                    <div class="col-12">
                       <div class="card card-primary card-outline">
                         <div class="card-header">
                           <h3 class="card-title">Details</h3>
                         </div>
-                        <form id="formDetails" class="form-horizontal">
+                        <form id="formDetails"
+                              @if($item->id)
+                              action="{{ route('manifest.consolidations.update', ['consolidation' => $item->id]) }}"
+                              @else
+                              action="{{ route('manifest.consolidations.store') }}" 
+                              @endif
+                              method="POST"
+                              class="form-horizontal needs-validation"
+                              autocomplete="off"
+                              novalidate>
+
+                          @csrf
+
+                          @if($item->id)
+                            @method('PUT')
+                          @endif
+
                           <div class="card-body">
                             <div class="form-group row">
+                              <!-- KPBC -->
+                              <label for="KPBC" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     KPBC <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-3">
+                                <select name="KPBC" 
+                                        id="KPBC" 
+                                        style="width: 100%;"
+                                        class="select2kpbc"
+                                        required>
+                                  @if($item->KPBC)
+                                  <option value="{{ $item->KPBC }}"
+                                          selected>
+                                    {{ $item->KPBC }} - {{ $item->customs->UrKdkpbc }}
+                                  </option>
+                                  @endif
+                                </select>
+                                <!-- NM_SARANA_ANGKUT -->
+                                <input type="hidden" 
+                                       name="NM_SARANA_ANGKUT"
+                                       id="NM_SARANA_ANGKUT"
+                                       value="{{ old('NM_SARANA_ANGKUT') 
+                                                 ?? $item->NM_SARANA_ANGKUT
+                                                 ?? '' }}">
+                              </div>
+                              <!-- KPBC -->
+                              <label for="NM_PEMBERITAHU" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Company <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-3">
+                                <select name="NM_PEMBERITAHU" 
+                                        id="NM_PEMBERITAHU" 
+                                        style="width: 100%;"
+                                        class="select2bs4"
+                                        required>
+                                 @forelse (auth()->user()->branches as $branch)
+                                    <option value="{{ $branch->company->GC_Name }}"
+                                        @selected($item->NM_PEMBERITAHU == $branch->company->GC_Name)
+                                        data-npwp="{{ $branch->company->GC_TaxID }}">
+                                      {{ $branch->company->GC_Name }}
+                                    </option>
+                                 @empty
+                                   
+                                 @endforelse
+                                </select>
+                              </div>
+                              <!-- NPWP -->
+                              <label for="NPWP" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     NPWP <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-3">
+                                <input type="text" 
+                                       name="NPWP" 
+                                       id="NPWP" 
+                                       class="form-control form-control-sm"
+                                       placeholder="NPWP"
+                                       readonly>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <!-- AirlineCode -->
                               <label for="AirlineCode" 
-                                     class="col-sm-2 col-form-label">Airline</label>
-                              <div class="col-sm-6">
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Airline <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-4">
                                 <select name="AirlineCode" 
                                         id="AirlineCode" 
                                         style="width: 100%;"
@@ -87,6 +165,7 @@
                                   </option>
                                   @endif
                                 </select>
+                                <!-- NM_SARANA_ANGKUT -->
                                 <input type="hidden" 
                                        name="NM_SARANA_ANGKUT"
                                        id="NM_SARANA_ANGKUT"
@@ -94,10 +173,10 @@
                                                  ?? $item->NM_SARANA_ANGKUT
                                                  ?? '' }}">
                               </div>
-                              <div class="col-sm-2 text-right">
-                                <label for="FlightNo">Flight Number</label>
-                              </div>
-                              <div class="col-sm-2">
+                              <!-- FlightNo -->
+                              <label class="col-sm-3 col-lg-1" for="FlightNo">
+                                Flight No <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-2">
                                 <input type="text" 
                                        name="FlightNo" 
                                        id="FlightNo"
@@ -105,9 +184,367 @@
                                        placeholder="Flight No"
                                        value="{{ old('FlightNo')
                                                   ?? $item->FlightNo
-                                                  ?? '' }}">
+                                                  ?? '' }}"
+                                       required>
                               </div>
-                            </div>            
+                              <!-- Arrivals -->
+                              <label class="col-sm-3 col-lg-1" for="arrivals">
+                                Arrivals <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-2 mt-1 mt-md-0">
+                                <div class="input-group input-group-sm date" 
+                                     id="datetimepicker1" 
+                                     data-target-input="nearest">
+                                  <input type="text" 
+                                         id="arrivals"
+                                         name="arrivals"
+                                         class="form-control datetimepicker-input" 
+                                         placeholder="Arrival Date"
+                                         data-target="#datetimepicker1"
+                                         required
+                                         value="{{ old('arrivals')
+                                                   ?? $item->arrivals
+                                                   ?? '' }}">
+                                  <div class="input-group-append arrivals" 
+                                       data-target="#datetimepicker1" 
+                                       data-toggle="datetimepicker">
+                                    <div class="input-group-text">
+                                      <i class="fa fa-calendar"></i>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- ArrivalDate -->
+                                <input type="hidden" 
+                                       name="ArrivalDate" 
+                                       id="ArrivalDate"
+                                       value="{{ old('ArrivalDate')
+                                                 ?? $item->ArrivalDate
+                                                 ?? '' }}">
+                                <!-- ArrivalTime -->
+                                <input type="hidden" 
+                                       name="ArrivalTime" 
+                                       id="ArrivalTime"
+                                       value="{{ old('ArrivalTime')
+                                                 ?? $item->ArrivalTime
+                                                 ?? '' }}">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <!-- Origin -->
+                              <label for="Origin" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Origin <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-3">
+                                <select name="Origin" 
+                                        id="Origin" 
+                                        style="width: 100%;"
+                                        class="select2unloco"
+                                        required>
+                                  @if($item->Origin)
+                                  <option value="{{ $item->Origin }}"
+                                          selected>
+                                    {{ $item->unlocoOrigin->RL_Code
+                                        . " - " 
+                                        . $item->unlocoOrigin->RL_PortName
+                                        . " ( "
+                                        . $item->unlocoOrigin->RL_RN_NKCountryCode
+                                        . " )" }}
+                                  </option>
+                                  @endif
+                                </select>                                
+                              </div>
+                              <!-- Transit -->
+                              <label for="Transit" 
+                                     class="col-sm-3 col-lg-1 col-form-label">Transit</label>
+                              <div class="col-9 col-lg-3">
+                                <select name="Transit" 
+                                        id="Transit" 
+                                        style="width: 100%;"
+                                        class="select2unloco">
+                                  @if($item->Transit)
+                                  <option value="{{ $item->Transit }}"
+                                          selected>
+                                    {{ $item->unlocoTransit->RL_Code
+                                        . " - " 
+                                        . $item->unlocoTransit->RL_PortName
+                                        . " ( "
+                                        . $item->unlocoTransit->RL_RN_NKCountryCode
+                                        . " )" }}
+                                  </option>
+                                  @endif
+                                </select>                                
+                              </div>
+                              <!-- Destination -->
+                              <label for="Destination" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Destination <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-3">
+                                <select name="Destination" 
+                                        id="Destination" 
+                                        style="width: 100%;"
+                                        class="select2unloco"
+                                        required>
+                                  @if($item->Destination)
+                                  <option value="{{ $item->Destination }}"
+                                          selected>
+                                    {{ $item->unlocoDestination->RL_Code
+                                        . " - " 
+                                        . $item->unlocoDestination->RL_PortName
+                                        . " ( "
+                                        . $item->unlocoDestination->RL_RN_NKCountryCode
+                                        . " )" }}
+                                  </option>
+                                  @endif
+                                </select>                                
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <!-- ShipmentNumber -->
+                              <label for="ShipmentNumber" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Shipment No</label>
+                              <div class="col-9 col-lg-3">
+                                <input type="text" 
+                                       name="ShipmentNumber" 
+                                       id="ShipmentNumber" 
+                                       class="form-control form-control-sm"
+                                       placeholder="Shipment Number"
+                                       value="{{ old('ShipmentNumber')
+                                                 ?? $item->ShipmentNumber
+                                                 ?? ''}}">
+                              </div>
+                              <!-- MAWBNumber -->
+                              <label for="MAWBNumber" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     MAWB No <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-2">
+                                <input type="text" 
+                                       name="MAWBNumber" 
+                                       id="MAWBNumber" 
+                                       class="form-control form-control-sm mawb-mask"
+                                       placeholder="MAWB Number"
+                                       required
+                                       value="{{ old('MAWBNumber')
+                                                 ?? $item->MAWBNumber
+                                                 ?? ''}}">
+                              </div>
+                              <!-- MAWBDate -->
+                              <label for="MAWBDate" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     MAWB Date <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-2">
+                                <div class="input-group input-group-sm date onlydate" 
+                                     id="datetimepicker2" 
+                                     data-target-input="nearest">
+                                  <input type="text" 
+                                         id="tglmawb"
+                                         name="tglmawb"
+                                         class="form-control datetimepicker-input tanggal"
+                                         placeholder="MAWB Date"
+                                         data-target="#datetimepicker2"
+                                         data-focus="tglmawb"
+                                         required
+                                         value="{{ old('tglmawb')
+                                                   ?? $item->date_mawb
+                                                   ?? '' }}">
+                                  <div class="input-group-append tglmawb" 
+                                       data-target="#datetimepicker2" 
+                                       data-toggle="datetimepicker">
+                                    <div class="input-group-text">
+                                      <i class="fa fa-calendar"></i>
+                                    </div>
+                                  </div>
+                                </div>
+                                <input type="hidden" 
+                                       name="MAWBDate" 
+                                       id="MAWBDate" 
+                                       class="form-control form-control-sm"
+                                       placeholder="MAWB Date"
+                                       value="{{ old('MAWBDate')
+                                                 ?? $item->MAWBDate
+                                                 ?? ''}}">
+                              </div>
+                              <!-- HAWBCount -->
+                              <label for="HAWBCount" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     HAWB Count <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-1">
+                                <input type="text" 
+                                       name="HAWBCount" 
+                                       id="HAWBCount" 
+                                       class="form-control form-control-sm"
+                                       placeholder="HAWB Count"
+                                       required
+                                       value="{{ old('HAWBCount')
+                                                 ?? $item->HAWBCount
+                                                 ?? ''}}">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <!-- mNoOfPackages -->
+                              <label for="mNoOfPackages" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Total Collie</label>
+                              <div class="col-9 col-lg-2">
+                                <input type="text" 
+                                       name="mNoOfPackages" 
+                                       id="mNoOfPackages" 
+                                       class="form-control form-control-sm"
+                                       placeholder="Total Collie"
+                                       value="{{ old('mNoOfPackages')
+                                                 ?? $item->mNoOfPackages
+                                                 ?? 0}}">
+                              </div>
+                              <!-- mGrossWeight -->
+                              <label for="mGrossWeight" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     GW</label>
+                              <div class="col-9 col-lg-2">
+                                <input type="text" 
+                                       name="mGrossWeight" 
+                                       id="mGrossWeight" 
+                                       class="form-control form-control-sm"
+                                       placeholder="Gross Weight"
+                                       value="{{ old('mGrossWeight')
+                                                 ?? $item->mGrossWeight
+                                                 ?? 0}}">
+                              </div>
+                              <!-- mChargeableWeight -->
+                              <label for="mChargeableWeight" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     CW</label>
+                              <div class="col-9 col-lg-2">
+                                <input type="text" 
+                                       name="mChargeableWeight" 
+                                       id="mChargeableWeight" 
+                                       class="form-control form-control-sm"
+                                       placeholder="Chargable Weight"
+                                       value="{{ old('mChargeableWeight')
+                                                 ?? $item->mChargeableWeight
+                                                 ?? 0}}">
+                              </div>
+                              <!-- Partial -->
+                              <label for="Partial" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Partial</label>
+                              <div class="col-9 col-lg-2">
+                                <select name="Partial" 
+                                        id="Partial" 
+                                        class="custom-select custom-select-sm">
+                                  <option value="0" 
+                                    @selected($item->Partial == false)>No</option>
+                                  <option value="1" 
+                                    @selected($item->Partial == true)>Yes</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <!-- BC 1.1 -->
+                              <label for="PUNumber" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     BC 1.1</label>
+                              <div class="col-9 col-lg-3">
+                                <input type="text" 
+                                       name="PUNumber" 
+                                       id="PUNumber" 
+                                       class="form-control form-control-sm"
+                                       placeholder="BC 1.1 Number"
+                                       value="{{ old('PUNumber')
+                                                 ?? $item->PUNumber
+                                                 ?? ''}}">
+                              </div>
+                              <!-- POS BC 1.1 -->
+                              <label for="POSNumber" 
+                                      class="col-sm-3 col-lg-1 col-form-label">
+                                      POS BC 1.1</label>
+                              <div class="col-9 col-lg-3">
+                                <input type="text" 
+                                      name="POSNumber" 
+                                      id="POSNumber" 
+                                      class="form-control form-control-sm"
+                                      placeholder="POS BC 1.1"
+                                      value="{{ old('POSNumber')
+                                                ?? $item->POSNumber
+                                                ?? ''}}">
+                              </div>
+                              <!-- BC 1.1 Date -->
+                              <label for="tglbc" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     MAWB Date <span class="text-danger">*</span></label>
+                              <div class="col-9 col-lg-2">
+                                <div class="input-group input-group-sm date onlydate" 
+                                     id="datetimepicker3" 
+                                     data-target-input="nearest">
+                                  <input type="text" 
+                                         id="tglbc"
+                                         name="tglbc"
+                                         class="form-control datetimepicker-input tanggal"
+                                         placeholder="BC 1.1 Date"
+                                         data-target="#datetimepicker3"
+                                         data-focus="tglbc"
+                                         required
+                                         value="{{ old('tglmawb')
+                                                   ?? $item->date_mawb
+                                                   ?? '' }}">
+                                  <div class="input-group-append tglbc" 
+                                       data-target="#datetimepicker3" 
+                                       data-toggle="datetimepicker">
+                                    <div class="input-group-text">
+                                      <i class="fa fa-calendar"></i>
+                                    </div>
+                                  </div>
+                                </div>
+                                <input type="hidden" 
+                                       name="PUDate" 
+                                       id="PUDate" 
+                                       class="form-control form-control-sm"
+                                       value="{{ old('PUDate')
+                                                 ?? $item->PUDate
+                                                 ?? ''}}">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <!-- OriginWarehouse -->
+                              <label for="OriginWarehouse" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Line 1 Warehouse </label>
+                              <div class="col-9 col-lg-3">
+                                <select name="OriginWarehouse" 
+                                        id="OriginWarehouse" 
+                                        style="width: 100%;">
+                                  @if($item->OriginWarehouse)
+                                    <option value="{{ $item->OriginWarehouse }}" selected>
+                                    {{ $item->OriginWarehouse }} - {{ $item->warehouseLine1->company_name }}
+                                    </option>
+                                  @endif
+                                </select>
+                              </div>
+                              <!-- Tanggal Masuk Gudang -->
+                              <label for="OriginWarehouse" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     Tgl Masuk Gudang </label>
+                              <div class="col-9 col-lg-3">
+                                <input type="text" 
+                                       name="MasukGudang" 
+                                       id="MasukGudang" 
+                                       class="form-control form-control-sm"
+                                       readonly>
+                              </div>
+                              <!-- No Segel PLP BC -->
+                              <label for="NO_SEGEL" 
+                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     No Segel PLP BC </label>
+                              <div class="col-9 col-lg-3">
+                                <input type="text" 
+                                       name="NO_SEGEL" 
+                                       id="NO_SEGEL" 
+                                       class="form-control form-control-sm"
+                                       placeholder="No Segel PLP Bea Cukai"
+                                       value="{{ old('NO_SEGEL')
+                                                 ?? $item->NO_SEGEL
+                                                 ?? '' }}"
+                                       required>
+                              </div>
+                            </div>
                           </div>
                           <!-- /.card-body -->
                         </form>
@@ -175,14 +612,68 @@
 
 @section('footer')
   <script>   
+    $(function () {
+        $('#datetimepicker1').datetimepicker({
+          icons: { time: 'far fa-clock' },
+          format: 'DD-MM-YYYY HH:mm:ss'
+        });
+
+        $('.onlydate').datetimepicker({
+          icons: { time: 'far fa-clock' },
+          format: 'DD-MM-YYYY'
+        });
+
+        $("#arrivals").focus(function () {
+            $('.arrivals').trigger("click");
+        });
+
+        $(".tanggal").focus(function () {
+          var focus = $(this).attr('data-focus');
+          $('.'+focus).trigger("click");
+          console.log(focus);
+        });
+
+        $('#MAWBNumber').inputmask({
+          mask: "999 9999 9999",
+          removeMaskOnSubmit: true
+        });
+    });
     function showTab(){
       if(window.location.hash){
         $('a[href="' + window.location.hash + '"]').trigger('click');
       }      
     }
+    function findNpwp() {
+      var npwp = $('#NM_PEMBERITAHU').find(':selected').attr('data-npwp');
+
+      $('#NPWP').val(npwp);
+    }
     jQuery(document).ready(function(){ 
-      $('.unloco').select2({
+      findNpwp();
+
+      $('.select2kpbc').select2({
         placeholder: 'Select...',
+        allowClear: true,
+        ajax: {
+          url: "{{ route('select2.setup.customs-offices') }}",
+          dataType: 'json',
+          delay: 250,
+          processResults: function (data) {
+            return {
+              results:  $.map(data, function (item) {
+                    return {
+                        text: item.Kdkpbc + " - "+ item.UrKdkpbc,
+                        id: item.Kdkpbc,
+                    }
+                })
+            };
+          },
+          cache: true
+        }
+      });
+      $('.select2unloco').select2({
+        placeholder: 'Select...',
+        allowClear: true,
         ajax: {
           url: "{{ route('select2.setup.unloco') }}",
           dataType: 'json',
@@ -213,8 +704,32 @@
               results:  $.map(data, function (item) {
                     return {
                         text: item.RM_TwoCharacterCode + " - "+ item.RM_AirlineName1,
-                        id: item.id,
+                        id: item.RM_TwoCharacterCode,
                         name: item.RM_AirlineName1
+                    }
+                })
+            };
+          },
+          cache: true
+        },
+        templateSelection: function(container) {
+            $(container.element).attr("data-name", container.name);
+            return container.text;
+        }
+      });
+      $('#OriginWarehouse').select2({
+        placeholder: 'Select...',
+        allowClear: true,
+        ajax: {
+          url: "{{ route('select2.setup.bonded-warehouses') }}",
+          dataType: 'json',
+          delay: 250,
+          processResults: function (data) {
+            return {
+              results:  $.map(data, function (item) {
+                    return {
+                        text: item.warehouse_code + " - "+ item.company_name,
+                        id: item.warehouse_code
                     }
                 })
             };
@@ -230,6 +745,22 @@
         var name = $(this).find(':selected').attr('data-name');
 
         $('#NM_SARANA_ANGKUT').val(name);
+      });
+      $(document).on('input paste', '#arrivals', function(){
+        var tgl = $(this).val().split(' ');
+
+        $('#ArrivalDate').val(moment(tgl[0], 'DD-MM-YYYY').format('YYYY-MM-DD'));
+        $('#ArrivalTime').val(tgl[1]);
+      });
+      $(document).on('input paste', '#tglmawb', function(){
+        var tgl = $(this).val();
+
+        $('#MAWBDate').val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
+      });
+      $(document).on('input paste', '#tglbc', function(){
+        var tgl = $(this).val();
+
+        $('#PUDate').val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
       });
       showTab();
       console.log(window.location.hash);
