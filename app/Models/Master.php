@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 
 class Master extends Model
 {
@@ -14,6 +15,11 @@ class Master extends Model
     protected $table = 'tps_master';
     protected $guarded = ['id'];
     // protected $cast = ['arrivals'];
+
+    public function resolveRouteBinding($encryptedId, $field = null)
+    {
+        return $this->where('id', Crypt::decrypt ($encryptedId))->firstOrFail();
+    }
 
     public function getArrivalsAttribute($value)
     {

@@ -77,7 +77,7 @@
                         </div> --}}
                         <form id="formDetails"
                               @if($item->id)
-                              action="{{ route('manifest.consolidations.update', ['consolidation' => $item->id]) }}"
+                              action="{{ route('manifest.consolidations.update', ['consolidation' => \Crypt::encrypt($item->id)]) }}"
                               @else
                               action="{{ route('manifest.consolidations.store') }}" 
                               @endif

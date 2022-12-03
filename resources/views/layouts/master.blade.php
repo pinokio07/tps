@@ -236,7 +236,7 @@
               <?php $link = "" ?>
               @for($i = 1; $i <= count(Request::segments()); $i++)
                 @php
-                  if(is_numeric(Request::segment($i))){
+                  if(strlen(Request::segment($i)) > 20){
                     $linkText = "Item";
                   } else {
                     $linkText = Request::segment($i);

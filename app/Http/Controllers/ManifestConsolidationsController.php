@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use App\Models\Master;
 use App\Models\House;
@@ -25,7 +26,7 @@ class ManifestConsolidationsController extends Controller
           return DataTables::eloquent($query)
                            ->addIndexColumn()
                            ->editColumn('AirlineCode', function($row){
-                            $url = url()->current().'/'.$row->id.'/edit#tab-summary-content';
+                            $url = url()->current().'/'.Crypt::encrypt($row->id).'/edit#tab-summary-content';
 
                             $show = '<a href="'.$url.'">'.$row->AirlineCode.'</a>';
 
@@ -113,7 +114,7 @@ class ManifestConsolidationsController extends Controller
 
             DB::commit();
 
-            return redirect('/manifest/consolidations/'.$master->id.'/edit')->with('sukses', 'Create Consolidation success.');
+            return redirect('/manifest/consolidations/'.Crypt::encrypt($master->id).'/edit')->with('sukses', 'Create Consolidation success.');
 
           } catch (\Throwable $th) {
             DB::rollback();
@@ -181,7 +182,7 @@ class ManifestConsolidationsController extends Controller
 
             DB::commit();
 
-            return redirect('/manifest/consolidations/'.$consolidation->id.'/edit')->with('sukses', 'Update Consolidation success.');
+            return redirect('/manifest/consolidations/'.Crypt::encrypt($consolidation->id).'/edit')->with('sukses', 'Update Consolidation success.');
 
           } catch (\Throwable $th) {
             DB::rollback();
