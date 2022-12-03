@@ -469,7 +469,7 @@
                               <!-- BC 1.1 Date -->
                               <label for="tglbc" 
                                      class="col-sm-3 col-lg-1 col-form-label">
-                                     MAWB Date <span class="text-danger">*</span></label>
+                                     BC 1.1 Date</label>
                               <div class="col-9 col-lg-2">
                                 <div class="input-group input-group-sm date onlydate" 
                                      id="datetimepicker3" 
@@ -481,7 +481,6 @@
                                          placeholder="BC 1.1 Date"
                                          data-target="#datetimepicker3"
                                          data-focus="tglbc"
-                                         required
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
                                                    ?? '' }}">
@@ -786,7 +785,56 @@
 
         $('#PUDate').val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
       });
-            
+      $(document).on('click', '.edit', function(){
+        var target = $(this).attr('data-target');
+        var id = $(this).attr('data-id');
+
+        $('#collapseHSCodes').removeClass('show');        
+
+        $.ajax({
+          url:"/manifest/houses/"+id,
+          type: "GET",
+          success:function(msg){
+
+            $('#detailHouse').html(msg.NO_BARANG);
+
+            if(!$('#'+target).hasClass('show')){
+              $('#'+target).addClass('show');
+            }
+            console.log(msg);
+          }
+        });
+
+        $('#formHouse').attr('action', '/manifest/houses/'+id+'/update');
+
+      });
+      $(document).on('click', '.codes', function(){
+        var target = $(this).attr('data-target');
+        var id = $(this).attr('data-id');
+
+        $('#collapseHouse').removeClass('show');        
+
+        $.ajax({
+          url:"/manifest/houses/"+id,
+          type: "GET",
+          success:function(msg){
+
+            $('#detailCodes').html(msg.NO_BARANG);
+
+            if(!$('#'+target).hasClass('show')){
+              $('#'+target).addClass('show');
+            }
+            console.log(msg);
+          }
+        });
+
+      });
+      $(document).on('click', '#hideHouse', function(){
+        $('#collapseHouse').removeClass('show');
+      });
+      $(document).on('click', '#hideHSCodes', function(){
+        $('#collapseHSCodes').removeClass('show');
+      });
     });
   </script>
 @endsection

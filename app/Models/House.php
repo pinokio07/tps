@@ -15,7 +15,12 @@ class House extends Model
     public function master()
     {
       return $this->belongsTo(Master::class, 'MasterID');
-    }    
+    }
+    
+    public function details()
+    {
+      return $this->hasMany(HouseDetail::class, 'HouseID');
+    }
 
     public function logs()
     {

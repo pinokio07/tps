@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Master;
+use App\Models\House;
 use DataTables;
 use Auth;
 use DB;
@@ -102,10 +103,13 @@ class ManifestConsolidationsController extends Controller
 
             DB::commit();
 
-            $master->logs()->create([
-              'user_id' => Auth::id(),
-              'keterangan' => 'Create Consolidations',
-            ]);
+            createLog('App\Models\Master', $master->id, 'Create Condolidation');
+
+            DB::commit();
+
+            if($master->HAWBCount > 0){
+              $this->createHouse($master, $master->HAWBCount);
+            }
 
             DB::commit();
 
@@ -167,10 +171,13 @@ class ManifestConsolidationsController extends Controller
 
             DB::commit();
 
-            $consolidation->logs()->create([
-              'user_id' => Auth::id(),
-              'keterangan' => 'Update Consolidations',
-            ]);
+            if($consolidation->HAWBCount > $consolidation->houses->count() ){
+              $count = $consolidation->HAWBCount - $consolidation->houses->count();
+
+              $this->createHouse($consolidation, $count);
+            }
+
+            createLog('App\Models\Master', $consolidation->id, 'Update Condolidation');
 
             DB::commit();
 
@@ -192,6 +199,50 @@ class ManifestConsolidationsController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function createHouse(Master $master, $count)
+    {
+      for ($i=1; $i <= $count ; $i++) { 
+
+        try {
+
+          $house = House::create([
+            'MasterID' => $master->id,
+            'KD_KANTOR' => $master->KPBC,
+            'NM_PENGANGKUT' => $master->NM_SARANA_ANGKUT,
+            'NO_FLIGHT' => $master->FlightNo,
+            'KD_PEL_MUAT' => $master->Origin,
+            'KD_PEL_BONGKAR' => $master->Destination,
+            'KD_GUDANG' => $master->OriginWarehouse,
+            'KD_NEGARA_ASAL' => $master->unlocoOrigin->RL_RN_NKCountryCode,
+            'JML_BRG' => $master->mNoOfPackages,
+            'NO_BC11' => $master->PUNumber,
+            'TGL_BC11' => $master->PUDate,
+            'NO_POS_BC11' => $master->POSNumber,
+            'NO_SUBPOS_BC11' => str_pad($i, 3, 0, STR_PAD_LEFT),
+            'NO_SUBSUBPOS_BC11' => 0000,
+            'NO_MASTER_BLAWB' => $master->MAWBNumber,
+            'TGL_MASTER_BLAWB' => $master->MAWBDate,
+            'KD_NEG_PENGIRIM' => $master->unlocoOrigin->RL_RN_NKCountryCode,
+            'NM_PEMBERITAHU' => $master->NM_PEMBERITAHU,
+            'TGL_TIBA' => $master->ArrivalDate,
+            'JAM_TIBA' => $master->ArrivalTime,
+            'KD_PEL_TRANSIT' => $master->Transit,
+            'KD_PEL_AKHIR' => $master->Destination
+          ]);
+  
+          DB::commit();
+  
+          createLog('App\Models\House', $house->id, 'Create House');
+  
+          DB::commit();
+
+        } catch (\Throwable $th) {
+          throw $th;
+        }
+        
+      }
     }
 
     public function validatedData()
@@ -218,7 +269,7 @@ class ManifestConsolidationsController extends Controller
         'Partial' => 'nullable',
         'PUNumber' => 'nullable',
         'POSNumber' => 'nullable',
-        'PUDate' => 'required|date',
+        'PUDate' => 'nullable|date',
         'OriginWarehouse' => 'nullable',
         'MasukGudang' => 'exclude',
         'NO_SEGEL' => 'required',

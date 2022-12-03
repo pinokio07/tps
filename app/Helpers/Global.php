@@ -65,3 +65,13 @@ function getRestrictedExt()
   ];
   return $data;
 }
+
+function createLog($model, $id, $status)
+{
+  \App\Models\TpsLog::create([
+    'logable_type' => $model,
+    'logable_id' => $id,
+    'user_id' => \Auth::id(),
+    'keterangan' => $status
+  ]);
+}
