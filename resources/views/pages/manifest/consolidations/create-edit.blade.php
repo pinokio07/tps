@@ -530,9 +530,9 @@
                               </div>
                               <!-- No Segel PLP BC -->
                               <label for="NO_SEGEL" 
-                                     class="col-sm-3 col-lg-1 col-form-label">
+                                     class="col-sm-3 col-lg-2 col-form-label">
                                      No Segel PLP BC <span class="text-danger">*</span></label>
-                              <div class="col-9 col-lg-3">
+                              <div class="col-9 col-lg-2">
                                 <input type="text" 
                                        name="NO_SEGEL" 
                                        id="NO_SEGEL" 
