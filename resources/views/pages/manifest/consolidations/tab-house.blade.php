@@ -38,7 +38,7 @@
               <td>{{ $house->TPS_GateOutDateTime ?? "-" }}</td>
               <td>#{{ $house->BC_CODE ?? "-" }}</td>
               <td>{{ $house->BC_STATUS ?? "-" }}</td>
-              <td>                
+              <td class="text-nowrap">                
                 <button class="btn btn-xs btn-warning elevation-2 edit"
                         data-toggle="tooltip"
                         data-target="collapseHouse"
@@ -52,6 +52,13 @@
                         title="HS Codes"
                         data-id="{{ $house->id }}">
                   <i class="fas fa-clipboard-list"></i>
+                </button>
+                <button class="btn btn-xs btn-success elevation-2 response"
+                        data-toggle="tooltip"
+                        data-target="collapseResponse"
+                        title="Response"
+                        data-id="{{ $house->id }}">
+                  <i class="fas fa-sync"></i>
                 </button>
                 <button class="btn btn-xs btn-danger elevation-2 delete"
                         data-href="{{ route('manifest.houses.destroy', ['house' => $house->id]) }}">
@@ -134,6 +141,23 @@
       </div>      
       <div class="card-body">
         ITEMS
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-12">
+  <div id="collapseResponse" class="collapse">
+    <div class="card card-primary card-outline">
+      <div class="card-header">
+        <h3 class="card-title">Responses <span id="detailResponse"></span></h3>
+        <div class="card-tools">
+          <button id="hideResponse" type="button" class="btn btn-tool">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>      
+      <div class="card-body">
+        RESPONSES
       </div>
     </div>
   </div>

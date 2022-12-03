@@ -789,7 +789,8 @@
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
 
-        $('#collapseHSCodes').removeClass('show');        
+        $('#collapseHSCodes').removeClass('show');
+        $('#collapseResponse').removeClass('show');
 
         $.ajax({
           url:"/manifest/houses/"+id,
@@ -812,7 +813,8 @@
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
 
-        $('#collapseHouse').removeClass('show');        
+        $('#collapseHouse').removeClass('show');
+        $('#collapseResponse').removeClass('show');
 
         $.ajax({
           url:"/manifest/houses/"+id,
@@ -829,11 +831,36 @@
         });
 
       });
+      $(document).on('click', '.response', function(){
+        var target = $(this).attr('data-target');
+        var id = $(this).attr('data-id');
+
+        $('#collapseHouse').removeClass('show');
+        $('#collapseHSCodes').removeClass('show');
+
+        $.ajax({
+          url:"/manifest/houses/"+id,
+          type: "GET",
+          success:function(msg){
+
+            $('#detailResponse').html(msg.NO_BARANG);
+
+            if(!$('#'+target).hasClass('show')){
+              $('#'+target).addClass('show');
+            }
+            console.log(msg);
+          }
+        });
+
+      });
       $(document).on('click', '#hideHouse', function(){
         $('#collapseHouse').removeClass('show');
       });
       $(document).on('click', '#hideHSCodes', function(){
         $('#collapseHSCodes').removeClass('show');
+      });
+      $(document).on('click', '#hideResponse', function(){
+        $('#collapseResponse').removeClass('show');
       });
     });
   </script>
