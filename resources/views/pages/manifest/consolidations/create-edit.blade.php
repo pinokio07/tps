@@ -890,8 +890,8 @@
               $('#'+target).addClass('show');
             }            
 
-            $('#JNS_AJU').val(msg.JNS_AJU).trigger('change');
-            $('#KD_JNS_PIBK').val(msg.KD_JNS_PIBK).trigger('change');
+            $('#JNS_AJU').val((msg.JNS_AJU ?? 4)).trigger('change');
+            $('#KD_JNS_PIBK').val((msg.KD_JNS_PIBK ?? 6)).trigger('change');
             $('#SPPBNumber').val(msg.SPPBNumber).trigger('change');
 
             if(msg.SPPBDate){
