@@ -173,9 +173,10 @@ class ManifestConsolidationsController extends Controller
             DB::commit();
 
             if($consolidation->HAWBCount > $consolidation->houses->count() ){
-              $count = $consolidation->HAWBCount - $consolidation->houses->count();
+              $count = $consolidation->houses->count();
+              $diff = $consolidation->HAWBCount - $consolidation->houses->count();
 
-              $this->createHouse($consolidation, $count);
+              $this->createHouse($consolidation, $diff, $count);
             }
 
             createLog('App\Models\Master', $consolidation->id, 'Update Condolidation');
@@ -202,9 +203,9 @@ class ManifestConsolidationsController extends Controller
         //
     }
 
-    public function createHouse(Master $master, $count)
+    public function createHouse(Master $master, $diff, $count = 0)
     {
-      for ($i=1; $i <= $count ; $i++) { 
+      for ($i=1; $i <= $diff ; $i++) { 
 
         try {
 
@@ -221,7 +222,7 @@ class ManifestConsolidationsController extends Controller
             'NO_BC11' => $master->PUNumber,
             'TGL_BC11' => $master->PUDate,
             'NO_POS_BC11' => $master->POSNumber,
-            'NO_SUBPOS_BC11' => str_pad($i, 3, 0, STR_PAD_LEFT),
+            'NO_SUBPOS_BC11' => str_pad(($i + $count), 3, 0, STR_PAD_LEFT),
             'NO_SUBSUBPOS_BC11' => 0000,
             'NO_MASTER_BLAWB' => $master->MAWBNumber,
             'TGL_MASTER_BLAWB' => $master->MAWBDate,
@@ -230,7 +231,9 @@ class ManifestConsolidationsController extends Controller
             'TGL_TIBA' => $master->ArrivalDate,
             'JAM_TIBA' => $master->ArrivalTime,
             'KD_PEL_TRANSIT' => $master->Transit,
-            'KD_PEL_AKHIR' => $master->Destination
+            'KD_PEL_AKHIR' => $master->Destination,
+            'BRANCH' => $master->mBRANCH,
+            'PART_SHIPMENT' => $master->Partial,
           ]);
   
           DB::commit();

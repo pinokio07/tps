@@ -342,6 +342,7 @@
                                          placeholder="MAWB Date"
                                          data-target="#datetimepicker2"
                                          data-focus="tglmawb"
+                                         data-ganti="MAWBDate"
                                          required
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
@@ -371,7 +372,7 @@
                                 <input type="text" 
                                        name="HAWBCount" 
                                        id="HAWBCount" 
-                                       class="form-control form-control-sm"
+                                       class="form-control form-control-sm numeric"
                                        placeholder="HAWB Count"
                                        required
                                        value="{{ old('HAWBCount')
@@ -388,7 +389,7 @@
                                 <input type="text" 
                                        name="mNoOfPackages" 
                                        id="mNoOfPackages" 
-                                       class="form-control form-control-sm"
+                                       class="form-control form-control-sm numeric"
                                        placeholder="Total Collie"
                                        value="{{ old('mNoOfPackages')
                                                  ?? $item->mNoOfPackages
@@ -481,6 +482,7 @@
                                          placeholder="BC 1.1 Date"
                                          data-target="#datetimepicker3"
                                          data-focus="tglbc"
+                                         data-ganti="PUDate"
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
                                                    ?? '' }}">
@@ -633,7 +635,7 @@
           console.log(focus);
         });
 
-        $('#MAWBNumber').inputmask({
+        $('.mawb-mask').inputmask({
           mask: "999 9999 9999",
           removeMaskOnSubmit: true
         });
@@ -676,7 +678,7 @@
 
       $('.select2kpbc').select2({
         placeholder: 'Select...',
-        allowClear: true,
+        allowClear: true,        
         ajax: {
           url: "{{ route('select2.setup.customs-offices') }}",
           dataType: 'json',
@@ -764,10 +766,99 @@
             return container.text;
         }
       });
+      $('.select2organization').select2({
+        placeholder: 'Select...',
+        ajax: {
+          url: "{{ route('select2.setup.organization') }}",          
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+            var query = {
+              q: params.term,
+              type: $(this).attr('data-type'),
+              country: $(this).attr('data-country'),
+              address: 1
+            }
+
+            return query;
+          },
+          processResults: function (data) {
+            return {
+              results:  $.map(data, function (item) {
+                    return {
+                        text: (item.OH_LegacyCode ?? item.OH_Code)+" - "+item.OH_FullName + " || " + item.OA_Address1,
+                        id: item.OH_FullName,
+                        name: item.OH_FullName,
+                        address: item.OA_Address1,
+                        tax: item.OA_TaxID,
+                        phone: item.OA_Phone,
+                    }
+                })
+            };
+          },
+          cache: true
+        },
+        templateSelection: function(container) {
+            $(container.element).attr("data-address", container.address)
+                                .attr("data-tax", container.tax)
+                                .attr("data-phone", container.phone);
+            return container.text;
+        }
+      });
+      $('.select2country').select2({
+        placeholder: 'Select...',
+        ajax: {
+          url: "{{ route('select2.setup.countries') }}",
+          dataType: 'json',
+          delay: 250,
+          processResults: function (data) {
+            return {
+              results:  $.map(data, function (item) {
+                    return {
+                        text: item.RN_Code + " (" + item.RN_Desc + ")",
+                        id: item.RN_Code,
+                    }
+                })
+            };
+          },
+          cache: true
+        }
+      });
       $(document).on('change', '.select2airline', function(){
         var name = $(this).find(':selected').attr('data-name');
 
         $('#NM_SARANA_ANGKUT').val(name.toUpperCase());
+      });
+      $(document).on('change', '.select2organization', function(){
+        var target = $(this).attr('data-target');
+        var npwp = $(this).attr('data-npwp');
+        var phone = $(this).attr('data-phone');
+        var name = $(this).find(':selected').attr('data-address');
+        var idpenerima = $(this).find(':selected').attr('data-tax');
+        var phonepenerima = $(this).find(':selected').attr('data-phone');
+
+        $('#'+target).val(name.toUpperCase());
+        if(npwp != ''){
+          $('#'+npwp).val(idpenerima);
+        }
+        if(phone != ''){
+          $('#'+phone).val(phonepenerima);
+        }       
+
+        if(idpenerima != '' && idpenerima != undefined){          
+          var count = idpenerima.replace(/[^0-9]/g,'');
+          if(count.length > 12){
+            var value = 5;
+          } else if (count.lenght > 10){
+            var value = 0;
+          } else if(count.length == 10){
+            var value = 1;
+          } else {
+            var value = 4;
+          }
+          console.log(count.lenght);
+          $('#JNS_ID_PENERIMA').val(value).trigger('change');
+        }
       });
       $(document).on('input paste', '#arrivals', function(){
         var tgl = $(this).val().split(' ');
@@ -775,16 +866,12 @@
         $('#ArrivalDate').val(moment(tgl[0], 'DD-MM-YYYY').format('YYYY-MM-DD'));
         $('#ArrivalTime').val(tgl[1]);
       });
-      $(document).on('input paste', '#tglmawb', function(){
+      $(document).on('input paste', '.tanggal', function(){
         var tgl = $(this).val();
+        var ganti = $(this).attr('data-ganti');
 
-        $('#MAWBDate').val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
-      });
-      $(document).on('input paste', '#tglbc', function(){
-        var tgl = $(this).val();
-
-        $('#PUDate').val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
-      });
+        $('#'+ganti).val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
+      });      
       $(document).on('click', '.edit', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
@@ -801,7 +888,49 @@
 
             if(!$('#'+target).hasClass('show')){
               $('#'+target).addClass('show');
+            }            
+
+            $('#JNS_AJU').val(msg.JNS_AJU).trigger('change');
+            $('#KD_JNS_PIBK').val(msg.KD_JNS_PIBK).trigger('change');
+            $('#SPPBNumber').val(msg.SPPBNumber).trigger('change');
+
+            if(msg.SPPBDate){
+              var sppbDate = moment(msg.SPPBDate);
+
+              $('#tglsppb').val(sppbDate.format('DD/MM/YYYY')).trigger('change');
+              $('#SPPBDate').val(sppbDate.format('YYYY-MM-DD')).trigger('change');
+            } else {
+              $('#tglsppb').val('').trigger('change');
+              $('#SPPBDate').val('').trigger('change');
             }
+
+            $('#BCF15_Status').val((msg.BCF15_Status ?? 'N')).trigger('change');
+            $('#BCF15_Number').val(msg.BCF15_Number).trigger('change');
+
+            if(msg.BCF15_Date){
+              var bcfDate = moment(msg.BCF15_Date);
+
+              $('#tglbcf').val(bcfDate.format('DD/MM/YYYY')).trigger('change');
+              $('#BCF15_Date').val(bcfDate.format('YYYY-MM-DD')).trigger('change');
+            } else {
+              $('#tglbcf').val('').trigger('change');
+              $('#BCF15_Date').val('').trigger('change');
+            }
+
+            $('#TOTAL_PARTIAL').val(msg.TOTAL_PARTIAL).trigger('change');
+
+            $('#NO_HOUSE_BLAWB').val(msg.NO_HOUSE_BLAWB).trigger('change');
+
+            if(msg.TGL_HOUSE_BLAWB){
+              var houseDate = moment(msg.TGL_HOUSE_BLAWB);
+
+              $('#tglhouse').val(houseDate.format('DD/MM/YYYY')).trigger('change');
+              $('#TGL_HOUSE_BLAWB').val(houseDate.format('YYYY-MM-DD')).trigger('change');
+            } else {
+              $('#tglhouse').val('').trigger('change');
+              $('#TGL_HOUSE_BLAWB').val('').trigger('change');
+            }
+            
             console.log(msg);
           }
         });

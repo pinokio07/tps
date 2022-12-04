@@ -498,6 +498,9 @@
     $('.datepicker').inputmask('dd/mm/yyyy', { 
                                               'placeholder': 'dd/mm/yyyy', 
                                               removeMaskOnSubmit: true });
+    $('.numeric').inputmask('numeric', {
+      rightAlign: false,
+    });
     
     //Date range picker
     $('.daterange').daterangepicker({
