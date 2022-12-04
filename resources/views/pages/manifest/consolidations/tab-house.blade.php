@@ -612,7 +612,8 @@
                       <label for="AL_PENERIMA">Address</label>
                       <textarea name="AL_PENERIMA" 
                                 id="AL_PENERIMA"
-                                class="form-control form-control-sm" 
+                                class="form-control form-control-sm"
+                                placeholder="Alamat Penerima" 
                                 rows="3"></textarea>
                     </div>
                   </div>
@@ -623,7 +624,8 @@
                       <input type="text"
                              name="NO_ID_PENERIMA" 
                              id="NO_ID_PENERIMA"
-                             class="form-control form-control-sm">
+                             class="form-control form-control-sm"
+                             placeholder="ID Penerima">
                     </div>
                   </div>
                   <!-- Jenis ID -->
