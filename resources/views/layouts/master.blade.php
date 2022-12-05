@@ -470,9 +470,6 @@
     $('[data-toggle="tooltip"]').tooltip();
 
     //Initialize Select2 Elements
-    $('.select2').select2();
-
-    //Initialize Select2 Elements
     $('.select2bs4').select2({
       placeholder: 'Select...',
       theme: 'bootstrap4'
@@ -494,12 +491,52 @@
     //Input Mask
     $('[data-mask]').inputmask();
 
-    //Datemask dd/mm/yyyy
-    $('.datepicker').inputmask('dd/mm/yyyy', { 
-                                              'placeholder': 'dd/mm/yyyy', 
-                                              removeMaskOnSubmit: true });
+    $(".money").inputmask({
+      alias: "currency",
+      digits: 2,
+      groupSeparator: ',',
+      rightAlign: 1,
+      reverse: true,
+      autoUnmask: true,
+      removeMaskOnSubmit: true
+    });
+
     $('.numeric').inputmask('numeric', {
+      groupSeparator: ',',
       rightAlign: false,
+      allowMinus: false,
+      autoUnmask: true,
+      removeMaskOnSubmit: true
+    });
+    $('.desimal').inputmask('decimal', {
+      groupSeparator: ',',
+      digits: 2,
+      digitsOptional: false,
+      placeholder: "0",
+      allowMinus: false,
+      autoUnmask: true,
+      removeMaskOnSubmit: true
+    });
+    $('.threedigits').inputmask('decimal', {
+      groupSeparator: ',',
+      digits: 3,
+      digitsOptional: false,
+      placeholder: "0",
+      allowMinus: false,
+      autoUnmask: true,
+      removeMaskOnSubmit: true
+    });
+    $('.berat').inputmask({
+      alias: "decimal",
+      groupSeparator: ',',
+      rightAlign: false,
+      integerDigits: 5,
+      digits: 6,
+      digitsOptional: false,
+      placeholder: "0",
+      allowMinus: false,
+      autoUnmask: true,
+      removeMaskOnSubmit: true
     });
     
     //Date range picker

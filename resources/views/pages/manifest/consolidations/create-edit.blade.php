@@ -43,7 +43,7 @@
               <!-- Tab Lists -->
               <ul class="nav nav-tabs" id="custom-content-above-tab" role="tablist">
                 <li class="nav-item">
-                  <a class="nav-link active" id="main-data" data-toggle="pill" href="#main-data-content" role="tab" aria-controls="main-data-content" aria-selected="true">Main Data</a>
+                  <a class="nav-link" id="main-data" data-toggle="pill" href="#main-data-content" role="tab" aria-controls="main-data-content" aria-selected="true">Main Data</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="tab-houses" data-toggle="pill" href="#tab-houses-content" role="tab" aria-controls="tab-houses-content" aria-selected="false">Houses</a>
@@ -572,34 +572,40 @@
                 </div>
                 <div class="tab-pane fade" id="tab-houses-content" role="tabpanel" aria-labelledby="tab-houses">
                   <div class="row mt-2">
-                   @include('pages.manifest.consolidations.tab-house')               
+                   @include('pages.manifest.consolidations.tab-house')
                   </div>
                 </div>
+
                 <div class="tab-pane fade" id="tab-summary-content" role="tabpanel" aria-labelledby="tab-summary">
                   <div class="row mt-2">
-                   SUMMARY               
+                    @include('pages.manifest.consolidations.tab-summary') 
                   </div>
                 </div>
+
                 <div class="tab-pane fade" id="tab-document-content" role="tabpanel" aria-labelledby="tab-document">
                   <div class="row mt-2">
                    DOCUMENTS               
                   </div>
                 </div>
+
                 <div class="tab-pane fade" id="tab-kirim-data-content" role="tabpanel" aria-labelledby="tab-kirim-data">
                   <div class="row mt-2">
                    KIRIM DATA               
                   </div>
                 </div>
+
                 <div class="tab-pane fade" id="tab-partial-content" role="tabpanel" aria-labelledby="tab-partial">
                   <div class="row mt-2">
                    PARTIAL               
                   </div>
                 </div>
+
                 <div class="tab-pane fade" id="tab-estimasi-content" role="tabpanel" aria-labelledby="tab-estimasi">
                   <div class="row mt-2">
                    ESTIMASI               
                   </div>
                 </div>
+
               </div>
             </div>
         </div>
@@ -639,21 +645,16 @@
           mask: "999 9999 9999",
           removeMaskOnSubmit: true
         });
-
-        $('.berat').inputmask({
-          alias: "decimal",
-          rightAlign: false,
-          integerDigits: 5,
-          digits: 6,
-          digitsOptional: false,
-          placeholder: "0",
-          allowMinus: false
-        });
+        
     });
     function showTab(){
       if(window.location.hash){
-        $('a[href="' + window.location.hash + '"]').trigger('click');
-      }      
+        var tujuan = window.location.hash        
+      } else {
+        var tujuan = "#main-data-content";
+      }
+
+      $('a[href="' + tujuan + '"]').trigger('click');
     }
     function findNpwp() {
       var npwp = $('#mBRANCH').find(':selected').attr('data-npwp');
@@ -776,7 +777,7 @@
             var query = {
               q: params.term,
               type: $(this).attr('data-type'),
-              country: $(this).attr('data-country'),
+              // country: $(this).attr('data-country'),
               address: 1
             }
 
@@ -833,11 +834,13 @@
         var target = $(this).attr('data-target');
         var npwp = $(this).attr('data-npwp');
         var phone = $(this).attr('data-phone');
-        var name = $(this).find(':selected').attr('data-address');
+        var address = $(this).find(':selected').attr('data-address');
         var idpenerima = $(this).find(':selected').attr('data-tax');
         var phonepenerima = $(this).find(':selected').attr('data-phone');
 
-        $('#'+target).val(name.toUpperCase());
+        if(address != undefined){
+          $('#'+target).val(address.toUpperCase());
+        }        
         if(npwp != ''){
           $('#'+npwp).val(idpenerima);
         }
@@ -878,6 +881,7 @@
 
         $('#collapseHSCodes').removeClass('show');
         $('#collapseResponse').removeClass('show');
+        $('#'+target).removeClass('show');
 
         $.ajax({
           url:"/manifest/houses/"+id,
@@ -886,9 +890,11 @@
 
             $('#detailHouse').html(msg.NO_BARANG);
 
-            if(!$('#'+target).hasClass('show')){
-              $('#'+target).addClass('show');
-            }            
+            // if(!$('#'+target).hasClass('show')){
+            //   $('#'+target).addClass('show');
+            // }
+            
+            
 
             $('#JNS_AJU').val((msg.JNS_AJU ?? 4)).trigger('change');
             $('#KD_JNS_PIBK').val((msg.KD_JNS_PIBK ?? 6)).trigger('change');
@@ -903,6 +909,18 @@
               $('#tglsppb').val('').trigger('change');
               $('#SPPBDate').val('').trigger('change');
             }
+
+            if(msg.TGL_BC11){
+              var bcDate = moment(msg.bcDate);              
+              $('#TGL_BC11').val(bcDate.format('YYYY-MM-DD'));
+            } else {              
+              $('#TGL_BC11').val('').trigger('change');
+            }
+
+            $('#NO_BC11').val(msg.NO_BC11);
+            $('#NO_POS_BC11').val(msg.NO_POS_BC11);
+            $('#NO_SUBPOS_BC11').val(msg.NO_SUBPOS_BC11);
+            $('#NO_SUBSUBPOS_BC11').val(msg.NO_SUBSUBPOS_BC11);
 
             $('#BCF15_Status').val((msg.BCF15_Status ?? 'N')).trigger('change');
             $('#BCF15_Number').val(msg.BCF15_Number).trigger('change');
@@ -930,31 +948,79 @@
               $('#tglhouse').val('').trigger('change');
               $('#TGL_HOUSE_BLAWB').val('').trigger('change');
             }
+
+            if(msg.NM_PENGIRIM){
+              var optPengirim = '<option value="'+ msg.NM_PENGIRIM +'"'
+                                +'data-address="'+ msg.AL_PENGIRIM +'"'
+                                +'data-tax="" data-phone="">'
+                                + msg.NM_PENGIRIM + ' || ' + msg.AL_PENGIRIM +'</option>';
+              $('#NM_PENGIRIM').empty().append(optPengirim);
+            } else {
+              $('#NM_PENGIRIM').empty()
+            }
             
+            $('#AL_PENGIRIM').val(msg.AL_PENGIRIM).trigger('change');
+            $('#KD_NEG_PENGIRIM').val(msg.KD_NEG_PENGIRIM).trigger('change');
+
+            if(msg.NM_PENERIMA){
+              var optPengirim = '<option value="'+ msg.NM_PENERIMA +'"'
+                                +'data-address="'+ msg.AL_PENERIMA +'"'
+                                +'data-tax="'+ msg.NO_ID_PENERIMA +'"'
+                                +'data-phone="'+ msg.TELP_PENERIMA +'">'
+                                + msg.NM_PENERIMA + ' || ' + msg.AL_PENERIMA +'</option>';
+              $('#NM_PENERIMA').empty().append(optPengirim);
+            } else {
+              $('#NM_PENERIMA').empty()
+            }
+            
+            $('#AL_PENERIMA').val(msg.AL_PENERIMA).trigger('change');
+            $('#NO_ID_PENERIMA').val(msg.NO_ID_PENERIMA).trigger('change');
+            $('#JNS_ID_PENERIMA').val((msg.JNS_ID_PENERIMA ?? 0)).trigger('change');
+            $('#TELP_PENERIMA').val(msg.TELP_PENERIMA).trigger('change');
+
+            $('#NM_PEMBERITAHU').val(msg.NM_PEMBERITAHU);
+            $('#NO_ID_PEMBERITAHU').val(msg.NO_ID_PEMBERITAHU);
+            $('#AL_PEMBERITAHU').val(msg.AL_PEMBERITAHU);
+
+            $('#NETTO').val(msg.NETTO).trigger('change');
+            $('#BRUTO').val(msg.BRUTO).trigger('change');
+            $('#CIF').val(msg.CIF);
+            $('#FOB').val(msg.FOB).trigger('change');
+            $('#FREIGHT').val(msg.FREIGHT).trigger('change');
+            $('#VOLUME').val(msg.VOLUME).trigger('change');
+
+            $('#ASURANSI').val(msg.ASURANSI).trigger('change');
+            $('#JML_BRG').val(msg.JML_BRG).trigger('change');
+            $('#JNS_KMS').val(msg.JNS_KMS).trigger('change');
+            $('#MARKING').val(msg.MARKING).trigger('change');
+
+
+            $('#'+target).addClass('show');            
             console.log(msg);
           }
         });
 
-        $('#formHouse').attr('action', '/manifest/houses/'+id+'/update');
+        $('#formHouse').attr('action', '/manifest/houses/'+id);
 
       });
       $(document).on('click', '.codes', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
 
+        $('#tblHSCodes').DataTable().destroy();
+
         $('#collapseHouse').removeClass('show');
         $('#collapseResponse').removeClass('show');
+
+        $('#'+target).removeClass('show');
 
         $.ajax({
           url:"/manifest/houses/"+id,
           type: "GET",
           success:function(msg){
 
-            $('#detailCodes').html(msg.NO_BARANG);
-
-            if(!$('#'+target).hasClass('show')){
-              $('#'+target).addClass('show');
-            }
+            
+            $('#'+target).addClass('show');
             console.log(msg);
           }
         });

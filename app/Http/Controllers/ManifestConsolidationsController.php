@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use App\Models\Master;
 use App\Models\House;
-use DataTables;
-use Auth;
-use DB;
+use DataTables, Auth, DB, Arr;
 
 class ManifestConsolidationsController extends Controller
 {
@@ -108,8 +106,19 @@ class ManifestConsolidationsController extends Controller
 
             DB::commit();
 
-            if($master->HAWBCount > 0){
-              $this->createHouse($master, $master->HAWBCount);
+            if($master->HAWBCount > 0){              
+              for ($i = 1; $i <= $master->HAWBCount; $i++) { 
+                $data = $this->getHouse($master, $i);
+
+                $house = House::create($data);
+
+                DB::commit();
+
+                createLog('App\Models\House', $house->id, 'Create House');
+
+                DB::commit();
+
+              }
             }
 
             DB::commit();
@@ -170,13 +179,31 @@ class ManifestConsolidationsController extends Controller
             $consolidation->NM_PEMBERITAHU = $consolidation->branch->company->GC_Name;
             $consolidation->save();
 
+            $consolidation->refresh();
+
             DB::commit();
 
-            if($consolidation->HAWBCount > $consolidation->houses->count() ){
-              $count = $consolidation->houses->count();
-              $diff = $consolidation->HAWBCount - $consolidation->houses->count();
+            for ($i = 1; $i <= $consolidation->HAWBCount; $i++) { 
+              $data = $this->getHouse($consolidation, $i);
+              $updated = Arr::except($data, ['MasterID', 'NO_SUBPOS_BC11']);
 
-              $this->createHouse($consolidation, $diff, $count);
+              $house = House::updateOrCreate([
+                  'MasterID' => $consolidation->id,
+                  'NO_SUBPOS_BC11' => $data['NO_SUBPOS_BC11'],
+                ], $updated );
+
+              DB::commit();
+
+              if($house->wasRecentlyCreated){
+                $info = 'Create House';
+              } else {
+                $info = 'Update House';
+              }
+
+              createLog('App\Models\House', $house->id, $info);
+              
+              DB::commit();
+
             }
 
             createLog('App\Models\Master', $consolidation->id, 'Update Condolidation');
@@ -203,51 +230,39 @@ class ManifestConsolidationsController extends Controller
         //
     }
 
-    public function createHouse(Master $master, $diff, $count = 0)
+    public function getHouse(Master $master, $count)
     {
-      for ($i=1; $i <= $diff ; $i++) { 
+      $data = [        
+        'MasterID' => $master->id,
+        'KD_KANTOR' => $master->KPBC,
+        'NM_PENGANGKUT' => $master->NM_SARANA_ANGKUT,
+        'NO_FLIGHT' => $master->FlightNo,
+        'KD_PEL_MUAT' => $master->Origin,
+        'KD_PEL_BONGKAR' => $master->Destination,
+        'KD_GUDANG' => $master->OriginWarehouse,
+        'KD_NEGARA_ASAL' => $master->unlocoOrigin->RL_RN_NKCountryCode,
+        'JML_BRG' => $master->mNoOfPackages,
+        'NO_BC11' => $master->PUNumber,
+        'TGL_BC11' => $master->PUDate,
+        'NO_POS_BC11' => $master->POSNumber,
+        'NO_SUBPOS_BC11' => str_pad($count, 4, 0, STR_PAD_LEFT),
+        'NO_SUBSUBPOS_BC11' => 0000,
+        'NO_MASTER_BLAWB' => $master->MAWBNumber,
+        'TGL_MASTER_BLAWB' => $master->MAWBDate,
+        'KD_NEG_PENGIRIM' => $master->unlocoOrigin->RL_RN_NKCountryCode,
+        'NO_ID_PEMBERITAHU' => $master->NPWP,
+        'NM_PEMBERITAHU' => $master->NM_PEMBERITAHU,
+        'AL_PEMBERITAHU' => $master->branch->CB_Address,
+        'TGL_TIBA' => $master->ArrivalDate,
+        'JAM_TIBA' => $master->ArrivalTime,
+        'KD_PEL_TRANSIT' => $master->Transit,
+        'KD_PEL_AKHIR' => $master->Destination,
+        'BRANCH' => $master->mBRANCH,
+        'PART_SHIPMENT' => $master->Partial,
+      ];
 
-        try {
-
-          $house = House::create([
-            'MasterID' => $master->id,
-            'KD_KANTOR' => $master->KPBC,
-            'NM_PENGANGKUT' => $master->NM_SARANA_ANGKUT,
-            'NO_FLIGHT' => $master->FlightNo,
-            'KD_PEL_MUAT' => $master->Origin,
-            'KD_PEL_BONGKAR' => $master->Destination,
-            'KD_GUDANG' => $master->OriginWarehouse,
-            'KD_NEGARA_ASAL' => $master->unlocoOrigin->RL_RN_NKCountryCode,
-            'JML_BRG' => $master->mNoOfPackages,
-            'NO_BC11' => $master->PUNumber,
-            'TGL_BC11' => $master->PUDate,
-            'NO_POS_BC11' => $master->POSNumber,
-            'NO_SUBPOS_BC11' => str_pad(($i + $count), 3, 0, STR_PAD_LEFT),
-            'NO_SUBSUBPOS_BC11' => 0000,
-            'NO_MASTER_BLAWB' => $master->MAWBNumber,
-            'TGL_MASTER_BLAWB' => $master->MAWBDate,
-            'KD_NEG_PENGIRIM' => $master->unlocoOrigin->RL_RN_NKCountryCode,
-            'NM_PEMBERITAHU' => $master->NM_PEMBERITAHU,
-            'TGL_TIBA' => $master->ArrivalDate,
-            'JAM_TIBA' => $master->ArrivalTime,
-            'KD_PEL_TRANSIT' => $master->Transit,
-            'KD_PEL_AKHIR' => $master->Destination,
-            'BRANCH' => $master->mBRANCH,
-            'PART_SHIPMENT' => $master->Partial,
-          ]);
-  
-          DB::commit();
-  
-          createLog('App\Models\House', $house->id, 'Create House');
-  
-          DB::commit();
-
-        } catch (\Throwable $th) {
-          throw $th;
-        }
-        
-      }
-    }
+      return $data;
+    }    
 
     public function validatedData()
     {
