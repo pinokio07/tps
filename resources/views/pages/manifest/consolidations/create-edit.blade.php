@@ -616,6 +616,120 @@
   </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
+
+<div class="modal fade" id="modal-item">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Items</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formHSCodes"
+              class="form-horizontal" 
+              method="post">
+          @csrf
+          @method('PUT')
+          <input type="hidden" name="house_id" id="house_id">
+          <!-- HS Code -->
+          <div class="form-group row">
+            <label for="HS_CODE" 
+                   class="col-sm-3 col-form-label">
+              HS Code</label>
+            <div class="col-sm-9">
+              <input type="text" 
+                    class="form-control form-control-sm clearable"
+                    id="HS_CODE"
+                    name="HS_CODE"
+                    placeholder="HS Code"
+                    required>
+            </div>
+          </div>
+          <!-- Descriptons -->
+          <div class="form-group row">
+            <label for="UR_BRG" 
+                   class="col-sm-3 col-form-label">
+              Description</label>
+            <div class="col-sm-9">
+              <textarea name="UR_BRG" 
+                        id="UR_BRG"
+                        class="form-control form-control-sm clearable"
+                        placeholder="Item Description"
+                        rows="3"></textarea>
+            </div>
+          </div>
+          <!-- CIF -->
+          <div class="form-group row">
+            <label for="CIF" 
+                   class="col-sm-3 col-form-label">
+              CIF</label>
+            <div class="col-sm-4">
+              <input type="text" 
+                    class="form-control form-control-sm desimal clearable"
+                    id="CIF"
+                    name="CIF"
+                    placeholder="CIF">
+            </div>
+            <!-- FOB -->
+            <label for="FOB" 
+                   class="col-sm-1 col-form-label">
+              FOB</label>
+            <div class="col-sm-4">
+              <input type="text" 
+                    class="form-control form-control-sm desimal clearable"
+                    id="FOB"
+                    name="FOB"
+                    placeholder="FOB">
+            </div>
+          </div>
+          <!-- CIF -->
+          <div class="form-group row">
+            <label for="CIF" 
+                   class="col-sm-3 col-form-label">
+              Tarrif</label>
+            <div class="col-sm-3 text-right">
+              <input type="text" 
+                    class="form-control form-control-sm desimal clearable"
+                    id="BM_TRF"
+                    name="BM_TRF"
+                    placeholder="BM">
+              <span>% BM</span>
+            </div>
+            <div class="col-sm-3 text-right">
+              <input type="text" 
+                    class="form-control form-control-sm desimal clearable"
+                    id="PPN_TRF"
+                    name="PPN_TRF"
+                    placeholder="PPN">
+              <span>% PPN</span>
+            </div>
+            <div class="col-sm-3 text-right">
+              <input type="text" 
+                    class="form-control form-control-sm desimal clearable"
+                    id="PPH_TRF"
+                    name="PPH_TRF"
+                    placeholder="PPH">
+              <span>% PPH</span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" form="formHSCodes" 
+                class="btn btn-lg btn-primary">
+          <i class="fas fa-save"></i> Save
+        </button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 @endsection
 
 @section('footer')
@@ -661,21 +775,87 @@
 
       $('#NPWP').val(npwp);
     }
+    function getTblHouse() {
+      $('#tblHouses').DataTable().destroy();
+
+      $.ajax({
+        url: "{{ route('houses.index') }}",
+        type: "GET",
+        data:{
+          id: "{{ $item->id }}",
+        },
+        success: function(msg){
+          $('#tblHouses').DataTable({
+            data:msg.data,
+            columns:[
+              @forelse ($headerHouse as $keys => $value )
+                @if($keys == 'id')
+                {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false},
+                @elseif($keys == 'actions')
+                {data:"actions", searchable: false, className:"text-nowrap"},
+                @else
+                {data: "{{$keys}}", name: "{{$keys}}"},
+                @endif
+              @empty                
+              @endforelse
+            ],
+            buttons: [                
+                'excelHtml5',
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+                'print',
+            ],
+          }).buttons().container().appendTo('#tblHouses_wrapper .col-md-6:eq(0)');
+        }
+
+      })
+    }
+    function getTblHSCodes(id) {
+      $('#tblHSCodes').DataTable().destroy();
+
+      $.ajax({
+        url:"{{ route('house-details.index') }}",
+        type: "GET",
+        data:{
+          id:id,
+        },
+        success:function(msg){
+
+          $('#tblHSCodes').DataTable({
+            data:msg.data,
+            columns:[
+              @forelse ($headerDetail as $keys => $value )
+                @if($keys == 'id')
+                {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false},
+                @elseif($keys == 'actions')
+                {data:"actions", searchable: false, className:"text-nowrap"},
+                @else
+                {data: "{{$keys}}", name: "{{$keys}}"},
+                @endif
+              @empty                
+              @endforelse
+            ],
+            buttons: [                
+                'excelHtml5',
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+                'print',
+            ],
+          }).buttons().container().appendTo('#tblHSCodes_wrapper .col-md-6:eq(0)');
+
+        }
+      });
+    }
     jQuery(document).ready(function(){ 
       findNpwp();
       showTab();
-
-      $('#tblHouses').DataTable({
-        buttons: [                
-            'excelHtml5',
-            {
-                extend: 'pdfHtml5',
-                orientation: 'landscape',
-                pageSize: 'LEGAL'
-            },
-            'print',
-        ],
-      }).buttons().container().appendTo('#tblHouses_wrapper .col-md-6:eq(0)');
+      getTblHouse();      
 
       $('.select2kpbc').select2({
         placeholder: 'Select...',
@@ -888,13 +1068,7 @@
           type: "GET",
           success:function(msg){
 
-            $('#detailHouse').html(msg.NO_BARANG);
-
-            // if(!$('#'+target).hasClass('show')){
-            //   $('#'+target).addClass('show');
-            // }
-            
-            
+            $('#detailHouse').html(msg.NO_HOUSE_BLAWB);
 
             $('#JNS_AJU').val((msg.JNS_AJU ?? 4)).trigger('change');
             $('#KD_JNS_PIBK').val((msg.KD_JNS_PIBK ?? 6)).trigger('change');
@@ -1006,46 +1180,32 @@
       $(document).on('click', '.codes', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
-
-        $('#tblHSCodes').DataTable().destroy();
+        var house = $(this).attr('data-house');
+        var code = $(this).attr('data-code');
 
         $('#collapseHouse').removeClass('show');
         $('#collapseResponse').removeClass('show');
 
         $('#'+target).removeClass('show');
 
-        $.ajax({
-          url:"/manifest/houses/"+id,
-          type: "GET",
-          success:function(msg){
-
-            
-            $('#'+target).addClass('show');
-            console.log(msg);
-          }
-        });
-
+        getTblHSCodes(id);
+        $('#detailCodes').html(code);
+        $('#formHSCodes #house_id').val(house);
+        $('#'+target).addClass('show');
       });
       $(document).on('click', '.response', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
+        var code = $(this).attr('data-code');
 
         $('#collapseHouse').removeClass('show');
         $('#collapseHSCodes').removeClass('show');
 
-        $.ajax({
-          url:"/manifest/houses/"+id,
-          type: "GET",
-          success:function(msg){
+        $('#'+target).removeClass('show');
 
-            $('#detailResponse').html(msg.NO_BARANG);
+        $('#detailResponse').html(code);
 
-            if(!$('#'+target).hasClass('show')){
-              $('#'+target).addClass('show');
-            }
-            console.log(msg);
-          }
-        });
+        $('#'+target).addClass('show');
 
       });
       $(document).on('click', '#hideHouse', function(){
@@ -1056,6 +1216,90 @@
       });
       $(document).on('click', '#hideResponse', function(){
         $('#collapseResponse').removeClass('show');
+      });
+      $(document).on('submit', '#formHouse', function(e){
+        e.preventDefault();
+
+        var form = $(this).serialize();
+        var action = $(this).attr('action');
+
+        $('.btn').prop('disabled', 'disabled');
+
+        $.ajax({
+          url: action,
+          type: "POST",
+          data: form,
+          success:function(msg){
+            console.log(msg);
+            if(msg.status == 'OK'){
+              toastr.success("Update House Success", "Success!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+              getTblHouse();
+            } else {
+              toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+            }
+            
+            $('.btn').prop('disabled', false);
+          },
+          error: function (jqXHR, exception) {
+            jsonValue = jQuery.parseJSON( jqXHR.responseText );
+            toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+            $('.btn').prop('disabled', false);
+          }
+        })
+      });
+      $(document).on('click', '.editDetail', function(){
+        var id = $(this).attr('data-id');
+
+        $('#formHSCodes').attr('action', '/manifest/house-details/'+id);
+        $('#formHSCodes input[name="_method"]').val('PUT');
+        $('#formHSCodes #house_id').val($(this).attr('data-house'));
+        $('#formHSCodes #HS_CODE').val($(this).attr('data-hs'));
+        $('#formHSCodes #UR_BRG').val($(this).attr('data-desc'));
+        $('#formHSCodes #CIF').val($(this).attr('data-cif'));
+        $('#formHSCodes #FOB').val($(this).attr('data-fob'));
+        $('#formHSCodes #BM_TRF').val($(this).attr('data-bm'));
+        $('#formHSCodes #PPN_TRF').val($(this).attr('data-ppn'));
+        $('#formHSCodes #PPH_TRF').val($(this).attr('data-pph'));
+      });
+      $(document).on('click', '#btnNewItem', function(){
+        $('#formHSCodes').attr('action', '/manifest/house-details');
+        $('#formHSCodes input[name="_method"]').val('POST');
+        $('.clearable').val('');
+      });
+      $(document).on('submit', '#formHSCodes', function(e){
+        e.preventDefault();
+
+        var form = $(this).serialize();
+        var action = $(this).attr('action');
+
+        $('.btn').prop('disabled', 'disabled');
+
+        $.ajax({
+          url: action,
+          type: "POST",
+          data: form,
+          success:function(msg){
+            console.log(msg);
+            if(msg.status == 'OK'){
+              toastr.success(msg.message, "Success!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+              $('#modal-item').modal('toggle');
+              getTblHSCodes(msg.house);
+            } else {
+              toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+            }
+            
+            $('.btn').prop('disabled', false);
+          },
+          error: function (jqXHR, exception) {
+            jsonValue = jQuery.parseJSON( jqXHR.responseText );
+            toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+            $('.btn').prop('disabled', false);
+          }
+        })
       });
     });
   </script>

@@ -1,3 +1,4 @@
+<!-- Main Houses -->
 <div class="col-12">
   <div class="card card-success card-outline">
     <div class="card-body">
@@ -22,57 +23,13 @@
               <th>Actions</th>
             </tr>
           </thead>
-          @forelse ($item->houses as $house)
-            <tr>
-              <td>{{ $loop->iteration }}</td>
-              <td>{{ $house->NO_HOUSE_BLAWB ?? "-" }}</td>
-              <td>X-RAY Date</td>
-              <td>{{ $house->NO_FLIGHT ?? "-" }}</td>
-              <td>{{ $house->NO_BC11 ?? "-" }}</td>
-              <td>{{ $house->NO_POS_BC11 ?? "-" }}</td>
-              <td>{{ $house->NO_SUBPOS_BC11 ?? "-" }}</td>
-              <td>{{ $house->NM_PENERIMA ?? "-" }}</td>
-              <td>{{ $house->JML_BRG ?? "-" }}</td>
-              <td>{{ $item->mGrossWeight ?? "-" }}</td>
-              <td>{{ $house->TPS_GateInDateTime ?? "-" }}</td>
-              <td>{{ $house->TPS_GateOutDateTime ?? "-" }}</td>
-              <td>#{{ $house->BC_CODE ?? "-" }}</td>
-              <td>{{ $house->BC_STATUS ?? "-" }}</td>
-              <td class="text-nowrap">                
-                <button class="btn btn-xs btn-warning elevation-2 edit"
-                        data-toggle="tooltip"
-                        data-target="collapseHouse"
-                        title="Edit"
-                        data-id="{{ $house->id }}">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-xs btn-info elevation-2 codes"
-                        data-toggle="tooltip"
-                        data-target="collapseHSCodes"
-                        title="HS Codes"
-                        data-id="{{ $house->id }}">
-                  <i class="fas fa-clipboard-list"></i>
-                </button>
-                <button class="btn btn-xs btn-success elevation-2 response"
-                        data-toggle="tooltip"
-                        data-target="collapseResponse"
-                        title="Response"
-                        data-id="{{ $house->id }}">
-                  <i class="fas fa-sync"></i>
-                </button>
-                <button class="btn btn-xs btn-danger elevation-2 delete"
-                        data-href="{{ route('houses.destroy', ['house' => $house->id]) }}">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          @empty        
-          @endforelse
+          <tbody></tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
+<!-- Edit Houses -->
 <div class="col-12">
   <div id="collapseHouse" class="collapse">
     <div class="card card-primary card-outline">
@@ -87,7 +44,9 @@
 
       <div class="card-body">
 
-        <form id="formHouse" method="post" autocomplete="off">
+        <form id="formHouse" 
+              method="post" 
+              autocomplete="off">
 
           @csrf
           @method('PUT')
@@ -934,6 +893,7 @@
     </div>
   </div>
 </div>
+<!-- HS Codes -->
 <div class="col-12">
   <div id="collapseHSCodes" class="collapse">
     <div class="card card-primary card-outline">
@@ -946,7 +906,16 @@
         </div>
       </div>      
       <div class="card-body">
-        <div class="table-responsive">
+        <div class="row">
+          <div class="col-lg-4">
+            <button id="btnNewItem" class="btn btn-sm btn-primary btn-block elevation-2"
+                    data-toggle="modal"
+                    data-target="#modal-item">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive mt-2">
           <table id="tblHSCodes" class="table table-sm table-striped" style="width: 100%">
             <thead>
               <tr>
@@ -963,12 +932,14 @@
                 <th>Action</th>
               </tr>
             </thead>
+            <tbody></tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
 </div>
+<!-- Responses -->
 <div class="col-12">
   <div id="collapseResponse" class="collapse">
     <div class="card card-primary card-outline">

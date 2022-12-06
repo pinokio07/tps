@@ -24,7 +24,7 @@ class ManifestConsolidationsController extends Controller
           return DataTables::eloquent($query)
                            ->addIndexColumn()
                            ->editColumn('AirlineCode', function($row){
-                            $url = url()->current().'/'.Crypt::encrypt($row->id).'/edit#tab-summary-content';
+                            $url = url()->current().'/'.Crypt::encrypt($row->id).'#tab-summary-content';
 
                             $show = '<a href="'.$url.'">'.$row->AirlineCode.'</a>';
 
@@ -138,9 +138,14 @@ class ManifestConsolidationsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Master $consolidation)
     {
-        //
+        $item = $consolidation->load(['houses']);
+        $disabled = 'disabled';
+        $headerHouse = $this->headerHouse();
+        $headerDetail = $this->headerHouseDetail();
+
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail']));
     }
 
     /**
@@ -152,8 +157,11 @@ class ManifestConsolidationsController extends Controller
     public function edit(Master $consolidation)
     {
         $item = $consolidation->load(['houses']);
+        $disabled = false;
+        $headerHouse = $this->headerHouse();
+        $headerDetail = $this->headerHouseDetail();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail']));
     }
 
     /**
@@ -262,7 +270,49 @@ class ManifestConsolidationsController extends Controller
       ];
 
       return $data;
-    }    
+    }
+    
+    public function headerHouse()
+    {
+      $data = collect([
+        'id' => 'id',
+        'NO_HOUSE_BLAWB' => 'HAWB No',
+        'X_Ray' => 'X-Ray Date',
+        'NO_FLIGHT' => 'Flight No',
+        'NO_BC11' => 'BC 1.1',
+        'NO_POS_BC11' => 'POS BC 1.1',
+        'NO_SUBPOS_BC11' => 'Sub POS BC 1.1',
+        'NM_PENERIMA' => 'Consignee',
+        'JML_BRG' => 'Total Items',
+        'mGrossWeight' => 'Gross Weight',
+        'TPS_GateInDateTime' => 'TPSO Gate In',
+        'TPS_GateOutDateTime' => 'TPSO Gate Out',
+        'BC_CODE' => 'KD Response',
+        'BC_STATUS' => 'Keterangan',
+        'actions' => 'Actions',
+      ]);
+
+      return $data;
+    }
+
+    public function headerHouseDetail()
+    {
+      $data = collect([
+        'id' => 'id',
+        'HS_CODE' => 'HS Code',
+        'UR_BRG' => 'Description',
+        'CIF' => 'CIF',
+        'BM_TRF' => 'BM Trf',
+        'PPN_TRF' => 'PPN Trf',
+        'PPH_TRF' => 'PPH Trf',
+        'BActualBM' => 'BM',
+        'BActualPPN' => 'PPN',
+        'BActualPPH' => 'PPH',
+        'actions' => 'Actions',
+      ]);
+
+      return $data;
+    }
 
     public function validatedData()
     {

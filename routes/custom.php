@@ -5,16 +5,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'auth'], function(){
 
   Route::resource('/manifest/houses', 'ManifestHousesController');
-
-  // Route::get('/manifest/houses/{house}', 'ManifestHousesController@show');
-  // Route::post('/manifest/houses', 'ManifestHousesController@store')
-  //      ->middleware('can:edit_manifest_consolidations');
-  // Route::put('/manifest/houses/{house}', 'ManifestHousesController@update')
-  //       ->middleware('can:edit_manifest_consolidations');
-  // Route::delete('/manifest/houses/{house}/delete', 'ManifestHousesController@destroy')
-  //       ->name('manifest.houses.destroy')
-  //       ->middleware('can:delete_manifest_consolidations');
-
+  Route::resource('/manifest/house-details', 'ManifestHouseDetailsController');
+  
   //------------------------------------------- Organization Routes --------------------------------------------------------------//
 
   //Download Company Data

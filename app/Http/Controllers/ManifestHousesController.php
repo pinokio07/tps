@@ -4,23 +4,66 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\House;
-use DB, Crypt;
+use App\Models\Master;
+use DB, DataTables, Crypt, Auth;
 
 class ManifestHousesController extends Controller
-{
-
-    public function __construct()
-    {
-      $this->middleware('can:edit_manifest_consolidations');
-    }
+{    
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if($request->ajax()){
+          $query = House::where('MasterID', $request->id);
+
+          return DataTables::of($query)
+                            ->addIndexColumn()
+                            ->addColumn('X_Ray', function($row){
+                              return "X-Ray Date";
+                            })
+                            ->addColumn('mGrossWeight', function($row){
+                              return $row->master->mGrossWeight;
+                            })
+                            ->addColumn('actions', function($row){
+
+                              $btn = '<button class="btn btn-xs btn-warning elevation-2 mr-1 edit"
+                                              data-toggle="tooltip"
+                                              data-target="collapseHouse"
+                                              title="Edit"
+                                              data-id="'.$row->id.'">
+                                        <i class="fas fa-edit"></i>
+                                      </button>';
+
+                              $btn .= '<button class="btn btn-xs btn-info elevation-2 mr-1 codes"
+                                              data-toggle="tooltip"
+                                              data-target="collapseHSCodes"
+                                              title="HS Codes"
+                                              data-id="'.$row->id.'"
+                                              data-house="'.Crypt::encrypt($row->id).'"
+                                              data-code="'.$row->NO_HOUSE_BLAWB.'">
+                                        <i class="fas fa-clipboard-list"></i>
+                                      </button>';
+                              $btn .= '<button class="btn btn-xs btn-success elevation-2 mr-1 response"
+                                              data-toggle="tooltip"
+                                              data-target="collapseResponse"
+                                              title="Response"
+                                              data-id="'.$row->id.'"
+                                              data-code="'.$row->NO_HOUSE_BLAWB.'">
+                                        <i class="fas fa-sync"></i>
+                                      </button>';
+                              $btn .= '<button class="btn btn-xs btn-danger elevation-2 delete"
+                                              data-href="'. route('houses.destroy', ['house' => $row->id]) .'">
+                                        <i class="fas fa-trash"></i>
+                                      </button>';
+
+                              return $btn;
+                            })
+                            ->rawColumns(['actions'])
+                            ->toJson();
+        }
     }
 
     /**
@@ -52,7 +95,7 @@ class ManifestHousesController extends Controller
      */
     public function show(House $house)
     {
-        $house->load(['details']);
+        $house->load(['details']);       
         
         return response()->json($house);
     }
@@ -77,6 +120,9 @@ class ManifestHousesController extends Controller
      */
     public function update(Request $request, House $house)
     {
+        if(!Auth::user()->can('edit_manifest_consolidations')){
+          return response()->json(['status' => 'Failed', 'message' => 'You are not authorized to edit this data.']);
+        }
         $data = $this->validatedHouse();
 
         if($data){
@@ -89,10 +135,11 @@ class ManifestHousesController extends Controller
 
             DB::commit();
 
-            return redirect('/manifest/consolidations/'.Crypt::encrypt($house->MasterID).'/edit#tab-houses-content')->with('sukses', 'Update House Success.');
+            return response()->json(['status' => 'OK']);
+
           } catch (\Throwable $th) {
             DB::rollback();
-            throw $th;
+            return response()->json(['status' => 'Failed', 'message' => $th->getMessage()]);
           }
         }
     }
@@ -105,6 +152,9 @@ class ManifestHousesController extends Controller
      */
     public function destroy(House $house)
     {
+        if(!Auth::user()->can('edit_manifest_consolidations')){
+          return abort(403);
+        }
         DB::beginTransaction();
 
         try {
