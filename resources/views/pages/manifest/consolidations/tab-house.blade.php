@@ -423,7 +423,8 @@
                                 data-target="#datetimepicker6"
                                 data-focus="tglhouse"
                                 data-ganti="TGL_HOUSE_BLAWB"
-                                value="">
+                                value=""
+                                required>
                         <div class="input-group-append tglhouse" 
                               data-target="#datetimepicker6" 
                               data-toggle="datetimepicker">
