@@ -9,6 +9,11 @@ use DB, DataTables, Crypt, Auth;
 
 class ManifestHousesController extends Controller
 {    
+    public function __construct()
+    {
+      $this->path = Request::capture()->path();
+      $this->group = strtolower(explode("/", $this->path)[1]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -54,7 +59,7 @@ class ManifestHousesController extends Controller
                                               data-code="'.$row->NO_HOUSE_BLAWB.'">
                                         <i class="fas fa-sync"></i>
                                       </button>';
-                              $btn .= '<button class="btn btn-xs btn-danger elevation-2 delete"
+                              $btn .= '<button class="btn btn-xs btn-danger elevation-2 hapusHouse"
                                               data-href="'. route('houses.destroy', ['house' => $row->id]) .'">
                                         <i class="fas fa-trash"></i>
                                       </button>';
@@ -120,7 +125,7 @@ class ManifestHousesController extends Controller
      */
     public function update(Request $request, House $house)
     {
-        if(!Auth::user()->can('edit_manifest_consolidations')){
+        if(!Auth::user()->can('edit_manifest_consolidations|edit_manifest_shipments')){
           return response()->json(['status' => 'Failed', 'message' => 'You are not authorized to edit this data.']);
         }
         $data = $this->validatedHouse();
@@ -152,7 +157,7 @@ class ManifestHousesController extends Controller
      */
     public function destroy(House $house)
     {
-        if(!Auth::user()->can('edit_manifest_consolidations')){
+        if(!Auth::user()->can('edit_manifest_consolidations|edit_manifest_shipments')){
           return abort(403);
         }
         DB::beginTransaction();
@@ -167,10 +172,15 @@ class ManifestHousesController extends Controller
 
           DB::commit();
 
-          return redirect('/manifest/consolidations/'.Crypt::encrypt($master).'/edit#tab-houses-content')->with('sukses', 'Delete House Success.');
+          // return redirect('/manifest/'.$this->group.'/'.Crypt::encrypt($master).'/edit#tab-houses-content')->with('sukses', 'Delete House Success.');
+
+          return response()->json(['status' => "OK"]);
 
         } catch (\Throwable $th) {
-          throw $th;
+          DB::rollback();
+
+          return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+          // throw $th;
         }
     }
 

@@ -25,10 +25,12 @@
           <div class="card-header">
             <h3 class="card-title">{{ Str::title(Request::segment(2)) }}</h3>
             <div class="card-tools">
+              @if(Request::segment(2) == 'consolidations')
               <a href="{{ route('manifest.consolidations.create') }}" 
                  class="btn btn-sm btn-primary elevation-2">
                  <i class="fas fa-plus"></i>
               </a>
+              @endif
               <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
               </button>

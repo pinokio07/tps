@@ -9,6 +9,11 @@ use DB, Auth, Crypt, DataTables;
 
 class ManifestHouseDetailsController extends Controller
 {
+    public function __construct()
+    {
+      $this->path = Request::capture()->path();
+      $this->group = strtolower(explode("/", $this->path)[1]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -37,7 +42,7 @@ class ManifestHouseDetailsController extends Controller
                                             data-pph="'.$row->PPH_TRF.'">
                                       <i class="fas fa-edit"></i>
                                     </button>';
-                            $btn .= '<button class="btn btn-xs btn-danger elevation-2 delete"
+                            $btn .= '<button class="btn btn-xs btn-danger elevation-2 hapusDetail"
                                         data-href="'. route('house-details.destroy', ['house_detail' => $row->id]) .'">
                                       <i class="fas fa-trash"></i>
                                     </button>';
@@ -171,14 +176,14 @@ class ManifestHouseDetailsController extends Controller
      */
     public function destroy(HouseDetail $house_detail)
     {
-        if(!Auth::user()->can('edit_manifest_consolidations')){
+        if(!Auth::user()->can('edit_manifest_consolidations|edit_manifest_shipments')){
           return abort(403);
         }
 
         DB::beginTransaction();
 
         try {
-          $master = $house_detail->house->MasterID;
+          $house = $house_detail->HouseID;
           $hid = $house_detail->id;
 
           $house_detail->delete();
@@ -187,10 +192,14 @@ class ManifestHouseDetailsController extends Controller
 
           DB::commit();
 
-          return redirect('/manifest/consolidations/'.Crypt::encrypt($master).'/edit#tab-houses-content')->with('sukses', 'Delete House Success.');
+          // return redirect('/manifest/'.$this->group.'/'.Crypt::encrypt($master).'/edit#tab-houses-content')->with('sukses', 'Delete House Success.');
+          return response()->json(['status' => 'OK', 'house' => $house]);
 
         } catch (\Throwable $th) {
-          throw $th;
+          DB::rollback();
+
+          return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+          // throw $th;
         }
     }
 

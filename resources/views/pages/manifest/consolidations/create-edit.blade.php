@@ -1,6 +1,6 @@
 @extends('layouts.master')
-@section('title') Consolidations @endsection
-@section('page_name') Consolidations @endsection
+@section('title') {{ Str::title(Request::segment(2)) }} @endsection
+@section('page_name') {{ Str::title(Request::segment(2)) }} @endsection
 
 @section('header')
   <link rel="stylesheet" href="{{ asset('adminlte') }}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
@@ -16,6 +16,7 @@
 @endsection
 
 @section('content')
+<?php $name = Request::segment(2); ?>
 <!-- Main content -->
 <section class="content">
   <div class="container-fluid">
@@ -36,7 +37,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Consolidations</h3>
+            <h3 class="card-title">{{ Str::title(Request::segment(2)) }}</h3>
           </div>
 
             <div class="card-body">
@@ -77,9 +78,9 @@
                         </div> --}}
                         <form id="formDetails"
                               @if($item->id)
-                              action="{{ route('manifest.consolidations.update', ['consolidation' => \Crypt::encrypt($item->id)]) }}"
+                              action="{{ route('manifest.'.$name.'.update', ['master' => \Crypt::encrypt($item->id)]) }}"
                               @else
-                              action="{{ route('manifest.consolidations.store') }}" 
+                              action="{{ route('manifest.'.$name.'.store') }}" 
                               @endif
                               method="POST"
                               class="form-horizontal needs-validation"
@@ -556,10 +557,11 @@
                             <i class="fas fa-save"></i>
                             Save
                           </button>
-                          <a href="{{ route('manifest.consolidations') }}" 
+                          <a href="{{ route('manifest.'.$name.'') }}" 
                              class="btn btn-sm btn-default elevation-2 ml-2">Cancel</a>
-                          @if($item->id != '')
-                          <a href="{{ route('manifest.consolidations.create') }}" class="btn btn-sm btn-info elevation-2 ml-2">
+                          @if($item->id != ''
+                              && $name != 'shipments')
+                          <a href="{{ route('manifest.'.$name.'.create') }}" class="btn btn-sm btn-info elevation-2 ml-2">
                             <i class="fas fa-plus"></i> New
                           </a>
                           @endif
@@ -1300,6 +1302,87 @@
             $('.btn').prop('disabled', false);
           }
         })
+      });
+      $(document).on('click', '.hapusHouse', function(){
+        var href = $(this).data('href');		
+
+        Swal.fire({			
+          title: 'Are you sure?',			
+          html: "You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          cancelButtonText: 'Cancel',
+          confirmButtonText: 'Yes, delete!'
+        }).then((result) => {
+          if (result.value) {
+            $.ajax({
+              url: href,
+              type: "POST",
+              data:{
+                _token: "{{ csrf_token() }}",
+                _method: "DELETE"
+              },
+              success:function(msg){
+                if(msg.status == 'OK'){
+                  toastr.success("Delete House Success", "Success!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+                  getTblHouse();
+
+                  $('#collapseHouse').removeClass('show');
+                  $('#collapseHSCodes').removeClass('show');
+                  $('#collapseResponse').removeClass('show');
+                  
+                } else {
+                  toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+                }
+              },
+              error:function(jqXHR, exception){
+                jsonValue = jQuery.parseJSON( jqXHR.responseText );
+                toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+              }
+            })
+          }
+        });
+      });
+      $(document).on('click', '.hapusDetail', function(){
+        var href = $(this).data('href');		
+
+        Swal.fire({			
+          title: 'Are you sure?',			
+          html: "You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          cancelButtonText: 'Cancel',
+          confirmButtonText: 'Yes, delete!'
+        }).then((result) => {
+          if (result.value) {
+            $.ajax({
+              url: href,
+              type: "POST",
+              data:{
+                _token: "{{ csrf_token() }}",
+                _method: "DELETE"
+              },
+              success:function(msg){
+                if(msg.status == 'OK'){
+                  toastr.success("Delete House Item Success", "Success!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+                  getTblHSCodes(msg.house);
+                } else {
+                  toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+                }
+              },
+              error:function(jqXHR, exception){
+                jsonValue = jQuery.parseJSON( jqXHR.responseText );
+                toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+              }
+            })
+          }
+        });
       });
     });
   </script>

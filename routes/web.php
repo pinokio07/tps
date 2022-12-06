@@ -104,7 +104,7 @@ Route::group(['middleware' => 'auth'], function(){
       foreach($menus as $menu){
         $mainUrl = $menu->link();
         $mainTitle = Str::lower($menu->title);
-        $singular = Str::singular(Str::replace(['-',' '],'_', $mainTitle));
+        $singular = ($menu->var_name) ? $menu->var_name : Str::singular(Str::replace(['-',' '],'_', $mainTitle));
         $routeName = Str::replace('/','.',ltrim($mainUrl,'/'));
         $permit = str_replace(['.', '-'], '_', $routeName);
         

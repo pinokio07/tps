@@ -11,6 +11,11 @@ use DataTables, Auth, DB, Arr;
 
 class ManifestConsolidationsController extends Controller
 {
+    public function __construct()
+    {
+      $this->path = Request::capture()->path();
+      $this->group = strtolower(explode("/", $this->path)[1]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -138,9 +143,9 @@ class ManifestConsolidationsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Master $consolidation)
+    public function show(Master $master)
     {
-        $item = $consolidation->load(['houses']);
+        $item = $master->load(['houses']);
         $disabled = 'disabled';
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
@@ -154,9 +159,9 @@ class ManifestConsolidationsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Master $consolidation)
+    public function edit(Master $master)
     {
-        $item = $consolidation->load(['houses']);
+        $item = $master->load(['houses']);
         $disabled = false;
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
@@ -171,32 +176,32 @@ class ManifestConsolidationsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Master $consolidation)
-    {
+    public function update(Request $request, Master $master)
+    {        
         $data = $this->validatedData();
 
         if($data){
           DB::beginTransaction();
 
           try {
-            $consolidation->update($data);
+            $master->update($data);
 
             DB::commit();
 
-            $consolidation->NPWP = $consolidation->branch->company->GC_TaxID;
-            $consolidation->NM_PEMBERITAHU = $consolidation->branch->company->GC_Name;
-            $consolidation->save();
+            $master->NPWP = $master->branch->company->GC_TaxID;
+            $master->NM_PEMBERITAHU = $master->branch->company->GC_Name;
+            $master->save();
 
-            $consolidation->refresh();
+            $master->refresh();
 
             DB::commit();
 
-            for ($i = 1; $i <= $consolidation->HAWBCount; $i++) { 
-              $data = $this->getHouse($consolidation, $i);
+            for ($i = 1; $i <= $master->HAWBCount; $i++) { 
+              $data = $this->getHouse($master, $i);
               $updated = Arr::except($data, ['MasterID', 'NO_SUBPOS_BC11']);
 
               $house = House::updateOrCreate([
-                  'MasterID' => $consolidation->id,
+                  'MasterID' => $master->id,
                   'NO_SUBPOS_BC11' => $data['NO_SUBPOS_BC11'],
                 ], $updated );
 
@@ -214,11 +219,11 @@ class ManifestConsolidationsController extends Controller
 
             }
 
-            createLog('App\Models\Master', $consolidation->id, 'Update Condolidation');
+            createLog('App\Models\Master', $master->id, 'Update Consolidation');
 
             DB::commit();
 
-            return redirect('/manifest/consolidations/'.Crypt::encrypt($consolidation->id).'/edit')->with('sukses', 'Update Consolidation success.');
+            return redirect('/manifest/'.$this->group.'/'.Crypt::encrypt($master->id).'/edit')->with('sukses', 'Update Consolidation success.');
 
           } catch (\Throwable $th) {
             DB::rollback();
