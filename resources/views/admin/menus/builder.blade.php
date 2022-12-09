@@ -60,7 +60,8 @@
                                     data-ket="Edit"
                                     data-id="{{$list->id}}"
                                     data-title="{{$list->title}}"
-                                    data-url="{{$list->url}}"                                  
+                                    data-url="{{$list->url}}"
+                                    data-varName="{{$list->var_name}}"
                                     data-controller="{{$list->controller}}"
                                     data-permission="{{$list->permission}}"
                                     data-tab="{{$list->target}}"
@@ -85,7 +86,8 @@
                                     data-ket="Edit"
                                     data-id="{{$list->id}}"
                                     data-title="{{$list->title}}"
-                                    data-url="{{$list->url}}"                                  
+                                    data-url="{{$list->url}}"
+                                    data-varName="{{$list->var_name}}"
                                     data-controller="{{$list->controller}}"
                                     data-permission="{{$list->permission}}"
                                     data-tab="{{$list->target}}"
@@ -111,7 +113,8 @@
                                             data-ket="Edit"
                                             data-id="{{$child->id}}"
                                             data-title="{{$child->title}}"
-                                            data-url="{{$child->url}}"                                  
+                                            data-url="{{$child->url}}"
+                                            data-varName="{{$child->var_name}}"
                                             data-controller="{{$child->controller}}"
                                             data-permission="{{$child->permission}}"
                                             data-tab="{{$child->target}}"
@@ -137,6 +140,7 @@
                                           data-id="{{$child->id}}"
                                           data-title="{{$child->title}}"
                                           data-url="{{$child->url}}"
+                                          data-varName="{{$child->var_name}}"
                                           data-controller="{{$child->controller}}"
                                           data-permission="{{$child->permission}}"
                                           data-tab="{{$child->target}}"
@@ -161,7 +165,8 @@
                                                 data-ket="Edit"
                                                 data-id="{{$grandChild->id}}"
                                                 data-title="{{$grandChild->title}}"
-                                                data-url="{{$grandChild->url}}"                                  
+                                                data-url="{{$grandChild->url}}"
+                                                data-varName="{{$grandChild->var_name}}"
                                                 data-controller="{{$grandChild->controller}}"
                                                 data-permission="{{$grandChild->permission}}"
                                                 data-tab="{{$grandChild->target}}"
@@ -221,6 +226,10 @@
             <div class="form-group form-group-sm">
               <label for="icon_class">Icon Class (Use <a href="https://fontawesome.com/" target="_blank">Font Awesome</a>)</label>
               <input type="text" name="icon_class" id="icon_class" class="form-control">
+            </div>
+            <div class="form-group form-group-sm">
+              <label for="var_name">Variable Name</label>
+              <input type="text" name="var_name" id="var_name" class="form-control" placeholder="If not specified, it will auto generated">
             </div>
             <div class="form-group form-group-sm">
               <label for="target">Link Type</label>
@@ -317,6 +326,7 @@
         var id = $(this).attr('data-id');
         var title = $(this).attr('data-title');
         var url = $(this).attr('data-url');
+        var var_name = $(this).attr('data-varName');
         var route = $(this).attr('data-route');
         var controller = $(this).attr('data-controller');
         var permission = $(this).attr('data-permission');
@@ -329,6 +339,7 @@
         $('#formMenu').attr('action', "{{url()->current()}}/"+id)
         $('#formMenu #title').val(title);
         $('#formMenu #url').val(url);
+        $('#formMenu #var_name').val(var_name);
         $('#formMenu #icon_class').val(icon_class);
         $('#formMenu #target').val(tab);
         $('#formMenu #title').val(title);

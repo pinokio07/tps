@@ -80,6 +80,12 @@ class AdminMenusBuilderController extends Controller
                                       ]);
             }
 
+            if($request->var_name == ''){
+              $var_name = Str::singular(Str::replace(['-',' '],'_', Str::lower($request->title)));
+
+              $item->update(['var_name' => $var_name]);
+            }
+
           }          
 
           return redirect('/administrator/menus/'.$menu->id.'/builder')->with('sukses', 'Create new Item Success.');
@@ -149,6 +155,12 @@ class AdminMenusBuilderController extends Controller
             } else {
               $item->permission = NULL;
               $item->save();
+            }
+
+            if($request->var_name == ''){
+              $var_name = Str::singular(Str::replace(['-',' '],'_', Str::lower($request->title)));
+
+              $item->update(['var_name' => $var_name]);
             }
 
           }

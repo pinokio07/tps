@@ -16,4 +16,9 @@ class HouseDetail extends Model
     {
       return $this->belongsTo(House::class, 'HouseID');
     }
+
+    public function logs()
+    {
+      return $this->morphMany(TpsLog::class, 'logable');
+    }
 }

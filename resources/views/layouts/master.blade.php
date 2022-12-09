@@ -46,6 +46,15 @@
   <!-- DataTables -->
   <script src="{{asset('adminlte')}}/plugins/datatables/jquery.dataTables.js"></script>
   <script src="{{asset('adminlte')}}/plugins/datatables-bs4/js/dataTables.bootstrap4.js"></script>
+  <link rel="stylesheet" href="{{ asset('adminlte') }}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/jszip/jszip.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/pdfmake/pdfmake.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/pdfmake/vfs_fonts.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
   <!-- InputMask -->
   <script src="{{asset('adminlte')}}/plugins/moment/moment.min.js"></script>
   <script src="{{asset('adminlte')}}/plugins/inputmask/jquery.inputmask.min.js"></script>
@@ -462,6 +471,16 @@
       theme: 'bootstrap4',
       allowClear: true,
     });
+  }
+
+  function showTab(){
+    if(window.location.hash){
+      var tujuan = window.location.hash        
+    } else {
+      var tujuan = "#main-data-content";
+    }
+
+    $('a[href="' + tujuan + '"]').trigger('click');
   }
   
   $(function(){

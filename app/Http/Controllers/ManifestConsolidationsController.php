@@ -11,16 +11,6 @@ use DataTables, Auth, DB, Arr;
 
 class ManifestConsolidationsController extends Controller
 {
-    public function __construct()
-    {
-      $this->path = Request::capture()->path();
-      $this->group = strtolower(explode("/", $this->path)[1]);
-    }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         if($request->ajax()){
@@ -71,24 +61,13 @@ class ManifestConsolidationsController extends Controller
         return view('pages.manifest.consolidations.index', compact(['items']));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $item = new Master;
 
         return view('pages.manifest.consolidations.create-edit', compact(['item']));
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    
     public function store(Request $request)
     {
         $data = $this->validatedData();
@@ -136,47 +115,28 @@ class ManifestConsolidationsController extends Controller
           }
         }
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Master $master)
+    
+    public function show(Master $consolidation)
     {
-        $item = $master->load(['houses']);
+        $item = $consolidation->load(['houses']);
         $disabled = 'disabled';
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
 
         return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail']));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Master $master)
+    
+    public function edit(Master $consolidation)
     {
-        $item = $master->load(['houses']);
+        $item = $consolidation->load(['houses']);
         $disabled = false;
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
 
         return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail']));
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Master $master)
+    
+    public function update(Request $request, Master $consolidation)
     {        
         $data = $this->validatedData();
 
@@ -184,24 +144,24 @@ class ManifestConsolidationsController extends Controller
           DB::beginTransaction();
 
           try {
-            $master->update($data);
+            $consolidation->update($data);
 
             DB::commit();
 
-            $master->NPWP = $master->branch->company->GC_TaxID;
-            $master->NM_PEMBERITAHU = $master->branch->company->GC_Name;
-            $master->save();
+            $consolidation->NPWP = $consolidation->branch->company->GC_TaxID;
+            $consolidation->NM_PEMBERITAHU = $consolidation->branch->company->GC_Name;
+            $consolidation->save();
 
-            $master->refresh();
+            $consolidation->refresh();
 
             DB::commit();
 
-            for ($i = 1; $i <= $master->HAWBCount; $i++) { 
-              $data = $this->getHouse($master, $i);
+            for ($i = 1; $i <= $consolidation->HAWBCount; $i++) { 
+              $data = $this->getHouse($consolidation, $i);
               $updated = Arr::except($data, ['MasterID', 'NO_SUBPOS_BC11']);
 
               $house = House::updateOrCreate([
-                  'MasterID' => $master->id,
+                  'MasterID' => $consolidation->id,
                   'NO_SUBPOS_BC11' => $data['NO_SUBPOS_BC11'],
                 ], $updated );
 
@@ -219,11 +179,11 @@ class ManifestConsolidationsController extends Controller
 
             }
 
-            createLog('App\Models\Master', $master->id, 'Update Consolidation');
+            createLog('App\Models\Master', $consolidation->id, 'Update Consolidation');
 
             DB::commit();
 
-            return redirect('/manifest/'.$this->group.'/'.Crypt::encrypt($master->id).'/edit')->with('sukses', 'Update Consolidation success.');
+            return redirect('/manifest/consolidations/'.Crypt::encrypt($consolidation->id).'/edit')->with('sukses', 'Update Consolidation success.');
 
           } catch (\Throwable $th) {
             DB::rollback();
@@ -231,13 +191,7 @@ class ManifestConsolidationsController extends Controller
           }
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function destroy($id)
     {
         //

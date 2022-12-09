@@ -8,17 +8,7 @@ use App\Models\HouseDetail;
 use DB, Auth, Crypt, DataTables;
 
 class ManifestHouseDetailsController extends Controller
-{
-    public function __construct()
-    {
-      $this->path = Request::capture()->path();
-      $this->group = strtolower(explode("/", $this->path)[1]);
-    }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+{    
     public function index(Request $request)
     {
         if($request->ajax()){
@@ -54,24 +44,15 @@ class ManifestHouseDetailsController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
+        if(Auth::user()->cannot('edit_manifest_consolidations') 
+            && Auth::user()->cannot('edit_manifest_shipments')){
+          if($request->ajax()){
+            return response()->json(['status' => 'Failed', 'message' => 'You are not authorized to edit this data.']);
+          }
+          return abort(403);
+        }
         $data = $this->getValidated();
 
         if($data){
@@ -80,10 +61,9 @@ class ManifestHouseDetailsController extends Controller
           $house = House::findOrFail(Crypt::decrypt($request->house_id));
 
           try {
-            // $data->merge(['HouseID' => $house->id]);
+            
             $hasil = array_merge($data, ['HouseID' => $house->id]);
             $house_detail = HouseDetail::create($hasil);
-            // $house->details()->create($data);
 
             DB::commit();
 
@@ -91,53 +71,39 @@ class ManifestHouseDetailsController extends Controller
 
             DB::commit();
 
-            return response()->json([
-              'status' => 'OK',
-              'house' => $house->id,
-              'message' => 'Create House Item Success.'
-            ]);
+            if($request->ajax()){
+              return response()->json([
+                'status' => 'OK',
+                'house' => $house->id,
+                'message' => 'Create House Item Success.'
+              ]);
+            }
+            return redirect(url()->previous().'/edit')->with('sukses', 'Update House Items Success.');
 
           } catch (\Throwable $th) {
             DB::rollback();
 
-            return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+            if($request->ajax()){
+              return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+            }
+            
+            throw $th;
           }
           
 
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, HouseDetail $house_detail)
     {
+        if(Auth::user()->cannot('edit_manifest_consolidations') 
+            && Auth::user()->cannot('edit_manifest_shipments')){
+          if($request->ajax()){
+            return response()->json(['status' => 'Failed', 'message' => 'You are not authorized to edit this data.']);
+          }
+          return abort(403);
+        }
+
         $data = $this->getValidated();
 
         if($data){
@@ -152,31 +118,34 @@ class ManifestHouseDetailsController extends Controller
 
             DB::commit();
 
-            return response()->json([
-              'status' => 'OK',
-              'house' => $house_detail->HouseID,
-              'message' => 'Update House Item Success.'
-            ]);
+            if($request->ajax()){
+              return response()->json([
+                'status' => 'OK',
+                'house' => $house_detail->HouseID,
+                'message' => 'Update House Item Success.'
+              ]);
+            }
+           
+            return redirect(url()->previous().'/edit')->with('sukses', 'Update House Item Success.');
 
           } catch (\Throwable $th) {
             DB::rollback();
 
-            return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+            if($request->ajax()){
+              return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+            }
+
+            throw $th;
+            
           }
           
 
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    }    
     public function destroy(HouseDetail $house_detail)
     {
-        if(!Auth::user()->can('edit_manifest_consolidations|edit_manifest_shipments')){
+        if(Auth::user()->cannot('edit_manifest_consolidations') 
+            && Auth::user()->cannot('edit_manifest_shipments')){
           return abort(403);
         }
 
@@ -191,15 +160,18 @@ class ManifestHouseDetailsController extends Controller
           createLog('App\Models\HouseDetail', $hid, 'Delete House Item');
 
           DB::commit();
-
-          // return redirect('/manifest/'.$this->group.'/'.Crypt::encrypt($master).'/edit#tab-houses-content')->with('sukses', 'Delete House Success.');
-          return response()->json(['status' => 'OK', 'house' => $house]);
+          
+          if($request->ajax()){
+            return response()->json(['status' => 'OK', 'house' => $house]);
+          }          
 
         } catch (\Throwable $th) {
           DB::rollback();
 
-          return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
-          // throw $th;
+          if($request->ajax()){
+            return response()->json(['status' => 'FAILED', 'message' => $th->getMessage()]);
+          }
+          
         }
     }
 

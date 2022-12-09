@@ -1,22 +1,8 @@
 @extends('layouts.master')
-@section('title') {{ Str::title(Request::segment(2)) }} @endsection
-@section('page_name') {{ Str::title(Request::segment(2)) }} @endsection
-
-@section('header')
-  <link rel="stylesheet" href="{{ asset('adminlte') }}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-
-  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/jszip/jszip.min.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/pdfmake/pdfmake.min.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/pdfmake/vfs_fonts.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-  <script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-@endsection
+@section('title') Consolidations @endsection
+@section('page_name') Consolidations @endsection
 
 @section('content')
-<?php $name = Request::segment(2); ?>
 <!-- Main content -->
 <section class="content">
   <div class="container-fluid">
@@ -37,7 +23,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">{{ Str::title(Request::segment(2)) }}</h3>
+            <h3 class="card-title">Consolidations</h3>
           </div>
 
             <div class="card-body">
@@ -78,9 +64,9 @@
                         </div> --}}
                         <form id="formDetails"
                               @if($item->id)
-                              action="{{ route('manifest.'.$name.'.update', ['master' => \Crypt::encrypt($item->id)]) }}"
+                              action="{{ route('manifest.consolidations.update', ['consolidation' => \Crypt::encrypt($item->id)]) }}"
                               @else
-                              action="{{ route('manifest.'.$name.'.store') }}" 
+                              action="{{ route('manifest.consolidations.store') }}" 
                               @endif
                               method="POST"
                               class="form-horizontal needs-validation"
@@ -205,7 +191,7 @@
                                          value="{{ old('arrivals')
                                                    ?? $item->arrivals
                                                    ?? '' }}">
-                                  <div class="input-group-append arrivals" 
+                                  <div class="input-group-append" 
                                        data-target="#datetimepicker1" 
                                        data-toggle="datetimepicker">
                                     <div class="input-group-text">
@@ -342,13 +328,12 @@
                                          class="form-control datetimepicker-input tanggal"
                                          placeholder="MAWB Date"
                                          data-target="#datetimepicker2"
-                                         data-focus="tglmawb"
                                          data-ganti="MAWBDate"
                                          required
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
                                                    ?? '' }}">
-                                  <div class="input-group-append tglmawb" 
+                                  <div class="input-group-append" 
                                        data-target="#datetimepicker2" 
                                        data-toggle="datetimepicker">
                                     <div class="input-group-text">
@@ -482,12 +467,11 @@
                                          class="form-control datetimepicker-input tanggal"
                                          placeholder="BC 1.1 Date"
                                          data-target="#datetimepicker3"
-                                         data-focus="tglbc"
                                          data-ganti="PUDate"
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
                                                    ?? '' }}">
-                                  <div class="input-group-append tglbc" 
+                                  <div class="input-group-append" 
                                        data-target="#datetimepicker3" 
                                        data-toggle="datetimepicker">
                                     <div class="input-group-text">
@@ -557,11 +541,10 @@
                             <i class="fas fa-save"></i>
                             Save
                           </button>
-                          <a href="{{ route('manifest.'.$name.'') }}" 
+                          <a href="{{ route('manifest.consolidations') }}" 
                              class="btn btn-sm btn-default elevation-2 ml-2">Cancel</a>
-                          @if($item->id != ''
-                              && $name != 'shipments')
-                          <a href="{{ route('manifest.'.$name.'.create') }}" class="btn btn-sm btn-info elevation-2 ml-2">
+                          @if($item->id != '')
+                          <a href="{{ route('manifest.consolidations.create') }}" class="btn btn-sm btn-info elevation-2 ml-2">
                             <i class="fas fa-plus"></i> New
                           </a>
                           @endif
@@ -748,13 +731,11 @@
         });
 
         $("#arrivals").focus(function () {
-            $('.arrivals').trigger("click");
+          $(this).next('.input-group-append').trigger('click');
         });
 
         $(".tanggal").focus(function () {
-          var focus = $(this).attr('data-focus');
-          $('.'+focus).trigger("click");
-          console.log(focus);
+          $(this).next('.input-group-append').trigger('click');
         });
 
         $('.mawb-mask').inputmask({
@@ -763,15 +744,7 @@
         });
         
     });
-    function showTab(){
-      if(window.location.hash){
-        var tujuan = window.location.hash        
-      } else {
-        var tujuan = "#main-data-content";
-      }
-
-      $('a[href="' + tujuan + '"]').trigger('click');
-    }
+    
     function findNpwp() {
       var npwp = $('#mBRANCH').find(':selected').attr('data-npwp');
 
@@ -1054,9 +1027,15 @@
       $(document).on('input paste', '.tanggal', function(){
         var tgl = $(this).val();
         var ganti = $(this).attr('data-ganti');
+        if(tgl != ''){
+          var tanggal = moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD');          
+        } else {
+          var tanggal = '';
+        }
 
-        $('#'+ganti).val(moment(tgl, 'DD-MM-YYYY').format('YYYY-MM-DD'));
-      });      
+        $('#'+ganti).val(tanggal);
+        
+      });
       $(document).on('click', '.edit', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
@@ -1087,10 +1066,10 @@
             }
 
             if(msg.TGL_BC11){
-              var bcDate = moment(msg.bcDate);              
-              $('#TGL_BC11').val(bcDate.format('YYYY-MM-DD'));
+              var bcDate = moment(msg.TGL_BC11);              
+              $('#TGL_BC11').val(bcDate.format('DD-MM-YYYY'));
             } else {              
-              $('#TGL_BC11').val('').trigger('change');
+              $('#TGL_BC11').val('');
             }
 
             $('#NO_BC11').val(msg.NO_BC11);
@@ -1170,6 +1149,21 @@
             $('#JNS_KMS').val(msg.JNS_KMS).trigger('change');
             $('#MARKING').val(msg.MARKING).trigger('change');
 
+            $('#NPWP_BILLING').val(msg.NPWP_BILLING).trigger('change');
+            $('#NAMA_BILLING').val(msg.NAMA_BILLING).trigger('change');
+            $('#NO_INVOICE').val(msg.NO_INVOICE).trigger('change');
+            
+            if(msg.TGL_INVOICE){
+              var invDate = moment(msg.TGL_INVOICE);
+
+              $('#tglinv').val(invDate.format('DD/MM/YYYY')).trigger('change');
+              $('#TGL_INVOICE').val(invDate.format('YYYY-MM-DD')).trigger('change');
+            } else {
+              $('#tglinv').val('').trigger('change');
+              $('#TGL_INVOICE').val('').trigger('change');
+            }
+
+            $('#TOT_DIBAYAR').val(msg.TOT_DIBAYAR).trigger('change');
 
             $('#'+target).addClass('show');            
             console.log(msg);
@@ -1237,6 +1231,7 @@
               toastr.success("Update House Success", "Success!", {timeOut: 3000, closeButton: true,progressBar: true});
 
               getTblHouse();
+              $('#detailHouse').html(msg.house);
             } else {
               toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
             }

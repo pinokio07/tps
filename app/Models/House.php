@@ -5,12 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 
 class House extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = 'tps_pjth';
     protected $guarded = ['id'];
+
+    public function resolveRouteBinding($encryptedId, $field = null)
+    {
+        return $this->where('id', Crypt::decrypt ($encryptedId))->firstOrFail();
+    }
 
     public function master()
     {
@@ -20,6 +26,11 @@ class House extends Model
     public function details()
     {
       return $this->hasMany(HouseDetail::class, 'HouseID');
+    }
+
+    public function customs()
+    {
+      return $this->belongsTo(RefCustomsOffice::class, 'KD_KANTOR', 'Kdkpbc');
     }
 
     public function logs()

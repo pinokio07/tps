@@ -1,6 +1,6 @@
 @extends('layouts.master')
-@section('title') Consolidations @endsection
-@section('page_name') Consolidations @endsection
+@section('title') Shipments @endsection
+@section('page_name') Shipments @endsection
 
 @section('header')
 <link rel="stylesheet" href="{{ asset('adminlte') }}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
@@ -23,9 +23,9 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Consolidations</h3>
+            <h3 class="card-title">Shipments</h3>
             <div class="card-tools">              
-              <a href="{{ route('manifest.consolidations.create') }}" 
+              <a href="{{ route('manifest.shipments.create') }}" 
                  class="btn btn-sm btn-primary elevation-2">
                  <i class="fas fa-plus"></i>
               </a>
@@ -59,25 +59,34 @@
         url: "{{ url()->current() }}",
         type: "GET",
         success:function(msg){
+          console.log(msg.data);
           $('#dataAjax').DataTable({
             data: msg.data,
             columns:[
               @forelse ($items as $keys => $item)
                 @if($keys == 'id')
                   {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false},
-                @elseif($keys == 'ArrivalDate')
+                @elseif(in_array($keys, ['ArrivalDate', 'ExitDate']))
                 {
                   data: {
                     _: "{{ $keys }}.display",
-                    sort: "{{ $keys }}.timestamp"
+                    sort: "{{ $keys }}.timestamp",
                   }
-                },
+                },                
                 @else
                 {data: "{{$keys}}", name: "{{$keys}}"},
                 @endif
               @empty
               @endforelse          
             ],
+            columnDefs: [ {
+                targets: 5,
+                render: function ( data, type, row ) {
+                  return (data && data.length > 30) ?
+                              data.substr( 0, 30 ) +'…' :
+                              data;
+                }
+            } ],
             buttons: [                
                 'excelHtml5',
                 {
@@ -116,6 +125,7 @@
     }
     jQuery(document).ready(function(){
       getDataAjax();
+      
     });
   </script>
 @endsection
