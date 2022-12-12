@@ -17,7 +17,7 @@ class SetupTariffSchemaController extends Controller
           return DataTables::eloquent($query)
                            ->addIndexColumn()
                            ->editColumn('name', function($row){
-                            $btn = '<a href="'.route('setup.tariff-schema.edit', ['tariff_scheme' => $row->id]).'">'.$row->name.'</a>';
+                            $btn = '<a href="'.route('setup.tariff-schema.edit', ['tariff_schema' => $row->id]).'">'.$row->name.'</a>';
 
                             return $btn;
                            })
@@ -80,14 +80,14 @@ class SetupTariffSchemaController extends Controller
         //
     }
     
-    public function edit(Tariff $tariff_scheme)
+    public function edit(Tariff $tariff_schema)
     {
-        $item = $tariff_scheme->load(['schema']);
+        $item = $tariff_schema->load(['schema']);
 
         return view('pages.setup.tariff.create-edit', compact(['item']));
     }
     
-    public function update(Request $request, Tariff $tariff_scheme)
+    public function update(Request $request, Tariff $tariff_schema)
     {
         $data = $request->validate([
           'name' => 'required',
@@ -99,10 +99,10 @@ class SetupTariffSchemaController extends Controller
           DB::beginTransaction();
 
           try {
-            $tariff_scheme->update($data);
+            $tariff_schema->update($data);
             DB::commit();
 
-            return redirect('/setup/tariff-schema/'.$tariff_scheme->id.'/edit')->with('sukses', 'Create Schema Success.');
+            return redirect('/setup/tariff-schema/'.$tariff_schema->id.'/edit')->with('sukses', 'Create Schema Success.');
           } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
