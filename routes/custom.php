@@ -4,8 +4,30 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function(){
 
+  //Duplicate Schema
+  Route::get('/setup/tariff-duplicate/{schema}', 'SetupTariffSchemaController@duplicate')
+       ->name('setup.tariff-schema.duplicate')
+       ->middleware('can:edit_setup_tariff_schema');
+
   Route::resource('/manifest/houses', 'ManifestHousesController');
   Route::resource('/manifest/house-details', 'ManifestHouseDetailsController');
+  Route::get('/manifest/calculate/{house}', 'ManifestHousesController@calculate')
+       ->name('calculate.house')
+       ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
+
+  Route::get('/logs', 'LogsController@show')->name('logs.show');
+
+  //Schema Route
+    Route::post('/setup/schema', 'SetupTariffSchemaController@storechema')
+         ->name('schema.store')
+         ->middleware('can:edit_setup_tariff');
+    Route::put('/setup/schema/{schema}', 'SetupTariffSchemaController@updateschema')
+         ->name('schema.update')
+         ->middleware('can:edit_setup_tariff');
+    Route::delete('/setup/schema/{schema}', 'SetupTariffSchemaController@destroyschema')
+         ->name('schema.destroy')
+         ->middleware('can:edit_setup_tariff');
+  //End Schema Route
   
   //------------------------------------------- Organization Routes --------------------------------------------------------------//
 

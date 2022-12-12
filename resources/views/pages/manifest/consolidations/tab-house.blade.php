@@ -102,3 +102,21 @@
     </div>
   </div>
 </div>
+<!-- Calculate -->
+<div class="col-12">
+  <div id="collapseCalculate" class="collapse">
+    <div class="card card-primary card-outline">
+      <div class="card-header">
+        <h3 class="card-title">Calculate <span id="detailCalculate"></span></h3>
+        <div class="card-tools">
+          <button id="hideCalculate" type="button" class="btn btn-tool">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>      
+      <div class="card-body">
+        @include('pages.manifest.reference.calculate')
+      </div>
+    </div>
+  </div>
+</div>

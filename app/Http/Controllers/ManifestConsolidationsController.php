@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use App\Models\Master;
 use App\Models\House;
+use App\Models\Tariff;
 use DataTables, Auth, DB, Arr;
 
 class ManifestConsolidationsController extends Controller
@@ -42,6 +43,25 @@ class ManifestConsolidationsController extends Controller
 
                             return $show; 
                            })
+                           ->editColumn('MAWBNumber', function($row){
+                            $first = '';
+                            $second = '';
+                            $third = '';
+
+                            $num = str_replace(' ', '', $row->MAWBNumber);
+                            if($num != ''){
+                              $first = substr($num, 0, 3);
+                              $second = substr($num, 3, 4);
+                              $third = substr($num, 7, 4);
+                            }
+
+                            $show = [
+                              'display' => $first .' '. $second .' '. $third,
+                              'filter' => $row->MAWBNumber
+                            ];
+
+                            return $show;
+                           })
                            ->rawColumns(['AirlineCode'])
                            ->toJson();
         }
@@ -64,8 +84,12 @@ class ManifestConsolidationsController extends Controller
     public function create()
     {
         $item = new Master;
+        $disabled = false;
+        $headerHouse = $this->headerHouse();
+        $headerDetail = $this->headerHouseDetail();
+        $tariff = Tariff::all();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'tariff']));
     }
     
     public function store(Request $request)
@@ -86,7 +110,7 @@ class ManifestConsolidationsController extends Controller
 
             DB::commit();
 
-            createLog('App\Models\Master', $master->id, 'Create Condolidation');
+            createLog('App\Models\Master', $master->id, 'Create Condolidation '.$master->mawb_parse);
 
             DB::commit();
 
@@ -98,7 +122,7 @@ class ManifestConsolidationsController extends Controller
 
                 DB::commit();
 
-                createLog('App\Models\House', $house->id, 'Create House');
+                createLog('App\Models\House', $house->id, 'Create House '. $house->mawb_parse);
 
                 DB::commit();
 
@@ -122,8 +146,9 @@ class ManifestConsolidationsController extends Controller
         $disabled = 'disabled';
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $tariff = Tariff::all();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'tariff']));
     }
     
     public function edit(Master $consolidation)
@@ -132,8 +157,9 @@ class ManifestConsolidationsController extends Controller
         $disabled = false;
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $tariff = Tariff::all();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'tariff']));
     }
     
     public function update(Request $request, Master $consolidation)
@@ -146,7 +172,7 @@ class ManifestConsolidationsController extends Controller
           try {
             $consolidation->update($data);
 
-            DB::commit();
+            DB::commit();            
 
             $consolidation->NPWP = $consolidation->branch->company->GC_TaxID;
             $consolidation->NM_PEMBERITAHU = $consolidation->branch->company->GC_Name;
@@ -168,20 +194,45 @@ class ManifestConsolidationsController extends Controller
               DB::commit();
 
               if($house->wasRecentlyCreated){
-                $info = 'Create House';
+                $info = 'Create House '.$house->mawb_parse;
               } else {
-                $info = 'Update House';
+                if(!empty($house->getChanges())){
+                  $info = 'Update House '.$house->mawb_parse.' <br> <ul>';
+
+                  foreach ($house->getChanges() as $hk => $hChange) {
+                    if($hk != 'updated_at'){
+                      $info .= '<li> Update '. $hk . ' to ' . $hChange. '</li>';
+                    }                    
+                  }
+
+                  $info .= '</ul>';
+                } else {
+                  $info = '';
+                }
               }
 
-              createLog('App\Models\House', $house->id, $info);
-              
-              DB::commit();
+              if($info != ''){
+                createLog('App\Models\House', $house->id, $info);
+
+                DB::commit();
+              }
 
             }
 
-            createLog('App\Models\Master', $consolidation->id, 'Update Consolidation');
+            if(!empty($consolidation->getChanges())){
+              $infoConsol = 'Update Consolidation <br> <ul>';
 
-            DB::commit();
+              foreach ($consolidation->getChanges() as $kc => $cChange) {
+                if($kc != 'updated_at'){
+                  $infoConsol .= '<li> Update '.$kc.' to '. $cChange. '</li>';
+                }                
+              }
+              $infoConsol .= '</ul>';
+
+              createLog('App\Models\Master', $consolidation->id, $infoConsol);
+
+              DB::commit();
+            }
 
             return redirect('/manifest/consolidations/'.Crypt::encrypt($consolidation->id).'/edit')->with('sukses', 'Update Consolidation success.');
 

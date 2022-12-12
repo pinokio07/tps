@@ -753,13 +753,13 @@
       <div class="card-body">
         <div class="row">
           <!-- Netto -->
-          <div class="col-6">
+          <div class="col-lg-4">
             <div class="form-group form-group-sm">
               <label for="NETTO">Netto</label>
               <input type="text"
                     id="NETTO"
                     name="NETTO"
-                    class="form-control form-control-sm berat"
+                    class="form-control form-control-sm desimal"
                     placeholder="Netto"
                     value="{{ old('NETTO')
                               ?? $item->NETTO
@@ -767,17 +767,32 @@
             </div>
           </div>
           <!-- Bruto -->
-          <div class="col-6">
+          <div class="col-lg-4">
             <div class="form-group form-group-sm">
               <label for="BRUTO">Bruto</label>
               <input type="text"
                     id="BRUTO"
                     name="BRUTO"
-                    class="form-control form-control-sm berat"
+                    class="form-control form-control-sm desimal"
                     placeholder="Bruto"
                     value="{{ old('BRUTO')
                               ?? $item->BRUTO
                               ?? 0 }}">
+            </div>
+          </div>
+          <!-- Chargable -->
+          <div class="col-lg-4">
+            <div class="form-group form-group-sm">
+              <label for="ChargeableWeight">Chargable</label>
+              <input type="text"
+                    id="ChargeableWeight"
+                    name="ChargeableWeight"
+                    class="form-control form-control-sm desimal"
+                    placeholder="Chargable Weight"
+                    value="{{ old('ChargeableWeight')
+                              ?? $item->ChargeableWeight
+                              ?? 0 }}"
+                    required>
             </div>
           </div>
           <!-- CIF -->
@@ -826,7 +841,7 @@
               <input type="text"
                     id="VOLUME"
                     name="VOLUME"
-                    class="form-control form-control-sm threedigits"
+                    class="form-control form-control-sm desimal"
                     placeholder="Volume"
                     value="{{ old('VOLUME')
                               ?? $item->VOLUME
@@ -910,6 +925,23 @@
       </div>
       <div class="card-body">
         <div class="row">
+          <!-- SCHEMA -->
+          <div class="col-12">
+            <div class="form-group form-group-sm">
+              <label for="tarrif_id">Tariff Schema</label>
+              <select name="tariff_id"
+                      id="tariff_id"
+                      class="select2bs4clear"
+                      style="width: 100%">
+                <option value=""></option>
+                @forelse ($tariff as $t)
+                  <option value="{{ $t->id }}"
+                    @selected($t->id == $item->tariff_id)>{{ $t->name }}</option>
+                @empty                  
+                @endforelse
+              </select>
+            </div>
+          </div>
           <!-- NPWP_BILLING -->
           <div class="col-6">
             <div class="form-group form-group-sm">

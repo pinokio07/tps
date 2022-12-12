@@ -50,6 +50,9 @@
                 <li class="nav-item">
                   <a class="nav-link" id="tab-estimasi" data-toggle="pill" href="#tab-estimasi-content" role="tab" aria-controls="tab-estimasi-content" aria-selected="false">Estimasi Billing</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="tab-log" data-toggle="pill" href="#tab-log-content" role="tab" aria-controls="tab-log-content" aria-selected="false">Logs</a>
+                </li>
               </ul>
               <!-- Tab Contents -->
               <div class="tab-content" id="custom-content-above-tabContent">
@@ -389,7 +392,7 @@
                                 <input type="text" 
                                        name="mGrossWeight" 
                                        id="mGrossWeight" 
-                                       class="form-control form-control-sm berat"
+                                       class="form-control form-control-sm desimal"
                                        placeholder="Gross Weight"
                                        value="{{ old('mGrossWeight')
                                                  ?? $item->mGrossWeight
@@ -403,7 +406,7 @@
                                 <input type="text" 
                                        name="mChargeableWeight" 
                                        id="mChargeableWeight" 
-                                       class="form-control form-control-sm berat"
+                                       class="form-control form-control-sm desimal"
                                        placeholder="Chargable Weight"
                                        value="{{ old('mChargeableWeight')
                                                  ?? $item->mChargeableWeight
@@ -591,6 +594,11 @@
                   </div>
                 </div>
 
+                <div class="tab-pane fade" id="tab-log-content" role="tabpanel" aria-labelledby="tab-log">
+                  <div class="row mt-2">
+                   @include('pages.manifest.reference.logs')               
+                  </div>
+                </div>
               </div>
             </div>
         </div>
@@ -725,6 +733,11 @@
           format: 'DD-MM-YYYY HH:mm:ss'
         });
 
+        $('.withtime').datetimepicker({
+          icons: { time: 'far fa-clock' },
+          format: 'DD/MM/YYYY HH:mm'
+        });
+
         $('.onlydate').datetimepicker({
           icons: { time: 'far fa-clock' },
           format: 'DD-MM-YYYY'
@@ -735,6 +748,10 @@
         });
 
         $(".tanggal").focus(function () {
+          $(this).next('.input-group-append').trigger('click');
+        });
+
+        $('.tgltime').focus(function () {
           $(this).next('.input-group-append').trigger('click');
         });
 
@@ -827,10 +844,55 @@
         }
       });
     }
+    function getTblLogs(){
+      $('#tblLogs').DataTable().destroy();
+
+      $.ajax({
+        url: "{{ route('logs.show') }}",
+        type: "GET",
+        data:{
+          type: 'master',
+          id: "{{ $item->id }}",
+        },
+        success: function(msg){
+          $('#tblLogs').DataTable({
+            data:msg.data,
+            columns:[
+              {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false, className:"h-10"},
+              {data:"created_at", name: "created_at"},
+              {data:"user", name: "user"},
+              {data:"keterangan", name: "keterangan", searchable: false},
+            ],
+            buttons: [                
+                'excelHtml5',
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+                'print',
+            ],
+          }).buttons().container().appendTo('#tblLogs_wrapper .col-md-6:eq(0)');
+        }
+
+      })
+    }
+    function calDays() {
+      var one = $('#cal_arrival').val();
+      var two = $('#cal_out').val();
+      
+      if(one && two){
+        var dayOne = moment(one, "DD/MM/YYYY HH:mm", true);
+        var dayTwo = moment(two, "DD/MM/YYYY HH:mm", true);
+        var diff = dayTwo.diff(dayOne, 'days');
+        if(diff != NaN){
+          $('#cal_days').val(diff + 1);
+        }
+      }
+    }
     jQuery(document).ready(function(){ 
       findNpwp();
-      showTab();
-      getTblHouse();      
+      showTab();           
 
       $('.select2kpbc').select2({
         placeholder: 'Select...',
@@ -980,6 +1042,19 @@
           cache: true
         }
       });
+      $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        // console.log(e.target);
+        switch (e.target.id){
+            case "tab-houses":{
+                getTblHouse(); 
+                break;
+            }
+            case "tab-log":{
+                getTblLogs();
+                break;
+            }
+        }
+      });
       $(document).on('change', '.select2airline', function(){
         var name = $(this).find(':selected').attr('data-name');
 
@@ -1036,12 +1111,25 @@
         $('#'+ganti).val(tanggal);
         
       });
+      $(document).on('input paste', '.tgltime', function(){
+        var tgl = $(this).val();
+        var ganti = $(this).attr('data-ganti');
+        if(tgl != ''){
+          var tanggal = moment(tgl, 'DD-MM-YYYY H:M', true).format('DD/MM/YYYY H:M');          
+        } else {
+          var tanggal = '';
+        }
+
+        $('#'+ganti).val(tanggal).trigger('change');
+        
+      });
       $(document).on('click', '.edit', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
 
         $('#collapseHSCodes').removeClass('show');
         $('#collapseResponse').removeClass('show');
+        $('#collapseCalculate').removeClass('show');
         $('#'+target).removeClass('show');
 
         $.ajax({
@@ -1139,6 +1227,7 @@
 
             $('#NETTO').val(msg.NETTO).trigger('change');
             $('#BRUTO').val(msg.BRUTO).trigger('change');
+            $('#ChargeableWeight').val(msg.ChargeableWeight).trigger('change');
             $('#CIF').val(msg.CIF);
             $('#FOB').val(msg.FOB).trigger('change');
             $('#FREIGHT').val(msg.FREIGHT).trigger('change');
@@ -1149,6 +1238,7 @@
             $('#JNS_KMS').val(msg.JNS_KMS).trigger('change');
             $('#MARKING').val(msg.MARKING).trigger('change');
 
+            $('#tariff_id').val(msg.tariff_id).trigger('change');
             $('#NPWP_BILLING').val(msg.NPWP_BILLING).trigger('change');
             $('#NAMA_BILLING').val(msg.NAMA_BILLING).trigger('change');
             $('#NO_INVOICE').val(msg.NO_INVOICE).trigger('change');
@@ -1181,7 +1271,7 @@
 
         $('#collapseHouse').removeClass('show');
         $('#collapseResponse').removeClass('show');
-
+        $('#collapseCalculate').removeClass('show');
         $('#'+target).removeClass('show');
 
         getTblHSCodes(id);
@@ -1196,12 +1286,61 @@
 
         $('#collapseHouse').removeClass('show');
         $('#collapseHSCodes').removeClass('show');
-
+        $('#collapseCalculate').removeClass('show');
         $('#'+target).removeClass('show');
 
         $('#detailResponse').html(code);
 
         $('#'+target).addClass('show');
+
+      });
+      $(document).on('click', '.calculate', function(){
+        var target = $(this).attr('data-target');
+        var id = $(this).attr('data-id');
+        var code = $(this).attr('data-code');
+
+        $('#collapseHouse').removeClass('show');
+        $('#collapseHSCodes').removeClass('show');
+        $('#collapseResponse').removeClass('show');
+        $('#'+target).removeClass('show');
+
+        $('#detailCalculate').html(code);
+
+        $.ajax({
+          url:"/manifest/houses/"+id,
+          type: "GET",
+          success:function(msg){
+
+            var arrival = "{{ $item->ArrivalDate }} {{ $item->ArrivalTime }}";
+
+            if(arrival != ''){
+              var parseArrival = moment(arrival).format('DD/MM/YYYY hh:mm');
+              $('#cal_arrival').val(parseArrival).trigger('change');
+            }           
+            
+            if(msg.ExitDate && msg.ExitTime){
+              var parseOut = moment(msg.ExitDate + ' ' + msg.ExitTime).format('DD/MM/YYYY HH:mm');
+
+              $('#cal_out').val(parseOut).attr('readonly', true);
+
+              calDays();
+            } else {
+              $('#cal_out').val('').removeAttr('readonly');
+            }
+
+            if(msg.tariff_id){
+              $('#cal_tariff').val(msg.tariff_id).trigger('change');
+            }
+
+            $('#cal_chargable').val(msg.ChargeableWeight).trigger('change');
+            $('#cal_gross').val(msg.BRUTO).trigger('change');
+
+            $('#formCalculate').attr('action', "/manifest/calculate/"+id);
+            
+            $('#'+target).addClass('show');
+
+          }
+        });
 
       });
       $(document).on('click', '#hideHouse', function(){
@@ -1212,6 +1351,9 @@
       });
       $(document).on('click', '#hideResponse', function(){
         $('#collapseResponse').removeClass('show');
+      });
+      $(document).on('click', '#hideCalculate', function(){
+        $('#collapseCalculate').removeClass('show');
       });
       $(document).on('submit', '#formHouse', function(e){
         e.preventDefault();
@@ -1378,6 +1520,33 @@
             })
           }
         });
+      });
+      $(document).on("change.datetimepicker", '.withtime', function (e) {          
+          calDays();
+      });     
+      $(document).on('submit', '#formCalculate', function(e){
+        e.preventDefault();
+        var action = $(this).attr('action');        
+        var data = $(this).serialize();
+
+        // $('.btn').prop('disabled', 'disabled');
+        
+        $.ajax({
+          url: action,
+          type: "GET",
+          data: data,
+          success:function(msg){
+            console.log(msg);
+            $('#tblIsiCalculate').html(msg);
+            $('.btn').prop('disabled', false);
+          },
+          error:function(jqXHR){
+            jsonValue = jQuery.parseJSON( jqXHR.responseText );
+            toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+            $('.btn').prop('disabled', false);
+          }
+        })
       });
     });
   </script>

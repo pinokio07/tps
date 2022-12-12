@@ -44,6 +44,9 @@
                 <li class="nav-item">
                   <a class="nav-link" id="tab-estimasi" data-toggle="pill" href="#tab-estimasi-content" role="tab" aria-controls="tab-estimasi-content" aria-selected="false">Estimasi Billing</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="tab-log" data-toggle="pill" href="#tab-log-content" role="tab" aria-controls="tab-log-content" aria-selected="false">Logs</a>
+                </li>
               </ul>
               <!-- Tab Contents -->
               <div class="tab-content" id="custom-content-above-tabContent">
@@ -101,10 +104,10 @@
                     <div class="col-12">
                       <div class="card card-primary card-outline">
                         <div class="card-header">
-                          <h3 class="card-title">HS Codes <span id="detailCodes"></span></h3>
+                          <h3 class="card-title">HS Codes</h3>
                           <div class="card-tools">
-                            <button id="hideHSCodes" type="button" class="btn btn-tool">
-                              <i class="fas fa-times"></i>
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                              <i class="fas fa-minus"></i>
                             </button>
                           </div>
                         </div>      
@@ -130,7 +133,27 @@
 
                 <div class="tab-pane fade" id="tab-estimasi-content" role="tabpanel" aria-labelledby="tab-estimasi">
                   <div class="row mt-2">
-                   ESTIMASI               
+                    <div class="col-12">
+                      <div class="card card-info card-outline">
+                        <div class="card-header">
+                          <h3 class="card-title">Calculate</h3>
+                          <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                              <i class="fas fa-minus"></i>
+                            </button>
+                          </div>
+                        </div>      
+                        <div class="card-body">
+                          @include('pages.manifest.reference.calculate')
+                        </div>
+                      </div>
+                    </div>                                  
+                  </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-log-content" role="tabpanel" aria-labelledby="tab-log">
+                  <div class="row mt-2">
+                   @include('pages.manifest.reference.logs')               
                   </div>
                 </div>
 
@@ -160,7 +183,7 @@
               method="post">
           @csrf
           @method('PUT')
-          <input type="hidden" name="house_id" id="house_id">
+          <input type="hidden" name="house_id" id="house_id" value="{{ \Crypt::encrypt($item->id) }}">
           <!-- HS Code -->
           <div class="form-group row">
             <label for="HS_CODE" 
@@ -263,12 +286,21 @@
 @section('footer')
   <script>   
     $(function () {
+        $('.withtime').datetimepicker({
+          icons: { time: 'far fa-clock' },
+          format: 'DD-MM-YYYY HH:mm:ss'
+        });
+
         $('.onlydate').datetimepicker({
           icons: { time: 'far fa-clock' },
           format: 'DD-MM-YYYY'
         });
         
         $(".tanggal").focus(function () {
+          $(this).next('.input-group-append').trigger('click');
+        });
+
+        $('.tgltime').focus(function () {
           $(this).next('.input-group-append').trigger('click');
         });
 
@@ -318,9 +350,57 @@
       });
     }
 
+    function getTblLogs(){
+      $('#tblLogs').DataTable().destroy();
+
+      $.ajax({
+        url: "{{ route('logs.show') }}",
+        type: "GET",
+        data:{
+          type: 'house',
+          id: "{{ $item->id }}",
+        },
+        success: function(msg){
+          $('#tblLogs').DataTable({
+            data:msg.data,
+            columns:[
+              {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false, className:"h-10"},
+              {data:"created_at", name: "created_at"},
+              {data:"user", name: "user"},
+              {data:"keterangan", name: "keterangan", searchable: false},
+            ],
+            buttons: [                
+                'excelHtml5',
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+                'print',
+            ],
+          }).buttons().container().appendTo('#tblLogs_wrapper .col-md-6:eq(0)');
+        }
+
+      })
+    }
+
     jQuery(document).ready(function(){
       showTab();
-      getTblHSCodes("{{ $item->id }}");
+      
+
+      $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        console.log(e.target);
+        switch (e.target.id){            
+            case "tab-log":{
+              getTblLogs();
+              break;
+            }
+            case "tab-houses":{
+              getTblHSCodes("{{ $item->id }}");
+              break;
+            }
+        }
+      });
 
       $('.select2kpbc').select2({
         placeholder: 'Select...',

@@ -21,14 +21,24 @@ class Master extends Model
         return $this->where('id', Crypt::decrypt ($encryptedId))->firstOrFail();
     }
 
-    public function getArrivalsAttribute($value)
+    public function getArrivalsAttribute()
     {
       return ($this->ArrivalDate) ? Carbon::parse($this->ArrivalDate)->format('d-m-Y') .' '. $this->ArrivalTime : '';
     }
 
-    public function getDateMawbAttribute($value)
+    public function getDateMawbAttribute()
     {
       return ($this->MAWBDate) ? Carbon::parse($this->MAWBDate)->format('d-m-Y') : '';
+    }
+
+    public function getMawbParseAttribute()
+    {
+      $num = str_replace(' ', '', $this->MAWBNumber);
+      $first = substr($num, 0, 3);
+      $second = substr($num, 3, 4);
+      $third = substr($num, 7, 4);
+
+      return $first .' '. $second .' '. $third;
     }
 
     public function branch()

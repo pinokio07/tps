@@ -72,7 +72,14 @@
                     _: "{{ $keys }}.display",
                     sort: "{{ $keys }}.timestamp",
                   }
-                },                
+                },
+                @elseif($keys == 'NO_MASTER_BLAWB')
+                {
+                  data: {
+                    _: "{{ $keys }}.display",
+                    filter: "{{ $keys }}.filter", 
+                  }
+                },
                 @else
                 {data: "{{$keys}}", name: "{{$keys}}"},
                 @endif

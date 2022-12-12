@@ -67,7 +67,7 @@ class ManifestHouseDetailsController extends Controller
 
             DB::commit();
 
-            createLog('App\Models\HouseDetail', $house_detail->id, 'Create House Detail');
+            createLog('App\Models\HouseDetail', $house_detail->id, 'Create House Item '. $house_detail->HS_CODE);
 
             DB::commit();
 
@@ -114,9 +114,21 @@ class ManifestHouseDetailsController extends Controller
 
             DB::commit();
 
-            createLog('App\Models\HouseDetail', $house_detail->id, 'Update House Detail');
+            if(!empty($house_detail->getChanges())){
+              $info = 'Update House Items '.$house_detail->HS_CODE.' <br> <ul>';
 
-            DB::commit();
+              foreach ($house_detail->getChanges() as $key => $value) {
+                if($key != 'updated_at'){
+                  $info .= '<li> Update ' . $key . ' to ' . $value .'</li>';
+                }
+              }
+
+              $info .= '</ul>';
+
+              createLog('App\Models\HouseDetail', $house_detail->id, $info);
+
+              DB::commit();
+            }
 
             if($request->ajax()){
               return response()->json([

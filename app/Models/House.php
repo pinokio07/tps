@@ -18,6 +18,16 @@ class House extends Model
         return $this->where('id', Crypt::decrypt ($encryptedId))->firstOrFail();
     }
 
+    public function getMawbParseAttribute()
+    {
+      $num = str_replace(' ', '', $this->NO_MASTER_BLAWB);
+      $first = substr($num, 0, 3);
+      $second = substr($num, 3, 4);
+      $third = substr($num, 7, 4);
+
+      return $first .' '. $second .' '. $third;
+    }
+
     public function master()
     {
       return $this->belongsTo(Master::class, 'MasterID');

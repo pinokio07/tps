@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\House;
 use App\Models\HouseDetail;
+use App\Models\Tariff;
 use Carbon\Carbon;
 use DataTables, Auth, Crypt, Str, DB;
 
@@ -59,6 +60,25 @@ class ManifestShipmentsController extends Controller
                            ->addColumn('ArrivalTime', function($row){
                               return $row->master->ArrivalTime;
                            })
+                           ->editColumn('NO_MASTER_BLAWB', function($row){
+                            $first = '';
+                            $second = '';
+                            $third = '';
+
+                            $num = str_replace(' ', '', $row->NO_MASTER_BLAWB);
+                            if($num != ''){
+                              $first = substr($num, 0, 3);
+                              $second = substr($num, 3, 4);
+                              $third = substr($num, 7, 4);
+                            }
+
+                            $show = [
+                              'display' => $first .' '. $second .' '. $third,
+                              'filter' => $row->NO_MASTER_BLAWB
+                            ];
+
+                            return $show;
+                           })
                            ->rawColumns(['NO_BARANG', 'AL_PENERIMA'])
                            ->toJson();
         }
@@ -94,8 +114,9 @@ class ManifestShipmentsController extends Controller
         $item = $shipment->load(['details']);
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $tariff = Tariff::all();
 
-        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail']));
+        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail', 'tariff']));
     }
     
     public function edit(House $shipment)
@@ -103,8 +124,9 @@ class ManifestShipmentsController extends Controller
         $item = $shipment->load(['details']);
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $tariff = Tariff::all();
 
-        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail']));
+        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail', 'tariff']));
     }
     
     public function update(Request $request, $id)

@@ -69,7 +69,14 @@
                 {
                   data: {
                     _: "{{ $keys }}.display",
-                    sort: "{{ $keys }}.timestamp"
+                    sort: "{{ $keys }}.timestamp", 
+                  }
+                },
+                @elseif($keys == 'MAWBNumber')
+                {
+                  data: {
+                    _: "{{ $keys }}.display",
+                    filter: "{{ $keys }}.filter", 
                   }
                 },
                 @else

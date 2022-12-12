@@ -535,22 +535,13 @@
       allowMinus: false,
       autoUnmask: true,
       removeMaskOnSubmit: true
-    });
-    $('.threedigits').inputmask('decimal', {
-      groupSeparator: ',',
-      digits: 3,
-      digitsOptional: false,
-      placeholder: "0",
-      allowMinus: false,
-      autoUnmask: true,
-      removeMaskOnSubmit: true
-    });
+    });    
     $('.berat').inputmask({
       alias: "decimal",
       groupSeparator: ',',
       rightAlign: false,
       integerDigits: 5,
-      digits: 6,
+      digits: 4,
       digitsOptional: false,
       placeholder: "0",
       allowMinus: false,
@@ -613,6 +604,18 @@
       @else
       highlightClass: 'text-light',
       @endif
+    });
+
+    $(document).on('change', '.onlyone', function(){
+      var temen = $(this).attr('data-temen');
+
+      if(temen != undefined){
+        if($(this).is(':checked')){
+          $('#'+temen).prop('checked', false);
+        }        
+      } else {
+        $('.onlyone').not($(this)).prop('checked', false);
+      }      
     });
 			
   });
