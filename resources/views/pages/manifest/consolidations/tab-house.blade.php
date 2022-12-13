@@ -8,7 +8,7 @@
             <tr>
               <th>No</th>
               <th>HAWB Number</th>
-              <th>X-Ray Date</th>
+              {{-- <th>X-Ray Date</th> --}}
               <th>Flight No</th>
               <th>BC 1.1</th>
               <th>POS BC 1.1</th>

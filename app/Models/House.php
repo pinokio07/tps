@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 class House extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $table = 'tps_pjth';
+    protected $table = 'tps_houses';
     protected $guarded = ['id'];
 
     public function resolveRouteBinding($encryptedId, $field = null)
@@ -46,5 +46,10 @@ class House extends Model
     public function logs()
     {
       return $this->morphMany(TpsLog::class, 'logable');
+    }
+
+    public function tariff()
+    {
+      return $this->hasMany(HouseTariff::class, 'house_id');
     }
 }

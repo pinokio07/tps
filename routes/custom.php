@@ -11,10 +11,17 @@ Route::group(['middleware' => 'auth'], function(){
 
   Route::resource('/manifest/houses', 'ManifestHousesController');
   Route::resource('/manifest/house-details', 'ManifestHouseDetailsController');
+
+  //Calculate Tariff Route
   Route::get('/manifest/calculate/{house}', 'ManifestHousesController@calculate')
        ->name('calculate.house')
        ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
+  //Save Tariff 
+  Route::post('/manifest/save-calculate/{house}', 'ManifestHousesController@calculate')
+        ->name('save.calculate.house')
+        ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
 
+  //Get Logs
   Route::get('/logs', 'LogsController@show')->name('logs.show');
 
   //Schema Route

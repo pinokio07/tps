@@ -1336,6 +1336,7 @@
             $('#cal_gross').val(msg.BRUTO).trigger('change');
 
             $('#formCalculate').attr('action', "/manifest/calculate/"+id);
+            $('#formStoreCalculate').attr('action', "/manifest/save-calculate/"+id);
             
             $('#'+target).addClass('show');
 
@@ -1529,7 +1530,7 @@
         var action = $(this).attr('action');        
         var data = $(this).serialize();
 
-        // $('.btn').prop('disabled', 'disabled');
+        $('.btn').prop('disabled', 'disabled');
         
         $.ajax({
           url: action,
@@ -1547,6 +1548,9 @@
             $('.btn').prop('disabled', false);
           }
         })
+      });
+      $('#formDetails').dirty({
+        preventLeaving: true,
       });
     });
   </script>

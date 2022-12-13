@@ -20,8 +20,7 @@
               name="cal_out"
               class="form-control datetimepicker-input tgltime"
               placeholder="Estimated Exit Date"
-              data-target="#datetimepicker8"
-              data-ganti="cal_parse">
+              data-target="#datetimepicker8">
       <div class="input-group-append" 
             data-target="#datetimepicker8" 
             data-toggle="datetimepicker">
@@ -40,6 +39,7 @@
              id="cal_days"
              name="cal_days"
              form="formCalculate"
+             readonly
              required>
     </div>
   </div> 
@@ -96,22 +96,46 @@
       <i class="fas fa-calculator"></i> Calculate
     </button>
   </div>
+  <div class="col-lg-6 mt-2">
+    <button class="btn btn-sm btn-info btn-block elevation-2">
+      View Estimated
+    </button>
+  </div>
+  <div class="col-lg-6 mt-2">
+    <button class="btn btn-sm btn-success btn-block elevation-2">
+      View Actual
+    </button>
+  </div>
 </div>
 <div class="row  mt-5">
   <div class="col-12">
     <div class="table-responsive">
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>Items</th>
-            <th>Days</th>
-            <th>Vol/Weight</th>
-            <th class="text-right">Rate</th>            
-            <th class="text-right">Total</th>
-          </tr>
-        </thead>
-        <tbody id="tblIsiCalculate"></tbody>
-      </table>
+      <form id="formStoreCalculate" method="POST">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Items</th>
+              <th>Days</th>
+              <th>Vol/Weight</th>
+              <th class="text-right">Rate</th>            
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>          
+          <tbody id="tblIsiCalculate"></tbody>          
+        </table>
+      </form>
     </div>
+  </div>
+  <div class="col-lg-6">
+    <button type="button"
+            class="btn btn-xm btn-primary btn-block elevation-2">
+      Save as Estimated
+    </button>
+  </div>
+  <div class="col-lg-6">
+    <button type="button"
+            class="btn btn-xm bg-lime btn-block elevation-2">
+      Save as Actual
+    </button>
   </div>
 </div>

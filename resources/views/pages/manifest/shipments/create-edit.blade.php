@@ -288,7 +288,7 @@
     $(function () {
         $('.withtime').datetimepicker({
           icons: { time: 'far fa-clock' },
-          format: 'DD-MM-YYYY HH:mm:ss'
+          format: 'DD/MM/YYYY HH:mm'
         });
 
         $('.onlydate').datetimepicker({
@@ -349,7 +349,6 @@
         }
       });
     }
-
     function getTblLogs(){
       $('#tblLogs').DataTable().destroy();
 
@@ -383,13 +382,48 @@
 
       })
     }
+    function setDate() {
+      var arrival = "{{ $item->master->arrivals }}";
+      var exit = "{{ $item->ExitDate }} {{ $item->ExitTime }}";
+      var chargable = "{{ $item->ChargeableWeight }}";
+      var gross = "{{ $item->BRUTO }}";
+
+      if(arrival != ''){
+        var parseArrival = moment(arrival, 'DD-MM-YYYY hh:mm:ss').format('DD/MM/YYYY hh:mm');
+        $('#cal_arrival').val(parseArrival ?? '');
+      }
+
+      if(exit !== ' '){
+        var parseExit = moment(exit, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm');
+        $('#cal_out').val(parseExit ?? '');
+      }
+
+      $('#cal_chargable').val(chargable);
+      $('#cal_gross').val(gross);
+
+      $('#formCalculate').attr('action', "/manifest/calculate/{{ \Crypt::encrypt($item->id) }}");
+      $('#formStoreCalculate').attr('action', "/manifest/save-calculate/{{ \Crypt::encrypt($item->id) }}");
+
+      // console.log(arrival+";"+exit);
+    }
+    function calDays() {
+      var one = $('#cal_arrival').val();
+      var two = $('#cal_out').val();
+      
+      if(one && two){
+        var dayOne = moment(one, "DD/MM/YYYY HH:mm", true);
+        var dayTwo = moment(two, "DD/MM/YYYY HH:mm", true);
+        var diff = dayTwo.diff(dayOne, 'days');
+        if(diff != NaN){
+          $('#cal_days').val(diff + 1);
+        }
+      }
+    }
 
     jQuery(document).ready(function(){
-      showTab();
-      
+      showTab();      
 
       $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
-        console.log(e.target);
         switch (e.target.id){            
             case "tab-log":{
               getTblLogs();
@@ -397,6 +431,10 @@
             }
             case "tab-houses":{
               getTblHSCodes("{{ $item->id }}");
+              break;
+            }
+            case "tab-estimasi":{
+              setDate();
               break;
             }
         }
@@ -638,6 +676,37 @@
             })
           }
         });
+      });
+      $(document).on("change.datetimepicker", '.withtime', function (e) {          
+          calDays();
+      });     
+      $(document).on('submit', '#formCalculate', function(e){
+        e.preventDefault();
+        var action = $(this).attr('action');        
+        var data = $(this).serialize();
+
+        $('.btn').prop('disabled', 'disabled');
+        
+        $.ajax({
+          url: action,
+          type: "GET",
+          data: data,
+          success:function(msg){
+            console.log(msg);
+            $('#tblIsiCalculate').html(msg);
+            
+            $('.btn').prop('disabled', false);
+          },
+          error:function(jqXHR){
+            jsonValue = jQuery.parseJSON( jqXHR.responseText );
+            toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+            $('.btn').prop('disabled', false);
+          }
+        })
+      });
+      $('#formDetails').dirty({
+        preventLeaving: true,
       });
     });
   </script>

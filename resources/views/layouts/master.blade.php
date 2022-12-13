@@ -37,6 +37,8 @@
   <script src="{{ asset('adminlte') }}/plugins/popper/popper.min.js"></script> --}}
   <!-- AdminLTE App -->
   <script src="{{ asset('adminlte') }}/dist/js/adminlte.min.js"></script>
+  <!-- Dirty Form -->
+  <script src="{{ asset('adminlte') }}/dist/js/jquery.dirty.js"></script>
   <!-- SweetAlert2 -->
   <script src="{{ asset('adminlte') }}/plugins/sweetalert2/sweetalert2.min.js"></script>
   <!-- Toastr -->

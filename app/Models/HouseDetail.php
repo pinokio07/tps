@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class HouseDetail extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $table = 'tps_pjtd';
+    protected $table = 'tps_house_items';
     protected $guarded = ['id'];
 
     public function house()

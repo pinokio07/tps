@@ -144,7 +144,7 @@ class ManifestShipmentsController extends Controller
       $data = collect([
         'id' => 'id',
         'NO_HOUSE_BLAWB' => 'HAWB No',
-        'X_Ray' => 'X-Ray Date',
+        // 'X_Ray' => 'X-Ray Date',
         'NO_FLIGHT' => 'Flight No',
         'NO_BC11' => 'BC 1.1',
         'NO_POS_BC11' => 'POS BC 1.1',

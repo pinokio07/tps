@@ -17,9 +17,9 @@ class ManifestHousesController extends Controller
 
           return DataTables::of($query)
                             ->addIndexColumn()
-                            ->addColumn('X_Ray', function($row){
-                              return "X-Ray Date";
-                            })
+                            // ->addColumn('X_Ray', function($row){
+                            //   return "X-Ray Date";
+                            // })
                             ->addColumn('mGrossWeight', function($row){
                               return $row->master->mGrossWeight;
                             })
@@ -92,6 +92,7 @@ class ManifestHousesController extends Controller
           DB::beginTransaction();
 
           try {
+
             $hasil = array_merge($data, ['NO_BARANG' => $data['NO_HOUSE_BLAWB']]);
 
             $house->update($hasil);            
@@ -104,6 +105,14 @@ class ManifestHousesController extends Controller
               foreach ($house->getChanges() as $key => $value) {
                 if($key != 'updated_at'){
                   $info .= '<li> Update ' . $key . ' to ' . $value .'</li>';
+
+                  if($key == 'BRUTO'){
+                    $master = $house->master;
+                    $newGross = $master->houses()->sum('BRUTO');
+                    $master->update(['GW' => $newGross]);
+
+                    createLog('App\Models\Master', $master->id, 'Update GW to '.$value);
+                  }
                 }                
               }
 
@@ -200,11 +209,12 @@ class ManifestHousesController extends Controller
             $days -= $countDays;
           } else {
             $countDays = $days;
+            $days -= $countDays;
           }
           ${'charge_'.$charge->id} = $charge->rate * ($house->$column ?? 0) * $countDays;
 
           $output .= '<tr>'
-                      .'<td>'.$charge->name.'</td>'
+                      .'<td><input type="hidden" name="item[]" value="'.$charge->name.'">'.$charge->name.'</td>'
                       .'<td>'.$countDays.'</td>'
                       .'<td>'.number_format(($house->$column ?? 0), 2, ',','.').'</td>'
                       .'<td class="text-right">'.number_format($charge->rate, 2, ',','.').'</td>'                      
@@ -278,8 +288,7 @@ class ManifestHousesController extends Controller
                     .'</tr>';
        
 
-        echo $output;
-        
+        echo $output;        
       }
     }
 
