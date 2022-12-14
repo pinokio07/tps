@@ -145,7 +145,7 @@
                 },
             ],
             initComplete: function () {
-              this.api().columns([1,2,3,4,5,6,7,8,11,12,13,14,16,17]).every( function () {
+              this.api().columns([1,2,3,4,5,6,7,8,11,12,13,14,16,17,18]).every( function () {
                 var column = this;
                 var select = $('<select class="select2bs4clear" style="width: 100%;"><option value="">Select...</option></select>')
                 .appendTo( $(column.footer(3)).empty() )

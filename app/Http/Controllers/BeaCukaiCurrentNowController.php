@@ -18,7 +18,7 @@ class BeaCukaiCurrentNowController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-          $tanggal = today()->format('Y-m-d');
+          $tanggal = today();
           if($request->tanggal){
             $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
           }
@@ -57,10 +57,10 @@ class BeaCukaiCurrentNowController extends Controller
 
                             return $brg;
                            })
-                           ->addColumn('Status', function($row){
+                           ->addColumn('Status', function($row) use ($tanggal){
                             $dateIn = Carbon::parse($row->SCAN_IN_DATE);
 
-                            return ($dateIn->diffInDays(now()) > 30) 
+                            return ($dateIn->diffInDays($tanggal, false) > 30) 
                                       ? 'Abandon' : 'Current Now';
                            })
                            ->addColumn('Keterangan', function($row){
