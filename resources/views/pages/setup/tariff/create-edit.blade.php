@@ -27,7 +27,7 @@
             </div>
             @php
                 if($item->id){
-                  $url = route('setup.tariff-schema.update', ['tariff_scheme' => $item->id]);
+                  $url = route('setup.tariff-schema.update', ['tariff_schema' => $item->id]);
                 } else {
                   $url = route('setup.tariff-schema.store');
                 }
