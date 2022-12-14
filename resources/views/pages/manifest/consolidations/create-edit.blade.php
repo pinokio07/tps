@@ -730,30 +730,35 @@
     $(function () {
         $('#datetimepicker1').datetimepicker({
           icons: { time: 'far fa-clock' },
-          format: 'DD-MM-YYYY HH:mm:ss'
+          format: 'DD-MM-YYYY HH:mm:ss',
+          sideBySide: true,
+          allowInputToggle: true,
         });
 
         $('.withtime').datetimepicker({
           icons: { time: 'far fa-clock' },
-          format: 'DD/MM/YYYY HH:mm'
+          format: 'DD/MM/YYYY HH:mm',
+          sideBySide: true,
+          allowInputToggle: true,
         });
 
         $('.onlydate').datetimepicker({
           icons: { time: 'far fa-clock' },
-          format: 'DD-MM-YYYY'
+          format: 'DD-MM-YYYY',
+          allowInputToggle: true,
         });
 
-        $("#arrivals").focus(function () {
-          $(this).next('.input-group-append').trigger('click');
-        });
+        // $("#arrivals").focus(function () {
+        //   $(this).next('.input-group-append').trigger('click');
+        // });
 
-        $(".tanggal").focus(function () {
-          $(this).next('.input-group-append').trigger('click');
-        });
+        // $(".tanggal").focus(function () {
+        //   $(this).next('.input-group-append').trigger('click');
+        // });
 
-        $('.tgltime').focus(function () {
-          $(this).next('.input-group-append').trigger('click');
-        });
+        // $('.tgltime').focus(function () {
+        //   $(this).next('.input-group-append').trigger('click');
+        // });
 
         $('.mawb-mask').inputmask({
           mask: "999 9999 9999",

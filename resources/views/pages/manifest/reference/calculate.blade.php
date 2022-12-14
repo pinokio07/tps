@@ -132,7 +132,7 @@
       Save as Estimated
     </button>
   </div>
-  <div class="col-lg-6">
+  <div class="col-lg-6 mt-2 mt-md-0">
     <button type="button"
             class="btn btn-xm bg-lime btn-block elevation-2">
       Save as Actual

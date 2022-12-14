@@ -2,19 +2,6 @@
 @section('title') Shipments @endsection
 @section('page_name') Shipments @endsection
 
-@section('header')
-<link rel="stylesheet" href="{{ asset('adminlte') }}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-
-<script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/jszip/jszip.min.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="{{ asset('adminlte') }}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-@endsection
-
 @section('content')
 <!-- Main content -->
 <section class="content">
@@ -80,28 +67,49 @@
                     filter: "{{ $keys }}.filter", 
                   }
                 },
+                @elseif($keys == 'AL_PENERIMA')
+                {
+                  data: "{{ $keys }}",
+                  defaultContent: '-',
+                  render:function(data, type, row){
+                    if( type === 'display'){
+                      return (data != null && data.length > 30) ?
+                              data.substr( 0, 30 ) +'…' :
+                              data;
+                    } else if ( type === 'export') {
+                      return data;
+                    }
+                  }
+                },
                 @else
                 {data: "{{$keys}}", name: "{{$keys}}"},
                 @endif
               @empty
               @endforelse          
             ],
-            columnDefs: [ {
-                targets: 5,
-                render: function ( data, type, row ) {
-                  return (data && data.length > 30) ?
-                              data.substr( 0, 30 ) +'…' :
-                              data;
-                }
-            } ],
+            // columnDefs: [ {
+            //     targets: 5,
+            //     render: function ( data, type, row ) {
+            //       return (data && data.length > 30) ?
+            //                   data.substr( 0, 30 ) +'…' :
+            //                   data;
+            //     }
+            // } ],
             buttons: [                
-                'excelHtml5',
+                {
+                  extend: 'excelHtml5',
+                  exportOptions: { orthogonal: 'export' }
+                },
                 {
                     extend: 'pdfHtml5',
                     orientation: 'landscape',
-                    pageSize: 'LEGAL'
+                    pageSize: 'LEGAL',
+                    exportOptions: { orthogonal: 'export' }
                 },
-                'print',
+                {
+                  extend: 'print',
+                  exportOptions: { orthogonal: 'export' }
+                },
             ],
             initComplete: function () {
               this.api().columns([2,3,4,5,6,7,8]).every( function () {

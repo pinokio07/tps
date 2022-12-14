@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Models\House;
+use App\Models\HouseDetail;
+use DataTables;
 
 class BeaCukaiCurrentNowController extends Controller
 {
@@ -11,9 +15,89 @@ class BeaCukaiCurrentNowController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if($request->ajax()){
+          $tanggal = today()->format('Y-m-d');
+          if($request->tanggal){
+            $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal);
+          }
+          
+          $query = House::with(['master', 'details'])
+                        ->where(function($ex) use ($tanggal){
+                          $ex->where('ExitDate', '<=', $tanggal)
+                            ->orWhereNull('ExitDate');
+                        })
+                        ->whereNotNull('SCAN_IN_DATE');
+
+          return DataTables::eloquent($query)
+                           ->addIndexColumn()
+                           ->addColumn('BC_11', function($row){
+                            return $row->master->BC_11;
+                           })
+                           ->addColumn('NO_PLP', function($row){
+                            return "NO PLP";
+                           })
+                           ->addColumn('TGL_PLP', function($row){
+                            return "TGL PLP";
+                           })
+                           ->addColumn('NO_SEGEL', function($row){
+                            return $row->master->NO_SEGEL;
+                           })
+                           ->addColumn('UR_BRG', function($row){
+                            $brg = '';
+                            $count = $row->details->count();
+
+                            if($count > 0){
+                              foreach ($row->details as $key => $detail) {
+                                $brg .= $detail->UR_BRG;
+                                (($key + 1) < $count) ? $brg .= ', ' : '';
+                              }
+                            }
+
+                            return $brg;
+                           })
+                           ->addColumn('Status', function($row){
+                            $dateIn = Carbon::parse($row->SCAN_IN_DATE);
+
+                            return ($dateIn->diffInDays(now()) > 30) 
+                                      ? 'Abandon' : 'Current Now';
+                           })
+                           ->addColumn('Keterangan', function($row){
+                            return 'Keterangan';
+                           })
+                           ->addColumn('Penegahan', function($row){
+                            return "Penegahan";
+                           })
+                           ->toJson();
+        }
+
+        $items = collect([
+          'id' => 'id',
+          'NM_PEMBERITAHU' => 'Nama Pemberitahu',
+          'BC_11' => 'Nomor BC 11',
+          'TGL_BC11' => 'Tanggal BC 11',
+          'NO_POS_BC11' => 'Pos',
+          'NO_FLIGHT' => 'Sarana Pengangkut',
+          'NO_PLP' => 'Nomor PLP',
+          'TGL_PLP' => 'Tanggal PLP',
+          'NO_SEGEL' => 'Segel',
+          'JML_BRG' => 'Jumlah Koli',
+          'BRUTO' => 'Bruto',
+          'NO_MASTER_BLAWB' => 'MAWB',
+          'NO_HOUSE_BLAWB' => 'HAWB',
+          'UR_BRG' => 'Uraian Barang',
+          'NM_PENERIMA' => 'Consignee',
+          'AL_PENERIMA' => 'Alamat',
+          'NO_SPPB' => 'Nomor SPPB',
+          'TGL_SPPB' => 'Tanggal SPPB',
+          'Status' => 'Status',
+          'SCAN_IN_DATE' => 'Tanggal dan Waktu Masuk TPS',
+          'Keterangan' => 'Keterangan',
+          'Penegahan' => 'Penegahan'
+        ]);
+
+        return view('pages.beacukai.currentnow', compact(['items']));
     }
 
     /**

@@ -79,7 +79,7 @@ class ManifestShipmentsController extends Controller
 
                             return $show;
                            })
-                           ->rawColumns(['NO_BARANG', 'AL_PENERIMA'])
+                           ->rawColumns(['NO_BARANG'])
                            ->toJson();
         }
 
