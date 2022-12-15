@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\House;
 use App\Models\Master;
 use App\Models\Tariff;
+use App\Models\HouseTariff;
 use DB, DataTables, Crypt, Auth;
 
 class ManifestHousesController extends Controller
@@ -141,7 +142,7 @@ class ManifestHousesController extends Controller
         }
     }
     
-    public function destroy(House $house)
+    public function destroy(Request $request, House $house)
     {
         if(Auth::user()->cannot('edit_manifest_consolidations') 
             && Auth::user()->cannot('edit_manifest_shipments')){
@@ -214,20 +215,26 @@ class ManifestHousesController extends Controller
           ${'charge_'.$charge->id} = $charge->rate * ($house->$column ?? 0) * $countDays;
 
           $output .= '<tr>'
-                      .'<td><input type="hidden" name="item[]" value="'.$charge->name.'">'.$charge->name.'</td>'
-                      .'<td>'.$countDays.'</td>'
-                      .'<td>'.number_format(($house->$column ?? 0), 2, ',','.').'</td>'
-                      .'<td class="text-right">'.number_format($charge->rate, 2, ',','.').'</td>'                      
-                      .'<td class="text-right">'.number_format((${'charge_'.$charge->id} ?? 0), 2, ',','.').'</td>';
+                      .'<td>
+                      <input type="hidden" name="is_vat[]" value="false">
+                      <input type="hidden" name="item[]" value="'.$charge->name.'">'
+                      .$charge->name.'</td>'
+                      .'<td><input type="hidden" name="days[]" value="'.$countDays.'">'
+                      .$countDays.'</td>'
+                      .'<td><input type="hidden" name="weight[]" value="'.$house->$column.'">'
+                      .number_format(($house->$column ?? 0), 2, ',','.').'</td>'
+                      .'<td class="text-right"><input type="hidden" name="rate[]" value="'.$charge->rate.'">'.number_format($charge->rate, 2, ',','.').'</td>'                      
+                      .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'charge_'.$charge->id}.'">'.number_format((${'charge_'.$charge->id} ?? 0), 2, ',','.').'</td>';
 
           $totalCharge += ${'charge_'.$charge->id};
         }        
-        $output .= '<tr>'
-                    .'<td>Minimum Charge</td>'
-                    .'<td></td>'
-                    .'<td></td>'
-                    .'<td></td>'
-                    .'<td class="text-right">'.number_format($tariff->minimum, 2, ',', '.').'</td>'
+        $output .= '<tr>
+                      <input type="hidden" name="is_vat[]" value="0">'
+                    .'<td><input type="hidden" name="item[]" value="Minimum Charge">Minimum Charge</td>'
+                    .'<td><input type="hidden" name="days[]" value=""></td>'
+                    .'<td><input type="hidden" name="weight[]" value=""></td>'
+                    .'<td><input type="hidden" name="rate[]" value=""></td>'
+                    .'<td class="text-right"><input type="hidden" name="total[]" value="'.$tariff->minimum.'">'.number_format($tariff->minimum, 2, ',', '.').'</td>'
                     .'</tr>';
 
         if($totalCharge < $tariff->minimum){
@@ -258,12 +265,14 @@ class ManifestHousesController extends Controller
             $rateShow = number_format($other->rate, 2, ',', '.');
           }
 
-          $output .= '<tr>'
-                      .'<td>'.$other->name.'</td>'
-                      .'<td></td>'                      
-                      .'<td></td>'
-                      .'<td class="text-right">'.$rateShow.'</td>'
-                      .'<td class="text-right">'.number_format(${'other_'.$other->id}, 2, ',','.').'</td>'
+          $output .= '<tr>
+                        <input type="hidden" name="is_vat[]" value="0">'
+                      .'<td><input type="hidden" name="item[]" value="'.$other->name.'">'
+                      .$other->name.'</td>'
+                      .'<td><input type="hidden" name="days[]" value=""></td>'                      
+                      .'<td><input type="hidden" name="weight[]" value=""></td>'
+                      .'<td class="text-right"><input type="hidden" name="rate[]" value="'.$rateShow.'">'.$rateShow.'</td>'
+                      .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'other_'.$other->id}.'">'.number_format(${'other_'.$other->id}, 2, ',','.').'</td>'
                       .'</tr>';
 
           $subTotal += ${'other_'.$other->id};
@@ -277,8 +286,14 @@ class ManifestHousesController extends Controller
         if($tariff->vat){
           $vat = $subTotal * ($tariff->vat / 100);
           $output .= '<tr>'
-                      .'<td colspan="4" class="text-right">VAT '.$tariff->vat.' %</td>'
-                      .'<td class="text-right"><b>'.number_format(round($vat), 2, ',', '.').'</b></td>'
+                      .'<td colspan="4" class="text-right">'
+                      .'<input type="hidden" name="is_vat[]" value="1">
+                        <input type="hidden" name="item[]" value="VAT '.$tariff->vat.' %">VAT '.$tariff->vat.' %</td>'
+                      .'<input type="hidden" name="days[]" value="">
+                        <input type="hidden" name="weight[]" value="">
+                        <input type="hidden" name="rate[]" value="">'
+                      .'<td class="text-right">
+                        <input type="hidden" name="total[]" value="'.round($vat).'"><b>'.number_format(round($vat), 2, ',', '.').'</b></td>'
                       .'</tr>';
         }
 
@@ -290,6 +305,63 @@ class ManifestHousesController extends Controller
 
         echo $output;        
       }
+    }
+
+    public function storecalculate(Request $request, House $house)
+    {
+        DB::beginTransaction();
+        try {
+          if($house->tariff->where('is_estimate', $request->is_estimate) != ''){
+            $info = 'Update ';
+          } else {
+            $info = 'Create ';
+          }
+
+          foreach($request->item as $key => $value){
+            $tariff = HouseTariff::updateOrCreate([
+              'house_id' => $house->id,
+              'item' => $value,
+              'is_estimate' => $request->is_estimate
+            ],[              
+              'urut' => ($key + 1),
+              'days' => $request->days[$key],
+              'weight' => $request->weight[$key],
+              'rate' => $request->rate[$key],
+              'total' => $request->total[$key],
+              'is_vat' => $request->is_vat[$key]
+            ]);
+            DB::commit();
+          }
+
+          if($request->is_estimate > 0){
+            $info .= ' Actual';
+          } else {
+            $info .= ' Estimated';
+          }
+
+          createLog('App\Models\House', $house->id, $info.' Billing');
+
+          DB::commit();
+
+          if($request->ajax()){
+            return response()->json([
+              'status' => 'OK',
+              'estimate' => $request->is_estimate
+            ]);
+          }
+
+        } catch (\Throwable $th) {
+          DB::rollback();
+
+          if($request->ajax()){
+            return response()->json([
+              'status' => 'ERROR',
+              'message' => $th->getMessage()
+            ]);
+          }
+
+          throw $th;
+        }
     }
 
     public function validatedHouse()

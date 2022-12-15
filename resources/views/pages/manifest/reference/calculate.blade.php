@@ -87,7 +87,7 @@
 <div class="row">
   <div class="col-12">
     <form id="formCalculate" method="post">
-      @csrf
+      @csrf      
     </form>
     <button type="submit" 
             id="btnCalculate"
@@ -97,12 +97,14 @@
     </button>
   </div>
   <div class="col-lg-6 mt-2">
-    <button class="btn btn-sm btn-info btn-block elevation-2">
+    <button id="btnShowEstimated"
+            class="btn btn-sm btn-info btn-block elevation-2 @if(!$item->tariff()->where('is_estimated', true)) d-none @endif">
       View Estimated
     </button>
   </div>
   <div class="col-lg-6 mt-2">
-    <button class="btn btn-sm btn-success btn-block elevation-2">
+    <button id="btnShowActual"
+            class="btn btn-sm btn-success btn-block elevation-2 @if(!$item->tariff()->where('is_estimated', false)) d-none @endif">
       View Actual
     </button>
   </div>
@@ -111,6 +113,8 @@
   <div class="col-12">
     <div class="table-responsive">
       <form id="formStoreCalculate" method="POST">
+        @csrf
+        <input type="hidden" name="is_estimate" value="1">
         <table class="table table-sm">
           <thead>
             <tr>
@@ -128,13 +132,15 @@
   </div>
   <div class="col-lg-6">
     <button type="button"
-            class="btn btn-xm btn-primary btn-block elevation-2">
+            data-estimate="1"
+            class="btn btn-xm btn-primary btn-block elevation-2 saveCalculation">
       Save as Estimated
     </button>
   </div>
   <div class="col-lg-6 mt-2 mt-md-0">
     <button type="button"
-            class="btn btn-xm bg-lime btn-block elevation-2">
+            data-estimate="0"
+            class="btn btn-xm bg-lime btn-block elevation-2 saveCalculation">
       Save as Actual
     </button>
   </div>

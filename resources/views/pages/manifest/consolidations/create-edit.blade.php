@@ -1542,7 +1542,6 @@
           type: "GET",
           data: data,
           success:function(msg){
-            console.log(msg);
             $('#tblIsiCalculate').html(msg);
             $('.btn').prop('disabled', false);
           },
@@ -1554,6 +1553,52 @@
           }
         })
       });
+      $(document).on('click', '.saveCalculation', function(){
+        var estimate = $(this).attr('data-estimate');
+        var info = 'Estimated';
+        var action = $('#formStoreCalculate').attr('action');
+        var data = $('#formStoreCalculate').serialize();
+
+        if(estimate < 1){
+          info = 'Actual';
+        }
+
+        Swal.fire({			
+          title: 'Save '+info+'?',			
+          html: "This will replace current data if exists!",
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          cancelButtonText: 'Cancel',
+          confirmButtonText: 'Yes, calculate!'
+        }).then((result) => {
+          if (result.value) {
+            $('#formStoreCalculate #is_estimate').val(estimate);
+
+            $.ajax({
+              url: action,
+              type: "POST",
+              data:data,
+              success:function(msg){
+                if(msg.status == 'OK'){
+                  toastr.success("Store "+info+" Success", "Success!", {timeOut: 3000, closeButton: true,progressBar: true});
+                  if(msg.estimate > 0){
+                    $('#btnShowActual').removeClass('d-none');
+                  } else {
+                    $('#btnShowEstimated').removeClass('d-none');
+                  }
+                } else {
+                  toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+                }
+              },
+              error:function(jqXHR, exception){
+                jsonValue = jQuery.parseJSON( jqXHR.responseText );
+                toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+              }
+            })
+          }
+        });
+      })
       $('#formDetails').dirty({
         preventLeaving: true,
       });

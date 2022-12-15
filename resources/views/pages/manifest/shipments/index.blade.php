@@ -87,14 +87,6 @@
               @empty
               @endforelse          
             ],
-            // columnDefs: [ {
-            //     targets: 5,
-            //     render: function ( data, type, row ) {
-            //       return (data && data.length > 30) ?
-            //                   data.substr( 0, 30 ) +'…' :
-            //                   data;
-            //     }
-            // } ],
             buttons: [                
                 {
                   extend: 'excelHtml5',
@@ -112,9 +104,9 @@
                 },
             ],
             initComplete: function () {
-              this.api().columns([2,3,4,5,6,7,8]).every( function () {
+              this.api().columns([1,2,3,4,5,6,8]).every( function () {
                 var column = this;
-                var select = $('<select class="select2bs4" style="width: 100%;"><option value="">Select...</option></select>')
+                var select = $('<select class="select2bs4clear" style="width: 100%;"><option value="">Select...</option></select>')
                 .appendTo( $(column.footer(3)).empty() )
                 .on( 'change', function () {
                   var val = $.fn.dataTable.util.escapeRegex(
@@ -131,10 +123,12 @@
                   }              
                 } );
               } );
+
+              select2bs4Clear();
             }, 
           }).buttons().container().appendTo('#dataAjax_wrapper .col-md-6:eq(0)');
           
-          select2bs4Clear();
+          
         }
       })
     }

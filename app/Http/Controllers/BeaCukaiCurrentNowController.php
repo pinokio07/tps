@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\House;
 use App\Models\HouseDetail;
-use DataTables;
+use DataTables, Crypt;
 
 class BeaCukaiCurrentNowController extends Controller
 {
@@ -67,8 +67,15 @@ class BeaCukaiCurrentNowController extends Controller
                             return 'Keterangan';
                            })
                            ->addColumn('Penegahan', function($row){
-                            return "Penegahan";
+                            $btn = '<button data-toggle="modal"
+                                            data-target="#modal-tegah"
+                                            class="btn btn-xs btn-danger elevation-2 tegah"
+                                            data-id="'.Crypt::encrypt($row->id).'">
+                                            <i class="fas fa-stop"></i> Stop</button>';
+
+                            return $btn;
                            })
+                           ->rawColumns(['Penegahan'])
                            ->toJson();
         }
 

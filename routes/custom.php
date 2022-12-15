@@ -17,7 +17,7 @@ Route::group(['middleware' => 'auth'], function(){
        ->name('calculate.house')
        ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
   //Save Tariff 
-  Route::post('/manifest/save-calculate/{house}', 'ManifestHousesController@calculate')
+  Route::post('/manifest/save-calculate/{house}', 'ManifestHousesController@storecalculate')
         ->name('save.calculate.house')
         ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
 

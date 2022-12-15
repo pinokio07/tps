@@ -154,7 +154,7 @@ class ManifestHouseDetailsController extends Controller
 
         }
     }    
-    public function destroy(HouseDetail $house_detail)
+    public function destroy(Request $request, HouseDetail $house_detail)
     {
         if(Auth::user()->cannot('edit_manifest_consolidations') 
             && Auth::user()->cannot('edit_manifest_shipments')){

@@ -171,8 +171,6 @@
           .buttons()
           .container()
           .appendTo('#dataAjax_wrapper .col-md-6:eq(0)');
-          
-          // select2bs4Clear();
         },
         error:function(msg){
           console.log(msg);

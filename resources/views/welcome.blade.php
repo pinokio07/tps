@@ -103,7 +103,8 @@
         <hr class="w-100">
         <div class="row">          
           <div class="col-12">
-            <button type="submit" class="btn btn-primary btn-block">Login</button>
+            <button type="submit" 
+                    class="btn btn-primary btn-block elevation-2">Login</button>
           </div>
           <!-- /.col -->
         </div>
