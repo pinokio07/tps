@@ -98,13 +98,13 @@
   </div>
   <div class="col-lg-6 mt-2">
     <button id="btnShowEstimated"
-            class="btn btn-sm btn-info btn-block elevation-2 @if(!$item->tariff()->where('is_estimated', true)) d-none @endif">
+            class="btn btn-sm btn-info btn-block elevation-2">
       View Estimated
     </button>
   </div>
   <div class="col-lg-6 mt-2">
     <button id="btnShowActual"
-            class="btn btn-sm btn-success btn-block elevation-2 @if(!$item->tariff()->where('is_estimated', false)) d-none @endif">
+            class="btn btn-sm btn-success btn-block elevation-2">
       View Actual
     </button>
   </div>
