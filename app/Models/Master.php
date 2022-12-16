@@ -14,7 +14,6 @@ class Master extends Model
     use HasFactory, SoftDeletes;
     protected $table = 'tps_master';
     protected $guarded = ['id'];
-    // protected $cast = ['arrivals'];
 
     public function resolveRouteBinding($encryptedId, $field = null)
     {

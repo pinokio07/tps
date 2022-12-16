@@ -15,4 +15,14 @@ class HouseTariff extends Model
     {
       return $this->belongsTo(House::class, 'house_id');
     }
+
+    public function scopeEstimate($query)
+    {
+      return $query->where('is_estimate', true);
+    }
+
+    public function scopeActual($query)
+    {
+      return $query->where('is_estimate', false);
+    }
 }

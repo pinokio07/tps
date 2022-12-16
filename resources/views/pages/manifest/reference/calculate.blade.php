@@ -98,16 +98,16 @@
   </div>
   <div class="col-lg-6 mt-2">
     <button id="btnShowEstimated"
-            class="btn btn-sm btn-info btn-block elevation-2">
+            class="btn btn-sm btn-info btn-block elevation-2 @if(!$item->tariff || !$item->estimatedTariff) d-none @endif">
       View Estimated
     </button>
   </div>
-  <div class="col-lg-6 mt-2">
+  {{-- <div class="col-lg-6 mt-2">
     <button id="btnShowActual"
             class="btn btn-sm btn-success btn-block elevation-2">
       View Actual
     </button>
-  </div>
+  </div> --}}
 </div>
 <div class="row  mt-5">
   <div class="col-12">

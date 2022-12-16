@@ -52,4 +52,14 @@ class House extends Model
     {
       return $this->hasMany(HouseTariff::class, 'house_id');
     }
+
+    public function estimatedTariff()
+    {
+      return $this->tariff()->estimate();
+    }
+
+    public function actualTariff()
+    {
+      return $this->tariff()->actual();
+    }
 }

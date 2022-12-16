@@ -52,11 +52,7 @@ class LogsController extends Controller
           case 'house':
             $house = House::findOrFail($request->id);
             $detail = $house->details()->pluck('id')->toArray();
-
-            // $query->where(function($h) use ($house){
-            //         $h->where('logable_type', 'App\Models\House')
-            //               ->whereIn('logable_id', $house->id);
-            //       })
+            
             $query->where('logable_type', 'App\Models\House')
                   ->where('logable_id', $house->id)
                   ->orWhere(function($d) use ($detail){
