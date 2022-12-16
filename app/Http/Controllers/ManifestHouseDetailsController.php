@@ -17,6 +17,10 @@ class ManifestHouseDetailsController extends Controller
           return DataTables::eloquent($query)
                            ->addIndexColumn()
                            ->addColumn('actions', function($row){
+                            $btn = '';
+
+                            if(auth()->user()->can('edit_manifest_consolidations|edit_manifest_shipments')){
+
                             $btn = '<button type="button"
                                             data-toggle="modal"
                                             data-target="#modal-item"
@@ -32,10 +36,13 @@ class ManifestHouseDetailsController extends Controller
                                             data-pph="'.$row->PPH_TRF.'">
                                       <i class="fas fa-edit"></i>
                                     </button>';
-                            $btn .= '<button class="btn btn-xs btn-danger elevation-2 hapusDetail"
-                                        data-href="'. route('house-details.destroy', ['house_detail' => $row->id]) .'">
-                                      <i class="fas fa-trash"></i>
-                                    </button>';
+                              if(auth()->user()->can('delete_manifest_consolidations|delete_manifest_shipments')){
+                                $btn .= '<button class="btn btn-xs btn-danger elevation-2 hapusDetail"
+                                            data-href="'. route('house-details.destroy', ['house_detail' => $row->id]) .'">
+                                          <i class="fas fa-trash"></i>
+                                        </button>';
+                              }
+                            }
 
                             return $btn;
                            })

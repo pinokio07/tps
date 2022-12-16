@@ -112,21 +112,33 @@ class ManifestShipmentsController extends Controller
     public function show(House $shipment)
     {
         $item = $shipment->load(['details']);
+        $disabled = 'disabled';
+
+        if(auth()->user()->can('edit_manifest_shipments')){
+          $disabled = false;
+        }
+
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
         $tariff = Tariff::all();
 
-        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail', 'tariff']));
+        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail', 'tariff', 'disabled']));
     }
     
     public function edit(House $shipment)
     {
         $item = $shipment->load(['details']);
+        $disabled = 'disabled';
+
+        if(auth()->user()->can('edit_manifest_shipments')){
+          $disabled = false;
+        }
+
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
         $tariff = Tariff::all();
 
-        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail', 'tariff']));
+        return view('pages.manifest.shipments.create-edit', compact(['item', 'headerHouse', 'headerDetail', 'tariff', 'disabled']));
     }
     
     public function update(Request $request, $id)
@@ -169,6 +181,7 @@ class ManifestShipmentsController extends Controller
         'HS_CODE' => 'HS Code',
         'UR_BRG' => 'Description',
         'CIF' => 'CIF',
+        'FOB' => 'FOB',
         'BM_TRF' => 'BM Trf',
         'PPN_TRF' => 'PPN Trf',
         'PPH_TRF' => 'PPH Trf',

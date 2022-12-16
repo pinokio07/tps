@@ -93,7 +93,8 @@
                                         id="KPBC" 
                                         style="width: 100%;"
                                         class="select2kpbc"
-                                        required>
+                                        required
+                                        >
                                   @if($item->KPBC)
                                   <option value="{{ $item->KPBC }}"
                                           selected>
@@ -111,7 +112,8 @@
                                         id="mBRANCH" 
                                         style="width: 100%;"
                                         class="select2bs4"
-                                        required>
+                                        required
+                                        >
                                  @forelse (auth()->user()->branches as $branch)
                                     <option value="{{ $branch->id }}"
                                         @selected($item->mBRANCH == $branch->id)
@@ -133,7 +135,8 @@
                                        id="NPWP" 
                                        class="form-control form-control-sm"
                                        placeholder="NPWP"
-                                       readonly>
+                                       readonly
+                                       >
                               </div>
                             </div>
                             <div class="form-group row">
@@ -146,7 +149,8 @@
                                         id="AirlineCode" 
                                         style="width: 100%;"
                                         class="select2airline"
-                                        required>
+                                        required
+                                        >
                                   @if($item->AirlineCode)
                                   <option value="{{ $item->AirlineCode }}" 
                                           data-name="{{ $item->NM_SARANA_ANGKUT }}"
@@ -161,7 +165,8 @@
                                        id="NM_SARANA_ANGKUT"
                                        value="{{ old('NM_SARANA_ANGKUT') 
                                                  ?? $item->NM_SARANA_ANGKUT
-                                                 ?? '' }}">
+                                                 ?? '' }}"
+                                                 >
                               </div>
                               <!-- FlightNo -->
                               <label class="col-sm-3 col-lg-1" for="FlightNo">
@@ -175,7 +180,8 @@
                                        value="{{ old('FlightNo')
                                                   ?? $item->FlightNo
                                                   ?? '' }}"
-                                       required>
+                                       required
+                                       >
                               </div>
                               <!-- Arrivals -->
                               <label class="col-sm-3 col-lg-1" for="arrivals">
@@ -193,7 +199,8 @@
                                          required
                                          value="{{ old('arrivals')
                                                    ?? $item->arrivals
-                                                   ?? '' }}">
+                                                   ?? '' }}"
+                                         >
                                   <div class="input-group-append" 
                                        data-target="#datetimepicker1" 
                                        data-toggle="datetimepicker">
@@ -208,14 +215,16 @@
                                        id="ArrivalDate"
                                        value="{{ old('ArrivalDate')
                                                  ?? $item->ArrivalDate
-                                                 ?? '' }}">
+                                                 ?? '' }}"
+                                       >
                                 <!-- ArrivalTime -->
                                 <input type="hidden" 
                                        name="ArrivalTime" 
                                        id="ArrivalTime"
                                        value="{{ old('ArrivalTime')
                                                  ?? $item->ArrivalTime
-                                                 ?? '' }}">
+                                                 ?? '' }}"
+                                       >
                               </div>
                             </div>
                             <div class="form-group row">
@@ -228,7 +237,8 @@
                                         id="Origin" 
                                         style="width: 100%;"
                                         class="select2unloco"
-                                        required>
+                                        required
+                                        >
                                   @if($item->Origin)
                                   <option value="{{ $item->Origin }}"
                                           selected>
@@ -249,7 +259,8 @@
                                 <select name="Transit" 
                                         id="Transit" 
                                         style="width: 100%;"
-                                        class="select2unloco">
+                                        class="select2unloco"
+                                        >
                                   @if($item->Transit)
                                   <option value="{{ $item->Transit }}"
                                           selected>
@@ -272,7 +283,8 @@
                                         id="Destination" 
                                         style="width: 100%;"
                                         class="select2unloco"
-                                        required>
+                                        required
+                                        >
                                   @if($item->Destination)
                                   <option value="{{ $item->Destination }}"
                                           selected>
@@ -300,7 +312,8 @@
                                        placeholder="Shipment Number"
                                        value="{{ old('ShipmentNumber')
                                                  ?? $item->ShipmentNumber
-                                                 ?? ''}}">
+                                                 ?? ''}}"
+                                       >
                               </div>
                               <!-- MAWBNumber -->
                               <label for="MAWBNumber" 
@@ -315,7 +328,8 @@
                                        required
                                        value="{{ old('MAWBNumber')
                                                  ?? $item->MAWBNumber
-                                                 ?? ''}}">
+                                                 ?? ''}}"
+                                       >
                               </div>
                               <!-- MAWBDate -->
                               <label for="MAWBDate" 
@@ -335,7 +349,8 @@
                                          required
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
-                                                   ?? '' }}">
+                                                   ?? '' }}"
+                                         >
                                   <div class="input-group-append" 
                                        data-target="#datetimepicker2" 
                                        data-toggle="datetimepicker">
@@ -351,7 +366,8 @@
                                        placeholder="MAWB Date"
                                        value="{{ old('MAWBDate')
                                                  ?? $item->MAWBDate
-                                                 ?? ''}}">
+                                                 ?? ''}}"
+                                       >
                               </div>
                               <!-- HAWBCount -->
                               <label for="HAWBCount" 
@@ -366,7 +382,8 @@
                                        required
                                        value="{{ old('HAWBCount')
                                                  ?? $item->HAWBCount
-                                                 ?? ''}}">
+                                                 ?? ''}}"
+                                       >
                               </div>
                             </div>
                             <div class="form-group row">
@@ -382,7 +399,8 @@
                                        placeholder="Total Collie"
                                        value="{{ old('mNoOfPackages')
                                                  ?? $item->mNoOfPackages
-                                                 ?? 0}}">
+                                                 ?? 0}}"
+                                       >
                               </div>
                               <!-- mGrossWeight -->
                               <label for="mGrossWeight" 
@@ -396,7 +414,8 @@
                                        placeholder="Gross Weight"
                                        value="{{ old('mGrossWeight')
                                                  ?? $item->mGrossWeight
-                                                 ?? 0}}">
+                                                 ?? 0}}"
+                                       >
                               </div>
                               <!-- mChargeableWeight -->
                               <label for="mChargeableWeight" 
@@ -410,7 +429,8 @@
                                        placeholder="Chargable Weight"
                                        value="{{ old('mChargeableWeight')
                                                  ?? $item->mChargeableWeight
-                                                 ?? 0}}">
+                                                 ?? 0}}"
+                                       >
                               </div>
                               <!-- Partial -->
                               <label for="Partial" 
@@ -419,7 +439,8 @@
                               <div class="col-9 col-lg-2">
                                 <select name="Partial" 
                                         id="Partial" 
-                                        class="custom-select custom-select-sm">
+                                        class="custom-select custom-select-sm"
+                                        >
                                   <option value="0" 
                                     @selected($item->Partial == false)>No</option>
                                   <option value="1" 
@@ -440,7 +461,8 @@
                                        placeholder="BC 1.1 Number"
                                        value="{{ old('PUNumber')
                                                  ?? $item->PUNumber
-                                                 ?? ''}}">
+                                                 ?? ''}}"
+                                       >
                               </div>
                               <!-- POS BC 1.1 -->
                               <label for="POSNumber" 
@@ -454,7 +476,8 @@
                                       placeholder="POS BC 1.1"
                                       value="{{ old('POSNumber')
                                                 ?? $item->POSNumber
-                                                ?? ''}}">
+                                                ?? ''}}"
+                                      >
                               </div>
                               <!-- BC 1.1 Date -->
                               <label for="tglbc" 
@@ -473,7 +496,8 @@
                                          data-ganti="PUDate"
                                          value="{{ old('tglmawb')
                                                    ?? $item->date_mawb
-                                                   ?? '' }}">
+                                                   ?? '' }}"
+                                         >
                                   <div class="input-group-append" 
                                        data-target="#datetimepicker3" 
                                        data-toggle="datetimepicker">
@@ -488,7 +512,8 @@
                                        class="form-control form-control-sm"
                                        value="{{ old('PUDate')
                                                  ?? $item->PUDate
-                                                 ?? ''}}">
+                                                 ?? ''}}"
+                                       >
                               </div>
                             </div>
                             <div class="form-group row">
@@ -499,7 +524,8 @@
                               <div class="col-9 col-lg-3">
                                 <select name="OriginWarehouse" 
                                         id="OriginWarehouse" 
-                                        style="width: 100%;">
+                                        style="width: 100%;"
+                                        >
                                   @if($item->OriginWarehouse)
                                     <option value="{{ $item->OriginWarehouse }}" selected>
                                     {{ $item->OriginWarehouse }} - {{ $item->warehouseLine1->company_name }}
@@ -516,7 +542,8 @@
                                        name="MasukGudang" 
                                        id="MasukGudang" 
                                        class="form-control form-control-sm"
-                                       readonly>
+                                       readonly
+                                       >
                               </div>
                               <!-- No Segel PLP BC -->
                               <label for="NO_SEGEL" 
@@ -531,22 +558,26 @@
                                        value="{{ old('NO_SEGEL')
                                                  ?? $item->NO_SEGEL
                                                  ?? '' }}"
-                                       required>
+                                       required
+                                       >
                               </div>
                             </div>
                           </div>
                           <!-- /.card-body -->
                         </form>
                         <div class="card-footer">
+                          @if($disabled != 'disabled')
                           <button type="submit" 
                                   class="btn btn-sm btn-success elevation-2"
                                   form="formDetails">
                             <i class="fas fa-save"></i>
                             Save
                           </button>
+                          @endif
                           <a href="{{ route('manifest.consolidations') }}" 
                              class="btn btn-sm btn-default elevation-2 ml-2">Cancel</a>
-                          @if($item->id != '')
+                          @if($item->id
+                              && $disabled != 'disabled')
                           <a href="{{ route('manifest.consolidations.create') }}" class="btn btn-sm btn-info elevation-2 ml-2">
                             <i class="fas fa-plus"></i> New
                           </a>
@@ -746,24 +777,16 @@
           icons: { time: 'far fa-clock' },
           format: 'DD-MM-YYYY',
           allowInputToggle: true,
-        });
-
-        // $("#arrivals").focus(function () {
-        //   $(this).next('.input-group-append').trigger('click');
-        // });
-
-        // $(".tanggal").focus(function () {
-        //   $(this).next('.input-group-append').trigger('click');
-        // });
-
-        // $('.tgltime').focus(function () {
-        //   $(this).next('.input-group-append').trigger('click');
-        // });
+        });       
 
         $('.mawb-mask').inputmask({
           mask: "999 9999 9999",
           removeMaskOnSubmit: true
         });
+
+        @if($disabled == 'disabled')
+          $('input, select, textarea, button[type=submit]').prop('disabled', true);
+        @endif
         
     });
     

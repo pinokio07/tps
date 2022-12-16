@@ -144,6 +144,11 @@ class ManifestConsolidationsController extends Controller
     {
         $item = $consolidation->load(['houses']);
         $disabled = 'disabled';
+
+        if(auth()->user()->can('edit_manifest_consolidations')){
+          $disabled = false;          
+        }
+        
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
         $tariff = Tariff::all();
@@ -312,6 +317,7 @@ class ManifestConsolidationsController extends Controller
         'HS_CODE' => 'HS Code',
         'UR_BRG' => 'Description',
         'CIF' => 'CIF',
+        'FOB' => 'FOB',
         'BM_TRF' => 'BM Trf',
         'PPN_TRF' => 'PPN Trf',
         'PPH_TRF' => 'PPH Trf',

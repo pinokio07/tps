@@ -25,8 +25,10 @@ class ManifestHousesController extends Controller
                               return $row->master->mGrossWeight;
                             })
                             ->addColumn('actions', function($row){
-
-                              $btn = '<button class="btn btn-xs btn-warning elevation-2 mr-1 edit"
+                              $btn = '';
+                              if(auth()->user()->can('edit_manifest_consolidations|edit_manifest_shipments')){
+                              
+                              $btn .= '<button class="btn btn-xs btn-warning elevation-2 mr-1 edit"
                                               data-toggle="tooltip"
                                               data-target="collapseHouse"
                                               title="Edit"
@@ -59,10 +61,15 @@ class ManifestHousesController extends Controller
                                               data-code="'.$row->NO_HOUSE_BLAWB.'">
                                         <i class="fas fa-calculator"></i>
                                       </button>';
-                              $btn .= '<button class="btn btn-xs btn-danger elevation-2 hapusHouse"
+                                if(auth()->user()->can('delete_manifest_consolidations|delete_manifest_shipments')){
+
+                                  $btn .= '<button class="btn btn-xs btn-danger elevation-2 hapusHouse"
                                               data-href="'. route('houses.destroy', ['house' => Crypt::encrypt($row->id)]) .'">
-                                        <i class="fas fa-trash"></i>
-                                      </button>';
+                                            <i class="fas fa-trash"></i>
+                                          </button>';
+                                          
+                                }
+                              }
 
                               return $btn;
                             })

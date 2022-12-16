@@ -6,21 +6,11 @@
         <table id="tblHouses" class="table table-sm table-striped" style="width: 100%;">
           <thead>
             <tr>
-              <th>No</th>
-              <th>HAWB Number</th>
-              {{-- <th>X-Ray Date</th> --}}
-              <th>Flight No</th>
-              <th>BC 1.1</th>
-              <th>POS BC 1.1</th>
-              <th>Sub POS BC 1.1</th>
-              <th>Consignee</th>
-              <th>Total Items</th>
-              <th>Gross Weight</th>
-              <th>TPSO Gate In</th>
-              <th>TPSO Gate Out</th>
-              <th>KD Response</th>
-              <th>Ket Response</th>
-              <th>Actions</th>
+              @forelse ($headerHouse as $hs)
+              <th>{{ $hs }}</th>
+              @empty
+                
+              @endforelse
             </tr>
           </thead>
           <tbody></tbody>
@@ -55,10 +45,12 @@
 
           <div class="row">
             <div class="col-12">
-              <button type="submit" 
-                      class="btn btn-sm btn-primary btn-block elevation-2">
-                <i class="fas fa-save"></i> Save
-              </button>
+              @if($disabled != 'disabled')
+                <button type="submit" 
+                        class="btn btn-sm btn-primary btn-block elevation-2">
+                  <i class="fas fa-save"></i> Save
+                </button>
+              @endif
             </div>
           </div>
         </form>

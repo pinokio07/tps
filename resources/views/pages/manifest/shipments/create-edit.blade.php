@@ -84,12 +84,14 @@
                           <!-- /.card-body -->
                         </form>
                         <div class="card-footer">
-                          <button type="submit" 
-                                  class="btn btn-sm btn-success elevation-2"
-                                  form="formDetails">
-                            <i class="fas fa-save"></i>
-                            Save
-                          </button>
+                          @if($disabled != 'disabled')
+                            <button type="submit" 
+                                    class="btn btn-sm btn-success elevation-2"
+                                    form="formDetails">
+                              <i class="fas fa-save"></i>
+                              Save
+                            </button>
+                          @endif
                           <a href="{{ route('manifest.shipments') }}" 
                              class="btn btn-sm btn-default elevation-2 ml-2">Cancel</a>
                         </div>
@@ -307,7 +309,11 @@
         $('.mawb-mask').inputmask({
           mask: "999 9999 9999",
           removeMaskOnSubmit: true
-        });        
+        });
+        
+        @if($disabled == 'disabled')
+          $('input, select, textarea, button[type=submit]').prop('disabled', true);
+        @endif
     });
 
     function getTblHSCodes(id) {

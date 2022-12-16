@@ -20,9 +20,9 @@ class LogsController extends Controller
 
         switch ($type) {
           case 'master':
-            $master = Master::selectRaw('tps_master.id as mid, tps_pjth.id as hid, tps_pjtd.id as did')
-                            ->join('tps_pjth', 'tps_master.id', '=', 'tps_pjth.MasterID', 'left outer')
-                            ->join('tps_pjtd', 'tps_pjth.id', '=', 'tps_pjtd.HouseID', 'left outer')
+            $master = Master::selectRaw('tps_master.id as mid, tps_houses.id as hid, tps_house_items.id as did')
+                            ->join('tps_houses', 'tps_master.id', '=', 'tps_houses.MasterID', 'left outer')
+                            ->join('tps_house_items', 'tps_houses.id', '=', 'tps_house_items.HouseID', 'left outer')
                             ->where('tps_master.id', $id)
                             ->get();
                            

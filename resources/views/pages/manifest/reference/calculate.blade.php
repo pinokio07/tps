@@ -130,6 +130,7 @@
       </form>
     </div>
   </div>
+  @if($disabled != 'disabled')
   <div class="col-lg-6">
     <button type="button"
             data-estimate="1"
@@ -144,4 +145,5 @@
       Save as Actual
     </button>
   </div>
+  @endif
 </div>

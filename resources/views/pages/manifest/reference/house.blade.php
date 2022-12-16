@@ -12,7 +12,8 @@
               <label for="JNS_AJU">Jenis AJU</label>
               <select name="JNS_AJU" 
                       id="JNS_AJU" 
-                      class="form-control form-control-sm">
+                      class="form-control form-control-sm"
+                      {{ $disabled }}>
                 <option value="1" @selected(old('JNS_AJU') == 1 || $item->JNS_AJU == 1)>
                   CN (Consignment Note)</option>
                 <option value="2" @selected(old('JNS_AJU') == 2 || $item->JNS_AJU == 2)>
@@ -30,7 +31,8 @@
               <label for="KD_JNS_PIBK">Kode Jenis PIBK</label>
               <select name="KD_JNS_PIBK" 
                       id="KD_JNS_PIBK" 
-                      class="form-control form-control-sm">
+                      class="form-control form-control-sm"
+                      {{ $disabled }}>
                 <option value="1" 
                   @selected(old('KD_JNS_PIBK') == 1 || $item->KD_JNS_PIBK == 1)>
                   Barang Pindahan</option>
@@ -85,7 +87,8 @@
                     id="SPPBNumber"
                     name="SPPBNumber"
                     placeholder="Belum SPPB"
-                    value="{{ old('SPPBNumber') ?? $item->SPPBNumber ?? "" }}">
+                    value="{{ old('SPPBNumber') ?? $item->SPPBNumber ?? "" }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <div class="col-lg-6">
@@ -111,7 +114,8 @@
                       placeholder="SPPB Date"
                       data-target="#datetimepicker4"
                       data-ganti="SPPBDate"
-                      value="{{ $sppbParse }}">
+                      value="{{ $sppbParse }}"
+                      {{ $disabled }}>
               <div class="input-group-append" 
                     data-target="#datetimepicker4" 
                     data-toggle="datetimepicker">
@@ -124,7 +128,8 @@
                     name="SPPBDate" 
                     id="SPPBDate" 
                     class="form-control form-control-sm"
-                    value="{{ old('SPPBDate') ?? $item->SPPBDate ?? "" }}">
+                    value="{{ old('SPPBDate') ?? $item->SPPBDate ?? "" }}"
+                    {{ $disabled }}>
           </div>
         </div>
         <div class="row">
@@ -204,7 +209,8 @@
               <label for="BCF15_Status">BCF 1.5</label>
               <select name="BCF15_Status" 
                       id="BCF15_Status" 
-                      class="form-control form-control-sm">
+                      class="form-control form-control-sm"
+                      {{ $disabled }}>
                 <option value="N"
                   @selected(old('BCF15_Status') == "N" || $item->BCF15_Status == "N")>
                   No</option>
@@ -223,7 +229,8 @@
                     id="BCF15_Number"
                     name="BCF15_Number"
                     value="{{ old('BCF15_Number') ?? $item->BCF15_Number ?? '' }}"
-                    placeholder="BCF 1.5 Number">
+                    placeholder="BCF 1.5 Number"
+                    {{ $disabled }}>
             </div>
           </div>
           <div class="col-lg-4">
@@ -249,7 +256,8 @@
                       placeholder="SPPB Date"
                       data-target="#datetimepicker5"                      
                       data-ganti="BCF15_Date"
-                      value="{{ $bcfParse }}">
+                      value="{{ $bcfParse }}"
+                      {{ $disabled }}>
               <div class="input-group-append" 
                     data-target="#datetimepicker5" 
                     data-toggle="datetimepicker">
@@ -262,7 +270,8 @@
                     name="BCF15_Date" 
                     id="BCF15_Date" 
                     class="form-control form-control-sm"
-                    value="{{ old('BCF15_Date') ?? $item->BCF15_Date ?? '' }}">
+                    value="{{ old('BCF15_Date') ?? $item->BCF15_Date ?? '' }}"
+                    {{ $disabled }}>
           </div>
         </div>
       </div>
@@ -282,7 +291,8 @@
               <select name="PART_SHIPMENT" 
                       id="PART_SHIPMENT" 
                       class="form-control form-control-sm"
-                      readonly>
+                      readonly
+                      {{ $disabled }}>
                 <option value="0" 
                   @selected($item->Partial == false || optional($item->master)->Partial == false)>
                   No</option>
@@ -301,6 +311,7 @@
                     id="TOTAL_PARTIAL"
                     name="TOTAL_PARTIAL"
                     placeholder="Total Partial"
+                    {{ $disabled }}
                     @disabled($item->Partial == false && optional($item->master)->Partial == false)>
             </div>
           </div>
@@ -317,7 +328,8 @@
                               ?? $item->NM_SARANA_ANGKUT
                               ?? $item->NM_PENGANGKUT
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>                  
         </div>
@@ -332,7 +344,8 @@
                     value="{{ $item->AirlineCode
                               ?? optional($item->master)->AirlineCode
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- NO_FLIGHT -->
@@ -345,7 +358,8 @@
                     value="{{ $item->FlightNo
                               ?? $item->NO_FLIGHT
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div> 
         </div>
@@ -362,7 +376,8 @@
                               : ($item->TGL_TIBA
                                 ? \Carbon\Carbon::parse($item->TGL_TIBA)->format('d/m/Y')
                                 : '' ) }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- JAM_TIBA -->
@@ -375,7 +390,8 @@
                     value="{{ $item->ArrivalTime
                               ?? $item->JAM_TIBA
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div> 
         </div>
@@ -399,7 +415,8 @@
                     value="{{ $item->MAWBNumber
                               ?? $item->NO_MASTER_BLAWB
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- Master Date -->
@@ -414,7 +431,8 @@
                               : ($item->TGL_MASTER_BLAWB
                                  ? \Carbon\Carbon::parse($item->TGL_MASTER_BLAWB)->format('d/m/Y')
                                  : '' ) }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div> 
         </div>
@@ -431,7 +449,8 @@
                     value="{{ old('NO_HOUSE_BLAWB')
                               ?? $item->NO_HOUSE_BLAWB
                               ?? '' }}"
-                    required>
+                    required
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- House Date -->
@@ -458,7 +477,8 @@
                       data-target="#datetimepicker6"
                       data-ganti="TGL_HOUSE_BLAWB"
                       value="{{ $houseParse }}"
-                      required>
+                      required
+                      {{ $disabled }}>
               <div class="input-group-append" 
                     data-target="#datetimepicker6" 
                     data-toggle="datetimepicker">
@@ -473,7 +493,8 @@
                     class="form-control form-control-sm"
                     value="{{ old('TGL_HOUSE_BLAWB')
                               ?? $item->TGL_HOUSE_BLAWB
-                              ?? '' }}">
+                              ?? '' }}"
+                    {{ $disabled }}>
           </div> 
         </div>
         <div class="row">
@@ -487,7 +508,8 @@
                     value="{{ $item->Origin
                               ?? $item->KD_PEL_MUAT
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- Transit -->
@@ -500,7 +522,8 @@
                     value="{{ $item->Transit
                               ?? $item->KD_PEL_TRANSIT
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>   
         </div>
@@ -515,7 +538,8 @@
                     value="{{ $item->Destination
                               ?? $item->KD_PEL_AKHIR
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- Bongkar -->
@@ -528,7 +552,8 @@
                     value="{{ $item->Destination
                               ?? $item->KD_PEL_BONGKAR
                               ?? '' }}"
-                    readonly>
+                    readonly
+                    {{ $disabled }}>
             </div>
           </div>   
         </div>
@@ -554,7 +579,8 @@
                       data-npwp=""
                       data-phone=""
                       style="width: 100%;"
-                      required>
+                      required
+                      {{ $disabled }}>
                 @if(old('NM_PENGIRIM') || $item->NM_PENGIRIM)
                 <option value="{{ old('NM_PENGIRIM') ?? $item->NM_PENGIRIM }}" selected>
                   {{ old('NM_PENGIRIM') ?? $item->NM_PENGIRIM }} || {{ old('AL_PENGIRIM') ?? $item->AL_PENGIRIM }}
@@ -571,6 +597,7 @@
                         id="AL_PENGIRIM"
                         class="form-control form-control-sm" 
                         placeholder="Alamat Pengirim"
+                        {{ $disabled }}
                         rows="3">{{ old('AL_PENGIRIM')
                                     ?? $item->AL_PENGIRIM
                                     ?? '' }}</textarea>
@@ -614,7 +641,8 @@
                       data-npwp="NO_ID_PENERIMA"
                       data-phone="TELP_PENERIMA"
                       style="width: 100%;"
-                      required>
+                      required
+                      {{ $disabled }}>
                 @if(old('NM_PENERIMA') || $item->NM_PENERIMA)
                 <option value="{{ old('NM_PENERIMA') ?? $item->NM_PENERIMA }}" selected>
                   {{ old('NM_PENERIMA') ?? $item->NM_PENERIMA }} || {{ old('AL_PENERIMA') ?? $item->AL_PENERIMA }}
@@ -630,7 +658,8 @@
               <textarea name="AL_PENERIMA" 
                         id="AL_PENERIMA"
                         class="form-control form-control-sm"
-                        placeholder="Alamat Penerima" 
+                        placeholder="Alamat Penerima"
+                        {{ $disabled }} 
                         rows="3">{{ old('AL_PENERIMA')
                                     ?? $item->AL_PENERIMA
                                     ?? '' }}</textarea>
@@ -647,7 +676,8 @@
                     placeholder="ID Penerima"
                     value="{{ old('NO_ID_PENERIMA')
                               ?? $item->NO_ID_PENERIMA
-                              ?? '' }}">
+                              ?? '' }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- Jenis ID -->
@@ -656,7 +686,8 @@
               <label for="JNS_ID_PENERIMA">Jenis ID</label>
               <select name="JNS_ID_PENERIMA" 
                       id="JNS_ID_PENERIMA" 
-                      class="custom-select custom-select-sm">
+                      class="custom-select custom-select-sm"
+                      {{ $disabled }}>
                 <option value="0"
                   @selected( old('JNS_ID_PENERIMA') == 0 
                               || $item->JNS_ID_PENERIMA == 0)>
@@ -695,7 +726,8 @@
                     placeholder="Phone Number"
                     value="{{ old('TELP_PENERIMA')
                               ?? $item->TELP_PENERIMA
-                              ?? '' }}">
+                              ?? '' }}"
+                    {{ $disabled }}>
             </div>
           </div>
         </div>                
@@ -763,7 +795,8 @@
                     placeholder="Netto"
                     value="{{ old('NETTO')
                               ?? $item->NETTO
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- Bruto -->
@@ -777,7 +810,8 @@
                     placeholder="Bruto"
                     value="{{ old('BRUTO')
                               ?? $item->BRUTO
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- Chargable -->
@@ -792,7 +826,8 @@
                     value="{{ old('ChargeableWeight')
                               ?? $item->ChargeableWeight
                               ?? 0 }}"
-                    required>
+                    required
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- CIF -->
@@ -817,7 +852,8 @@
                     placeholder="FOB"
                     value="{{ old('FOB')
                               ?? $item->FOB
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- FREIGHT -->
@@ -831,7 +867,8 @@
                     placeholder="Freight"
                     value="{{ old('FREIGHT')
                               ?? $item->FREIGHT
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- VOLUME -->
@@ -845,7 +882,8 @@
                     placeholder="Volume"
                     value="{{ old('VOLUME')
                               ?? $item->VOLUME
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
         </div>                
@@ -870,7 +908,8 @@
                     placeholder="Asuransi"
                     value="{{ old('ASURANSI')
                               ?? $item->ASURANSI
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- JML_BRG -->
@@ -884,7 +923,8 @@
                     placeholder="Packages"
                     value="{{ old('JML_BRG')
                               ?? $item->JML_BRG
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- JNS_KMS -->
@@ -898,7 +938,8 @@
                     placeholder="Jenis KMS"
                     value="{{ old('JNS_KMS')
                               ?? $item->JNS_KMS
-                              ?? 0 }}">
+                              ?? 0 }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- MARKING -->
@@ -909,9 +950,10 @@
                         id="MARKING" 
                         rows="3"
                         class="form-control form-control-sm"
-                        placeholder="Marking">{{ old('MARKING')
-                                                 ?? $item->MARKING 
-                                                 ?? '' }}</textarea>
+                        placeholder="Marking"
+                        {{ $disabled }}>{{ old('MARKING')
+                                            ?? $item->MARKING 
+                                            ?? '' }}</textarea>
             </div>
           </div>                  
         </div>                
@@ -932,7 +974,8 @@
               <select name="tariff_id"
                       id="tariff_id"
                       class="select2bs4clear"
-                      style="width: 100%">
+                      style="width: 100%"
+                      {{ $disabled }}>
                 <option value=""></option>
                 @forelse ($tariff as $t)
                   <option value="{{ $t->id }}"
@@ -953,7 +996,8 @@
                     placeholder="NPWP"
                     value="{{ old('NPWP_BILLING')
                               ?? $item->NPWP_BILLING
-                              ?? '' }}">
+                              ?? '' }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- NAMA_BILLING -->
@@ -967,7 +1011,8 @@
                     placeholder="Nama Billing"
                     value="{{ old('NAMA_BILLING')
                               ?? $item->NAMA_BILLING
-                              ?? '' }}">
+                              ?? '' }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- NO_INVOICE -->
@@ -981,7 +1026,8 @@
                     placeholder="Invoice No"
                     value="{{ old('NO_INVOICE')
                               ?? $item->NO_INVOICE
-                              ?? '' }}">
+                              ?? '' }}"
+                    {{ $disabled }}>
             </div>
           </div>
           <!-- TGL_INVOICE -->
