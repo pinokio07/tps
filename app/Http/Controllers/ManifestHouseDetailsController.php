@@ -173,10 +173,11 @@ class ManifestHouseDetailsController extends Controller
         try {
           $house = $house_detail->HouseID;
           $hid = $house_detail->id;
+          $houseItem = $house_detail->UR_BRG ?? $house_detail->HS_CODE;
 
           $house_detail->delete();
 
-          createLog('App\Models\HouseDetail', $hid, 'Delete House Item');
+          createLog('App\Models\HouseDetail', $hid, 'Delete House Item '.$houseItem);
 
           DB::commit();
           
