@@ -16,4 +16,9 @@ class HouseTegah extends Model
     {
       return $this->belongsTo(House::class, 'house_id');
     }
+
+    public function scopeActive($query)
+    {
+      return $query->where('is_tegah', true);
+    }
 }

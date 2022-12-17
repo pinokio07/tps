@@ -48,6 +48,7 @@ class AdminMenusBuilderController extends Controller
                               'target' => $request->target,
                               'icon_class' => $request->icon_class,
                               'order' => $order,
+                              'var_name' => $request->var_name,
                               'active' => true,
                             ]);
           
@@ -113,6 +114,8 @@ class AdminMenusBuilderController extends Controller
           $item = MenuItem::findOrFail($id);
           if($item->url != '#'){
             $permisiLama = $this->getPermissionName($item->url);
+
+            $this->deletePermissions($permisiLama);
           }          
           $item->update($request->except(['controller', 'permission']));
 
@@ -130,9 +133,7 @@ class AdminMenusBuilderController extends Controller
               Artisan::call('make:controller', [
                 'name' => $controllerName.'Controller',
                 '--resource' => true,
-              ]);
-
-              $this->deletePermissions($permisiLama);
+              ]);              
   
               $this->createPermissions($permissionName, $groupName);
   

@@ -62,4 +62,19 @@ class House extends Model
     {
       return $this->tariff()->actual();
     }
+
+    public function tegah()
+    {
+      return $this->hasMany(HouseTegah::class, 'house_id');
+    }
+
+    public function activeTegah()
+    {
+      return $this->tegah()->active();
+    }
+
+    public function sppb()
+    {
+      return $this->hasOne(Sppb::class, 'NO_BL_AWB', 'NO_HOUSE_BLAWB');
+    }
 }

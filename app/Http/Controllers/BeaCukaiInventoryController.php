@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Master;
 use App\Models\House;
-use App\Models\HouseDetail;
 use Carbon\Carbon;
 use DataTables, Crypt;
 
@@ -18,68 +18,97 @@ class BeaCukaiInventoryController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-          $query = House::with(['master', 'details']);
+
+          $query = Master::with(['houses' => function($h){
+                            $h->withCount('sppb')
+                              ->withCount('activeTegah');
+                          }]);
+
+          if($request->from
+              && $request->to){
+            $start = Carbon::createFromFormat('d-m-Y', $request->from);
+            $end = Carbon::createFromFormat('d-m-Y', $request->to);
+
+            $query->whereHas('houses', function($h) use ($start, $end){
+              return $h->whereBetween('SCAN_IN_DATE', [
+                        $start->startOfDay(),
+                        $end->endOfDay()
+                      ]);
+            });
+          }   
 
           return DataTables::eloquent($query)
-                           ->addIndexColumn()
-                           ->addColumn('BC_11', function($row){
-                            return $row->master->BC_11;
-                           })
+                           ->addIndexColumn()                           
                            ->addColumn('NO_PLP', function($row){
                             return "NO PLP";
                            })
                            ->addColumn('TGL_PLP', function($row){
                             return "TGL PLP";
                            })
-                           ->addColumn('NO_SEGEL', function($row){
-                            return $row->master->NO_SEGEL;
+                           ->addColumn('mawb_parse', function($row){
+                            $btn = '<a href="'.route('bea-cukai.inventory.show', ['inventory_mawb' => Crypt::encrypt($row->id)]).'">'.$row->mawb_parse.'</a>';
+
+                            return $btn;
                            })
-                           ->addColumn('UR_BRG', function($row){
-                            $brg = '';
-                            $count = $row->details->count();
-
-                            if($count > 0){
-                              foreach ($row->details as $key => $detail) {
-                                $brg .= $detail->UR_BRG;
-                                (($key + 1) < $count) ? $brg .= ', ' : '';
-                              }
-                            }
-
-                            return $brg;
+                           ->addColumn('CN_TOTAL', function($row){
+                            return $row->houses->count();
                            })
-                           ->addColumn('Status', function($row){
-                            $dateIn = Carbon::parse($row->SCAN_IN_DATE);
-
-                            return ($dateIn->diffInDays(today(), false) > 30) 
-                                      ? 'Abandon' : 'Current Now';
+                           ->addColumn('GATE_IN', function($row){
+                            return $row->houses->where('SCAN_IN', 'Y')->count();
+                           })
+                           ->addColumn('SPPB', function($row){
+                            return $row->houses->sum('sppb_count');
+                           })
+                           ->addColumn('PENDING', function($row){
+                            return $row->houses->whereNull('SCAN_OUT')
+                                               ->where('sppb_count', 0)
+                                               ->count();
+                           })
+                           ->addColumn('GATE_OUT', function($row){
+                            return $row->houses->where('SCAN_OUT', 'Y')->count();
+                           })
+                           ->addColumn('CURRENT_NOW', function($row){
+                            return $row->houses->where('SCAN_IN', 'Y')
+                                               ->whereNull('SCAN_OUT')->count();
                            })
                            ->addColumn('Keterangan', function($row){
-                            return 'Keterangan';
+                            $info = '';
+                            $class = '';
+
+                            if($row->houses->sum('active_tegah_count') > 0){
+                              $info = 'Restricted';
+                              $class = 'text-danger';
+                            } else if($row->IsCompleted == true){
+                              $info = 'Completed';
+                              $class = 'text-success';
+                            }
+
+                            return '<span class="'.$class.'">'.$info.'</span>';
                            })
+                           ->rawColumns(['mawb_parse', 'Keterangan'])
                            ->toJson();
         }
 
         $items = collect([
-          'id' => 'id',
-          'NM_PEMBERITAHU' => 'Nama Pemberitahu',
-          'BC_11' => 'Nomor BC 11',
-          'TGL_BC11' => 'Tanggal BC 11',
-          'NO_POS_BC11' => 'Pos',
-          'NO_FLIGHT' => 'Sarana Pengangkut',
+          'id' => 'id',          
+          'PUNumber' => 'Nomor BC 11',
+          'PUDate' => 'Tanggal BC 11',
+          'POSNumber' => 'Pos',
+          'FlightNo' => 'Sarana Pengangkut',
           'NO_PLP' => 'Nomor PLP',
           'TGL_PLP' => 'Tanggal PLP',
           'NO_SEGEL' => 'Segel',
-          'JML_BRG' => 'Jumlah Koli',
-          'BRUTO' => 'Bruto',
-          'NO_MASTER_BLAWB' => 'MAWB',
-          'NO_HOUSE_BLAWB' => 'HAWB',
-          'UR_BRG' => 'Uraian Barang',
-          'NM_PENERIMA' => 'Consignee',
-          'AL_PENERIMA' => 'Alamat',
-          'NO_SPPB' => 'Nomor SPPB',
-          'TGL_SPPB' => 'Tanggal SPPB',
-          'Status' => 'Status',
-          'SCAN_IN_DATE' => 'Tanggal dan Waktu Masuk TPS',
+          'mNoOfPackages' => 'Jumlah Koli',
+          'mGrossWeight' => 'Bruto',
+          'mawb_parse' => 'MAWB',
+          'NM_PEMBERITAHU' => 'Nama Pemberitahu',
+          'CN_TOTAL' => 'CN Total',
+          'GATE_IN' => 'Gate In',
+          'SPPB' => 'SPPB',
+          'GATE_OUT' => 'Gate Out',
+          'PENDING' => 'Pending',
+          'CURRENT_NOW' => 'Current Now',
+          'MasukGudang' => 'Masuk TPS',
           'Keterangan' => 'Keterangan',
         ]);
 
@@ -113,9 +142,55 @@ class BeaCukaiInventoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, Master $inventory_mawb)
     {
-        //
+        if($request->ajax()){
+          $query = $inventory_mawb->houses();
+
+          return DataTables::eloquent($query)
+                            ->addIndexColumn()
+                            ->addColumn('NO_PLP', function($row){
+                              return "NO PLP";
+                             })
+                             ->addColumn('TGL_PLP', function($row){
+                              return "TGL PLP";
+                             })
+                             ->addColumn('UR_BRG', function($row){
+                              $brg = '';
+                              $count = $row->details->count();
+  
+                              if($count > 0){
+                                foreach ($row->details as $key => $detail) {
+                                  $brg .= $detail->UR_BRG;
+                                  (($key + 1) < $count) ? $brg .= ', ' : '';
+                                }
+                              }
+  
+                              return $brg;
+                             })
+                            ->toJson();
+        }
+
+        $items = collect([
+          'id' => 'id',
+          'NO_BC11' => 'No BC 11',
+          'TGL_BC11' => 'Tgl BC 11',
+          'NO_POS_BC11' => 'Pos BC',
+          'NO_PLP' => 'Nomor PLP',
+          'TGL_PLP' => 'Tanggal PLP',
+          'JML_BRG' => 'Jumlah Koli',
+          'BRUTO' => 'Bruto',
+          'NO_MASTER_BLAWB' => 'MAWB',
+          'NO_HOUSE_BLAWB' => 'HAWB',
+          'LM_TRACKING' => 'LM Tracking',
+          'UR_BRG' => 'Uraian Barang',
+          'NM_PENERIMA' => 'Consignee',
+          'AL_PENERIMA' => 'Alamat',
+          'SCAN_IN_DATE' => 'Masuk',
+          'SCAN_OUT_DATE' => 'Keluar',
+        ]);
+
+        return view('pages.beacukai.viewinventory', compact(['items']));
     }
 
     /**

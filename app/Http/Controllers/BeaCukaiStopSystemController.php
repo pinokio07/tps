@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\HouseTegah;
+use DataTables, Crypt, Auth, DB;
 
 class BeaCukaiStopSystemController extends Controller
 {
@@ -11,74 +13,88 @@ class BeaCukaiStopSystemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if($request->ajax()){
+          $query = HouseTegah::where('is_tegah', true);
+
+          return DataTables::eloquent($query)
+                            ->addIndexColumn()
+                            ->addColumn('actions', function($row){
+                              $btn = '<button id="btnTegah_'.$row->id.'"
+                                            data-toggle="modal"
+                                            data-target="#modal-tegah"
+                                            class="btn btn-xs btn-success elevation-2 tegah"
+                                            data-id="'.$row->id.'">
+                                            <i class="fas fa-lock-open"></i> Lepas</button>';
+
+                              return $btn;
+                            })
+                            ->rawColumns(['actions'])
+                            ->toJson();  
+        }
+        $items = collect([
+          'id' => 'id',
+          'MAWBNumber' => 'MAWB Number',
+          'HAWBNumber' => 'MAWB Number',
+          'Koli' => 'Koli',
+          'Bruto' => 'Bruto',
+          'Consignee' => 'Consignee',
+          'AlasanTegah' => 'Alasan Tegah',
+          'TanggalTegah' => 'Tanggal Tegah',
+          'NamaPetugas' => 'Nama Petugas',
+          'actions' => 'Action'
+        ]);
+
+        return view('pages.beacukai.stopsystem', compact(['items']));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function update(Request $request, HouseTegah $stop_system)
     {
-        //
+        $data = $request->validate([
+          'AlasanLepasTegah' => 'required'
+        ]);
+
+        if($data){
+          $user = Auth::user();
+
+          DB::beginTransaction();
+          
+          try {
+
+            $stop_system->update([
+              'TanggalLepasTegah' => now(),
+              'AlasanLepasTegah' => $request->AlasanLepasTegah,
+              'PetugasLepasTegah' => $user->name,
+              'is_tegah' => false,
+            ]);
+
+            createLog('App\Models\House', $stop_system->house_id, 'Lepas Tegah by '.$user->name.', reason: "'.$request->AlasanLepasTegah.'"');
+
+            DB::commit();
+
+            if($request->ajax()){
+              return response()->json([
+                'status' => 'OK',
+                'message' => 'Lepas Tegah Success.'
+              ]);
+            }
+
+            return redirect('/bea-cukai/stop-system')->with('sukses', 'Lepas Tegah Success.');
+          } catch (\Throwable $th) {
+
+            DB::rollback();
+
+            if($request->ajax()){
+              return response()->json([
+                'status' => 'ERROR',
+                'message' => $th->getMessage()
+              ]);
+            }
+
+            throw $th;
+          }
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

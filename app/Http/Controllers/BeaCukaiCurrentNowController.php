@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\House;
-use App\Models\HouseDetail;
-use DataTables, Crypt;
+use App\Models\HouseTegah;
+use DataTables, Crypt, Auth, DB;
 
 class BeaCukaiCurrentNowController extends Controller
 {
@@ -25,16 +25,14 @@ class BeaCukaiCurrentNowController extends Controller
           
           $query = House::with(['master', 'details'])
                         ->where(function($ex) use ($tanggal){
-                          $ex->where('ExitDate', '<=', $tanggal)
-                            ->orWhereNull('ExitDate');
+                          $ex->where('ExitDate', '>', $tanggal)
+                             ->orWhereNull('ExitDate');
                         })
-                        ->whereNotNull('SCAN_IN_DATE');
+                        ->whereNotNull('SCAN_IN_DATE')
+                        ->where('SCAN_IN_DATE', '<=', $tanggal);
 
           return DataTables::eloquent($query)
                            ->addIndexColumn()
-                           ->addColumn('BC_11', function($row){
-                            return $row->master->BC_11;
-                           })
                            ->addColumn('NO_PLP', function($row){
                             return "NO PLP";
                            })
@@ -67,11 +65,15 @@ class BeaCukaiCurrentNowController extends Controller
                             return 'Keterangan';
                            })
                            ->addColumn('Penegahan', function($row){
-                            $btn = '<button data-toggle="modal"
+                            $btn = '';
+                            if($row->activeTegah->isEmpty()){
+                              $btn = '<button id="btnTegah_'.$row->id.'"
+                                            data-toggle="modal"
                                             data-target="#modal-tegah"
                                             class="btn btn-xs btn-danger elevation-2 tegah"
                                             data-id="'.Crypt::encrypt($row->id).'">
                                             <i class="fas fa-stop"></i> Stop</button>';
+                            }                            
 
                             return $btn;
                            })
@@ -82,7 +84,7 @@ class BeaCukaiCurrentNowController extends Controller
         $items = collect([
           'id' => 'id',
           'NM_PEMBERITAHU' => 'Nama Pemberitahu',
-          'BC_11' => 'Nomor BC 11',
+          'NO_BC11' => 'Nomor BC 11',
           'TGL_BC11' => 'Tanggal BC 11',
           'NO_POS_BC11' => 'Pos',
           'NO_FLIGHT' => 'Sarana Pengangkut',
@@ -107,8 +109,58 @@ class BeaCukaiCurrentNowController extends Controller
         return view('pages.beacukai.currentnow', compact(['items']));
     }
     
-    public function store(Request $request, House $current_now)
+    public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+          'house_id' => 'required',
+          'AlasanTegah' => 'required'
+        ]);
+
+        if($data){
+          $house = House::findOrFail(Crypt::decrypt($request->house_id));
+          $user = Auth::user();
+          DB::beginTransaction();
+
+          try {
+            $tegah = HouseTegah::create([
+              'house_id' => $house->id,
+              'HAWBNumber' => $house->NO_HOUSE_BLAWB,
+              'HAWBDate' => $house->TGL_HOUSE_BLAWB,
+              'MAWBNumber' => $house->NO_MASTER_BLAWB,
+              'MAWBDate' => $house->TGL_MASTER_BLAWB,
+              'TanggalTegah' => now(),
+              'AlasanTegah' => $request->AlasanTegah,
+              'NamaPetugas' => $user->name,
+              'Consignee' => $house->NM_PENERIMA,
+              'Bruto' => $house->BRUTO,
+              'Koli' => $house->JML_BRG
+            ]);
+
+            createLog('App\Models\House', $house->id, 'Tegah by '.$user->name.', reason: "'.$request->AlasanTegah.'"');
+
+            DB::commit();
+
+            if($request->ajax()){
+              return response()->json([
+                'status' => 'OK',
+                'message' => 'Tegah house Success.'
+              ]);
+            }
+
+            return redirect('/bea-cukai/current-now')->with('sukses', 'Tegah House Success.');
+          } catch (\Throwable $th) {
+            DB::rollback();
+
+            if($request->ajax()){
+              return response()->json([
+                'status' => 'ERROR',
+                'message' => $th->getMessage()
+              ]);
+            }
+
+            throw $th;
+          }
+        }
+
     }
 }

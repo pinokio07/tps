@@ -138,12 +138,12 @@
       Save as Estimated
     </button>
   </div>
-  <div class="col-lg-6 mt-2 mt-md-0">
+  {{-- <div class="col-lg-6 mt-2 mt-md-0">
     <button type="button"
             data-estimate="0"
             class="btn btn-xm bg-lime btn-block elevation-2 saveCalculation">
       Save as Actual
     </button>
-  </div>
+  </div> --}}
   @endif
 </div>
