@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Master;
 use App\Models\House;
+use App\Exports\InventoryDetailExport;
 use Carbon\Carbon;
-use DataTables;
+use DataTables, Crypt, Excel, PDF;
 
 class BeaCukaiInventoryHawbController extends Controller
 {
@@ -75,69 +77,55 @@ class BeaCukaiInventoryHawbController extends Controller
         return view('pages.beacukai.viewinventory', compact(['items']));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function download(Request $request)
     {
-        //
-    }
+      $query = House::query();
+      $jenis = $request->jenis ?? 'pdf';
+      $mawb = $request->mawb ?? '';
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+      if($mawb != ''){
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+        $query->where('MasterID', $request->mawb);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+        $start = today();
+        $end = $start;
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+      } else {
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        if($request->from
+            && $request->to){
+
+          $start = Carbon::createFromFormat('d-m-Y', $request->from);
+          $end = Carbon::createFromFormat('d-m-Y', $request->to);
+
+          $query->whereBetween('SCAN_IN_DATE', [
+                      $start->startOfDay(),
+                      $end->endOfDay()
+                    ]);
+
+        }
+
+      }
+
+      $items = $query->get();
+
+      if($jenis == 'xls'){
+
+        return Excel::download(new InventoryDetailExport($items, $mawb, $start, $end), 'inventory-'.today()->format('d-m-Y').'.xlsx');
+
+      } else{
+
+        $company = activeCompany();
+
+        $pdf = PDF::setOptions([
+          'enable_php' => true,
+          'chroot' => public_path()
+        ]);
+
+        $pdf->loadView('exports.inventorydetail', compact(['items', 'company', 'jenis', 'mawb', 'start', 'end']));
+
+        return $pdf->setPaper('LEGAL', 'landscape')->stream();
+        
+      }
     }
 }

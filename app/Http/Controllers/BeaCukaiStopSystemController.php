@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\HouseTegah;
-use DataTables, Crypt, Auth, DB;
+use App\Exports\TegahExport;
+use DataTables, Crypt, Auth, Excel, PDF, DB;
 
 class BeaCukaiStopSystemController extends Controller
 {
@@ -95,6 +96,32 @@ class BeaCukaiStopSystemController extends Controller
             throw $th;
           }
         }
+    }
+
+    public function download(Request $request)
+    {
+      if($request->jenis == 'xls'){
+
+        return Excel::download(new TegahExport(), 'tegah-'.today()->format('d-m-Y').'.xlsx');
+
+      } elseif($request->jenis == 'pdf'){
+
+        $items = HouseTegah::with(['house.master.warehouseLine1'])
+                            ->where('is_tegah', true)
+                            ->get();
+        $company = activeCompany();
+        $jenis = 'pdf';
+
+        $pdf = PDF::setOptions([
+          'enable_php' => true,
+          'chroot' => public_path()
+        ]);
+
+        $pdf->loadView('exports.tegah', compact(['items', 'company', 'jenis']));
+
+        return $pdf->setPaper('LEGAL', 'landscape')->stream();
+      }
+      
     }
 
 }

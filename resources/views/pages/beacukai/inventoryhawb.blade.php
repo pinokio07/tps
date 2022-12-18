@@ -170,39 +170,39 @@
                 {
                   extend: 'excelHtml5',
                   action: function ( e, dt, node, config ) {
-                    @if(Request::segment(2) == 'inventory-hawb')
-                      var from = $('#from').val();
-                      var to = $('#to').val();
-                      if(from == ''
-                          || to == ''){
-                        alert('Please Select Dates');
+                    var from = $('#from').val();
+                    var to = $('#to').val();
+                    if(from == ''
+                        || to == ''){
+                      alert('Please Select Dates');
 
-                        return false;
-                      }
-                      window.open("{{ route('download.bea-cukai.inventory-hawb') }}?jenis=xls&from="+from+"&to="+to);
-                    @else
-                      window.open("{{ route('download.bea-cukai.inventory-hawb') }}?jenis=xls&mawb={{ $inventory_mawb->id }}");
-                    @endif
+                      return false;
+                    }
+                    window.open("{{ route('download.bea-cukai.inventory') }}?jenis=xls&from="+from+"&to="+to);
                   }
                 },
                 {
                     extend: 'pdfHtml5',
-                    action: function ( e, dt, node, config ) {
-                      @if(Request::segment(2) == 'inventory-hawb')
-                        var from = $('#from').val();
-                        var to = $('#to').val();
-                        if(from == ''
-                            || to == ''){
-                          alert('Please Select Dates');
-
-                          return false;
-                        }
-                        window.open("{{ route('download.bea-cukai.inventory-hawb') }}?jenis=pdf&from="+from+"&to="+to);
-                      @else
-                        window.open("{{ route('download.bea-cukai.inventory-hawb') }}?jenis=pdf&mawb={{ $inventory_mawb->id }}");
-                      @endif
-                    }
-                }
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL',
+                    download: 'open',
+                    exportOptions: { 
+                      orthogonal: 'export',
+                      // columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                    },
+                    customize: function(doc) {
+                        doc.styles.tableHeader.fontSize = 7;
+                        doc.defaultStyle.fontSize = 6;
+                    } 
+                },
+                {
+                  extend: 'print',
+                  orientation: 'landscape',
+                  exportOptions: { 
+                    orthogonal: 'export',
+                    // columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                  }
+                },
             ],
             initComplete: function () {
               this.api().columns([1,3,4,9,12]).every( function () {

@@ -6,7 +6,7 @@ use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class SetupExport implements FromView
+class SetupExport implements FromView, ShouldAutoSize
 {
     private $model;
 

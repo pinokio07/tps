@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Master;
 use App\Models\House;
+use App\Exports\InventoryExport;
 use Carbon\Carbon;
-use DataTables, Crypt;
+use DataTables, Crypt, Excel, PDF;
 
 class BeaCukaiInventoryController extends Controller
 {
@@ -114,34 +115,7 @@ class BeaCukaiInventoryController extends Controller
 
         return view('pages.beacukai.inventory', compact('items'));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function show(Request $request, Master $inventory_mawb)
     {
         if($request->ajax()){
@@ -190,40 +164,49 @@ class BeaCukaiInventoryController extends Controller
           'SCAN_OUT_DATE' => 'Keluar',
         ]);
 
-        return view('pages.beacukai.viewinventory', compact(['items']));
+        return view('pages.beacukai.viewinventory', compact(['items', 'inventory_mawb']));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function download(Request $request)
     {
-        //
-    }
+      $query = Master::with(['houses' => function($h){
+              $h->withCount('sppb')
+                ->withCount('activeTegah');
+            }]);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+      if($request->from
+          && $request->to){
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $start = Carbon::createFromFormat('d-m-Y', $request->from);
+        $end = Carbon::createFromFormat('d-m-Y', $request->to);
+
+        $query->whereHas('houses', function($h) use ($start, $end){
+          return $h->whereBetween('SCAN_IN_DATE', [
+              $start->startOfDay(),
+              $end->endOfDay()
+            ]);
+          });
+      }
+      
+      $items = $query->get();
+
+      if($request->jenis == 'xls'){
+
+        return Excel::download(new InventoryExport($items, $start, $end), 'inventory-'.today()->format('d-m-Y').'.xlsx');
+
+      } elseif($request->jenis == 'pdf'){
+        
+        $company = activeCompany();
+        $jenis = 'pdf';
+
+        $pdf = PDF::setOptions([
+          'enable_php' => true,
+          'chroot' => public_path()
+        ]);
+
+        $pdf->loadView('exports.inventory', compact(['items', 'company', 'jenis', 'start', 'end']));
+
+        return $pdf->setPaper('LEGAL', 'landscape')->stream();
+      }
     }
 }

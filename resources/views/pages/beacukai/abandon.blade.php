@@ -127,33 +127,40 @@
                   exportOptions: { 
                     orthogonal: 'export',
                     columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                  },
+                  customize: function (xlsx) {
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                    $('c[r=A1] t', sheet).text('ABANDONED ITEMS {{ Str::upper(activeCompany()->GC_Name) }}');
                   }
                 },
                 {
                     extend: 'pdfHtml5',
                     orientation: 'landscape',
                     pageSize: 'LEGAL',
+                    title: 'ABANDONED ITEMS {{ Str::upper(activeCompany()->GC_Name) }}',
                     download: 'open',
                     exportOptions: { 
                       orthogonal: 'export',
-                      columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                      columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13]
                     },
                     customize: function(doc) {
                         doc.styles.tableHeader.fontSize = 7;
                         doc.defaultStyle.fontSize = 6;
-                    } 
+                    },
+                    messageTop: "Print at " + moment().format('DD-MM-YYYY hh:mm')
                 },
                 {
                   extend: 'print',
                   orientation: 'landscape',
                   exportOptions: { 
                     orthogonal: 'export',
-                    columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                    columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13]
                   }
                 },
             ],
             initComplete: function () {
-              this.api().columns([1,2,3,4,5,6,7,8,11,12,13,14]).every( function () {
+              this.api().columns([2,3,6,8,9,10,12,13]).every( function () {
                 var column = this;
                 var select = $('<select class="select2bs4clear" style="width: 100%;"><option value="">Select...</option></select>')
                 .appendTo( $(column.footer(3)).empty() )

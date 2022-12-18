@@ -160,83 +160,32 @@
             buttons: [                
                 {
                   extend: 'excelHtml5',
-                  exportOptions: { 
-                    // orthogonal: 'export',
-                    columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],
-                    format: {
-                      header: function ( data, columnIdx ) {
-                        switch (columnIdx) {
-                          case 1:
-                            return "NO BC 11";
-                            break;
-                          case 2:
-                            return "TGL BC 11";
-                            break;
-                          case 3:
-                            return "Pos BC";
-                            break;
-                          case 5:
-                            return "No PLP";
-                            break;
-                          case 6:
-                            return "Tgl PLP";
-                            break;
-                          default:
-                            return data;
-                            break;
-                        }
-                          
-                      }
+                  action: function ( e, dt, node, config ) {
+                    var from = $('#from').val();
+                    var to = $('#to').val();
+                    if(from == ''
+                        || to == ''){
+                      alert('Please Select Dates');
+
+                      return false;
                     }
+                    window.open("{{ route('download.bea-cukai.inventory') }}?jenis=xls&from="+from+"&to="+to);
                   }
                 },
                 {
                     extend: 'pdfHtml5',
-                    orientation: 'landscape',
-                    pageSize: 'LEGAL',
-                    download: 'open',
-                    exportOptions: { 
-                      // orthogonal: 'export',
-                      columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],
-                      format: {
-                          header: function ( data, columnIdx ) {
-                            switch (columnIdx) {
-                              case 1:
-                                return "NO BC 11";
-                                break;
-                              case 2:
-                                return "TGL BC 11";
-                                break;
-                              case 3:
-                                return "Pos BC";
-                                break;
-                              case 5:
-                                return "No PLP";
-                                break;
-                              case 6:
-                                return "Tgl PLP";
-                                break;
-                              default:
-                                return data;
-                                break;
-                            }
-                              
-                          }
+                    action: function ( e, dt, node, config ) {
+                      var from = $('#from').val();
+                      var to = $('#to').val();
+                      if(from == ''
+                          || to == ''){
+                        alert('Please Select Dates');
+
+                        return false;
                       }
-                    },
-                    customize: function(doc) {
-                        doc.styles.tableHeader.fontSize = 8;
-                        doc.defaultStyle.fontSize = 7;
-                    } 
-                },
-                {
-                  extend: 'print',
-                  orientation: 'landscape',
-                  exportOptions: { 
-                    // orthogonal: 'export',
-                    columns: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
-                  }
-                },
+                      window.open("{{ route('download.bea-cukai.inventory') }}?jenis=pdf&from="+from+"&to="+to);
+                    }
+                }
             ],
             initComplete: function () {
               this.api().columns([1,2,3,4,5,6,7,8,11,12,13,14,16,17,18]).every( function () {

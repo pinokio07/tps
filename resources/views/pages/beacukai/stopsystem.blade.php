@@ -112,33 +112,16 @@
             buttons: [                
                 {
                   extend: 'excelHtml5',
-                  exportOptions: { 
-                    // orthogonal: 'export',
-                    columns: [ 1,2,3,4,5,6,7,8]
+                  action: function ( e, dt, node, config ) {
+                    window.open("{{ route('download.bea-cukai.stop-system', ['jenis' => 'xls']) }}");
                   }
                 },
                 {
                     extend: 'pdfHtml5',
-                    orientation: 'landscape',
-                    pageSize: 'LEGAL',
-                    download: 'open',
-                    exportOptions: { 
-                      // orthogonal: 'export',
-                      columns: [ 1,2,3,4,5,6,7,8]
-                    },
-                    // customize: function(doc) {
-                    //     doc.styles.tableHeader.fontSize = 7;
-                    //     doc.defaultStyle.fontSize = 6;
-                    // } 
-                },
-                {
-                  extend: 'print',
-                  orientation: 'landscape',
-                  exportOptions: { 
-                    // orthogonal: 'export',
-                    columns: [ 1,2,3,4,5,6,7,8]
+                    action: function ( e, dt, node, config ) {
+                    window.open("{{ route('download.bea-cukai.stop-system', ['jenis' => 'pdf']) }}");
                   }
-                },
+                }
             ],
             initComplete: function () {
               this.api().columns([1,2,3,4,5,6,7,8]).every( function () {
