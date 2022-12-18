@@ -114,7 +114,6 @@ class BeaCukaiStopSystemController extends Controller
 
         $pdf = PDF::setOptions([
           'enable_php' => true,
-          'chroot' => public_path()
         ]);
 
         $pdf->loadView('exports.tegah', compact(['items', 'company', 'jenis']));

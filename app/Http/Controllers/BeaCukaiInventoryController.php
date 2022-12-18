@@ -201,7 +201,6 @@ class BeaCukaiInventoryController extends Controller
 
         $pdf = PDF::setOptions([
           'enable_php' => true,
-          'chroot' => public_path()
         ]);
 
         $pdf->loadView('exports.inventory', compact(['items', 'company', 'jenis', 'start', 'end']));
