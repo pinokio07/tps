@@ -112,7 +112,7 @@ class BeaCukaiStopSystemController extends Controller
         $company = activeCompany();
         $jenis = 'pdf';
 
-        $pdf = PDF::setOptions([
+        $pdf = PDF::setOption([
           'enable_php' => true,
         ]);
 

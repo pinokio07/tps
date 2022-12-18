@@ -117,7 +117,7 @@ class BeaCukaiInventoryHawbController extends Controller
 
         $company = activeCompany();
 
-        $pdf = PDF::setOptions([
+        $pdf = PDF::setOption([
           'enable_php' => true,
         ]);
 

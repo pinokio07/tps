@@ -87,20 +87,7 @@
     }
   </style>
 </head>
-<body>
-  <script type="text/php">
-    if (isset($pdf)) {
-        $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
-        $size = 8;
-        $font = $fontMetrics->getFont("Verdana");
-        $width = $fontMetrics->get_text_width($text, $font, $size) / 2;
-        {{-- $x = ($pdf->get_width() - $width) / 2;
-        $y = $pdf->get_height() - 35; --}}
-        $x = 475;
-        $y = 590;
-        $pdf->page_text($x, $y, $text, $font, $size);
-    }
-  </script>
+<body> 
   <header>
     <table style="width: 100%;">
       <tr>
@@ -126,5 +113,19 @@
   <main>
     @include('exports.inventorydetailexcel')
   </main>  
+
+  <script type="text/php">
+    if ( isset($pdf) ) {
+
+      $size = 6;
+      $font_bold = $fontMetrics->getFont("Verdana");
+      $text_height = $fontMetrics->getFontHeight($font_bold, $size);
+      $x = 475;
+      $y = 590;
+
+      // generated text written to every page after rendering
+      $pdf->page_text($x, $y, "Page {PAGE_NUM} of {PAGE_COUNT}", $font_bold, $size, [0, 0, 0]);
+    }
+  </script>
 </body>
 </html>
