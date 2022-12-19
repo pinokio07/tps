@@ -242,7 +242,7 @@
     }
     
     jQuery(document).ready(function(){
-      @if(Request::segment(2) == 'inventory')
+      @if(Request::segment(2) != 'inventory-hawb')
         getDataAjax();
       @else
         $(document).on('submit', '#formBeaCukai', function(e){

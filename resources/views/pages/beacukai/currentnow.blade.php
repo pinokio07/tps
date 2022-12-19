@@ -31,8 +31,7 @@
                               class="form-control datetimepicker-input tanggal"
                               placeholder="As Of Date"
                               data-target="#datetimepicker1"
-                              onchange="this.form.submit()"
-                              value="{{ Request::get('tanggal') ?? '' }}">
+                              value="{{ Request::get('tanggal') ?? today()->format('d-m-Y') }}">
                       <div class="input-group-append" 
                             data-target="#datetimepicker1" 
                             data-toggle="datetimepicker">

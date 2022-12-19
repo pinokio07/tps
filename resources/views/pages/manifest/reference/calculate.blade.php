@@ -69,7 +69,7 @@
       <input type="text" 
              name="cal_chargable" 
              id="cal_chargable" 
-             class="form-control"
+             class="form-control form-control-sm"
              readonly>
     </div>
   </div>
@@ -79,7 +79,7 @@
       <input type="text" 
              name="cal_gross" 
              id="cal_gross" 
-             class="form-control"
+             class="form-control form-control-sm"
              readonly>
     </div>
   </div>

@@ -3,82 +3,66 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\House;
+use Carbon\Carbon;
+use DataTables, Crypt;
 
 class InventoryAbandonController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+{    
+    public function index(Request $request)
     {
-        //
-    }
+        if($request->ajax()){
+          $tanggal = today()->subDays(30)->format('Y-m-d');
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+          $query = House::with(['master', 'details'])                      
+                        ->whereNull('ExitDate')
+                        ->whereNotNull('SCAN_IN_DATE')
+                        ->where('SCAN_IN_DATE', '<', $tanggal);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+          return DataTables::eloquent($query)
+                          ->addIndexColumn()                         
+                          ->addColumn('NO_PLP', function($row){
+                            return "NO PLP";
+                          })
+                          ->addColumn('TGL_PLP', function($row){
+                            return "TGL PLP";
+                          })
+                          ->editColumn('NO_HOUSE_BLAWB', function($row){
+                            $btn = '<a href="'.route('manifest.shipments.show', ['shipment' => Crypt::encrypt($row->id)]).'">'.$row->NO_HOUSE_BLAWB.'</a>';
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+                            return $btn;
+                          })
+                          ->addColumn('AGE', function($row){
+                            $diff = 0;
+                            if($row->SCAN_IN_DATE){
+                              $lama = Carbon::parse($row->SCAN_IN_DATE);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+                              $diff = $lama->diffInDays(today());
+                            }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+                            return $diff;
+                          })
+                          ->rawColumns(['NO_HOUSE_BLAWB'])
+                          ->toJson();
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $items = collect([
+          'id' => 'id',
+          'TGL_HOUSE_BLAWB' => 'Tgl HAWB',
+          'NO_HOUSE_BLAWB' => 'No HAWB',
+          'NO_PLP' => 'Nomor PLP',
+          'TGL_PLP' => 'Tanggal PLP',
+          'SCAN_IN_DATE' => 'Tanggal Masuk Gudang',
+          'BC_CODE' => 'Kode BC',
+          'BC_DATE' => 'Tanggal BC 11',
+          'BC_STATUS' => 'BC Status',
+          'NM_PENGIRIM' => 'Nama Pengirim',
+          'NM_PENERIMA' => 'Consignee',
+          'AL_PENERIMA' => 'Alamat',
+          'LM_TRACKING' => 'LM Tracking',
+          'AGE' => 'Age',
+        ]);
+
+        return view('pages.beacukai.abandon', compact('items'));
     }
 }

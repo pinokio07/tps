@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Master;
 use App\Models\House;
-use App\Exports\InventoryDetailExport;
 use Carbon\Carbon;
-use DataTables, Crypt, Excel, PDF;
+use DataTables, Crypt;
 
-class BeaCukaiInventoryHawbController extends Controller
+class InventoryInventoryHawbController extends Controller
 {    
     public function index(Request $request)
     {
@@ -70,56 +69,5 @@ class BeaCukaiInventoryHawbController extends Controller
         ]);
 
         return view('pages.beacukai.viewinventory', compact(['items']));
-    }
-
-    public function download(Request $request)
-    {
-      $query = House::query();
-      $jenis = $request->jenis ?? 'pdf';
-      $mawb = $request->mawb ?? '';
-
-      if($mawb != ''){
-
-        $query->where('MasterID', $request->mawb);
-
-        $start = today();
-        $end = $start;
-
-      } else {
-
-        if($request->from
-            && $request->to){
-
-          $start = Carbon::createFromFormat('d-m-Y', $request->from);
-          $end = Carbon::createFromFormat('d-m-Y', $request->to);
-
-          $query->whereBetween('SCAN_IN_DATE', [
-                      $start->startOfDay(),
-                      $end->endOfDay()
-                    ]);
-
-        }
-
-      }
-
-      $items = $query->get();
-
-      if($jenis == 'xls'){
-
-        return Excel::download(new InventoryDetailExport($items, $mawb, $start, $end), 'inventory-'.today()->format('d-m-Y').'.xlsx');
-
-      } else{
-
-        $company = activeCompany();
-
-        $pdf = PDF::setOption([
-          'enable_php' => true,
-        ]);
-
-        $pdf->loadView('exports.inventorydetail', compact(['items', 'company', 'jenis', 'mawb', 'start', 'end']));
-
-        return $pdf->setPaper('LEGAL', 'landscape')->stream();
-        
-      }
     }
 }
