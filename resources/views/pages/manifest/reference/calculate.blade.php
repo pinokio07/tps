@@ -87,9 +87,11 @@
 <div class="row">
   <div class="col-12">
     <form id="formCalculate" method="post">
-      @csrf      
+      @csrf
+      <input type="hidden" name="show_estimate" id="show_estimate" value="0">
+      <input type="hidden" name="show_actual" id="show_actual" value="0">
     </form>
-    <button type="submit" 
+    <button type="button" 
             id="btnCalculate"
             form="formCalculate" 
             class="btn btn-block btn-warning btn-sm elevation-2">
@@ -114,7 +116,7 @@
     <div class="table-responsive">
       <form id="formStoreCalculate" method="POST">
         @csrf
-        <input type="hidden" name="is_estimate" value="1">
+        <input type="hidden" name="is_estimate" id="is_estimate" value="1">
         <table class="table table-sm">
           <thead>
             <tr>

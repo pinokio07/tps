@@ -80,7 +80,7 @@ class ManifestHousesController extends Controller
     
     public function show(House $house)
     {
-        $house->load(['details']);       
+        $house->load(['details', 'estimatedTariff']);  
         
         return response()->json($house);
     }
@@ -187,102 +187,37 @@ class ManifestHousesController extends Controller
 
     public function calculate(Request $request, House $house)
     {
-      $data = $request->validate([
-        'cal_tariff' => 'required|numeric',
-        'cal_days' => 'required|numeric'
-      ]);
+      if($request->show_estimate > 0
+          || $request->show_actual > 0){
+            
+        if($request->show_estimate > 0){
+          $tariffs = $house->estimatedTariff;
+        } else if($request->show_actual > 0){
+          $tariffs = $house->actualTariff;
+        }
 
-      if($data){
-        $tariff = Tariff::with(['schema'])->findOrFail($data['cal_tariff']);
-        $totalCharge = 0;
         $subTotal = 0;
-        $days = $data['cal_days'];
-
         $output = '';
 
-        $charges = $tariff->schema->where('is_fixed', false)
-                                  ->where('column', 'ChargeableWeight')
-                                  ->sortBy('urut');
-        $others = $tariff->schema->whereNotIn('id', $charges->pluck('id')->toArray())
-                                ->sortBy('urut');
-
-        foreach ($charges as $charge) {
-          $column = $charge->column;
-
-          if($charge->as_one == true){
-            $days -= $charge->days;
-            $countDays = 1;            
-          } else if($charge->days > 0){
-            $countDays = ( ($days - $charge->days) > 0 ) ? $charge->days : $days;
-            $days -= $countDays;
-          } else {
-            $countDays = $days;
-            $days -= $countDays;
-          }
-          ${'charge_'.$charge->id} = $charge->rate * ($house->$column ?? 0) * $countDays;
-
-          $output .= '<tr>'
-                      .'<td>
-                      <input type="hidden" name="is_vat[]" value="false">
-                      <input type="hidden" name="item[]" value="'.$charge->name.'">'
-                      .$charge->name.'</td>'
-                      .'<td><input type="hidden" name="days[]" value="'.$countDays.'">'
-                      .$countDays.'</td>'
-                      .'<td><input type="hidden" name="weight[]" value="'.$house->$column.'">'
-                      .number_format(($house->$column ?? 0), 2, ',','.').'</td>'
-                      .'<td class="text-right"><input type="hidden" name="rate[]" value="'.$charge->rate.'">'.number_format($charge->rate, 2, ',','.').'</td>'                      
-                      .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'charge_'.$charge->id}.'">'.number_format((${'charge_'.$charge->id} ?? 0), 2, ',','.').'</td>';
-
-          $totalCharge += ${'charge_'.$charge->id};
-        }        
-        $output .= '<tr>
-                      <input type="hidden" name="is_vat[]" value="0">'
-                    .'<td><input type="hidden" name="item[]" value="Minimum Charge">Minimum Charge</td>'
-                    .'<td><input type="hidden" name="days[]" value=""></td>'
-                    .'<td><input type="hidden" name="weight[]" value=""></td>'
-                    .'<td><input type="hidden" name="rate[]" value=""></td>'
-                    .'<td class="text-right"><input type="hidden" name="total[]" value="'.$tariff->minimum.'">'.number_format($tariff->minimum, 2, ',', '.').'</td>'
-                    .'</tr>';
-
-        if($totalCharge < $tariff->minimum){
-          $totalCharge = $tariff->minimum;
-        }
-        
-        $subTotal += $totalCharge;
-
-        foreach ($others as $other ) {
-          if($other->is_fixed == true){
-            ${'other_'.$other->id} = $other->rate;
-          } else if($other->column == 'CDC'){
-            $chPU = $others->where('name', 'Charge PU')->first()->rate ?? 0;
-            $dcFee = $others->filter(function($df){
-                            return str_contains($df->name, 'Admin');
-                          })->first()->rate ?? 0;
-            ${'other_'.$other->id} = $other->rate * ($totalCharge + $chPU + $dcFee);
-          } else if($other->column == 'CHARGE'){
-            ${'other_'.$other->id} = $other->rate * $totalCharge;
-          } else {
-            $column = $other->column;
-            ${'other_'.$other->id} = $other->rate * $house->$column;
+        foreach ($tariffs->where('is_vat', false) as $key => $tariff) {
+          $rateShow = '';
+          
+          if($tariff->rate){
+            $subTotal += $tariff->total;
+            if($tariff->rate < 1){
+              $rateShow = ($tariff->rate * 100) . ' %';
+            } else {
+              $rateShow = number_format($tariff->rate, 2, ',', '.');
+            }
           }
           
-          if($other->rate < 1){
-            $rateShow = ($other->rate * 100) . ' %';
-          } else {
-            $rateShow = number_format($other->rate, 2, ',', '.');
-          }
-
-          $output .= '<tr>
-                        <input type="hidden" name="is_vat[]" value="0">'
-                      .'<td><input type="hidden" name="item[]" value="'.$other->name.'">'
-                      .$other->name.'</td>'
-                      .'<td><input type="hidden" name="days[]" value=""></td>'                      
-                      .'<td><input type="hidden" name="weight[]" value=""></td>'
-                      .'<td class="text-right"><input type="hidden" name="rate[]" value="'.$rateShow.'">'.$rateShow.'</td>'
-                      .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'other_'.$other->id}.'">'.number_format(${'other_'.$other->id}, 2, ',','.').'</td>'
+          $output .= '<tr>'                        
+                      .'<td>'.$tariff->item.'</td>'
+                      .'<td>'.$tariff->days.'</td>'
+                      .'<td>'.$tariff->weight.'</td>'
+                      .'<td class="text-right">'.$rateShow.'</td>'
+                      .'<td class="text-right">'.number_format($tariff->total, 2, ',', '.').'</td>'
                       .'</tr>';
-
-          $subTotal += ${'other_'.$other->id};
         }
 
         $output .= '<tr>'
@@ -290,28 +225,147 @@ class ManifestHousesController extends Controller
                     .'<td class="text-right"><b>'.number_format($subTotal, 2, ',', '.').'</b></td>'
                     .'</tr>';
 
-        if($tariff->vat){
-          $vat = $subTotal * ($tariff->vat / 100);
-          $output .= '<tr>'
-                      .'<td colspan="4" class="text-right">'
-                      .'<input type="hidden" name="is_vat[]" value="1">
-                        <input type="hidden" name="item[]" value="VAT '.$tariff->vat.' %">VAT '.$tariff->vat.' %</td>'
-                      .'<input type="hidden" name="days[]" value="">
-                        <input type="hidden" name="weight[]" value="">
-                        <input type="hidden" name="rate[]" value="">'
-                      .'<td class="text-right">
-                        <input type="hidden" name="total[]" value="'.round($vat).'"><b>'.number_format(round($vat), 2, ',', '.').'</b></td>'
-                      .'</tr>';
-        }
+        $vatTariff = $tariffs->where('is_vat', true)->first();
+
+        $output .= '<tr>'
+                        .'<td colspan="4" class="text-right">'.$vatTariff->item.'</td>'
+                        .'<td class="text-right">
+                          <b>'.number_format(round($vatTariff->total), 2, ',', '.').'</b></td>'
+                        .'</tr>';
 
         $output .= '<tr>'
                     .'<td colspan="4" class="text-right"><b>TOTAL</b></td>'
-                    .'<td class="text-right"><b>'.number_format(($subTotal + ($vat ?? 0)), 2, ',', '.').'</b></td>'
+                    .'<td class="text-right"><b>'.number_format(($subTotal + (round($vatTariff->total))), 2, ',', '.').'</b></td>'
                     .'</tr>';
-       
 
-        echo $output;        
+      } else {
+        $data = $request->validate([
+          'cal_tariff' => 'required|numeric',
+          'cal_days' => 'required|numeric'
+        ]);
+  
+        if($data){
+          $tariff = Tariff::with(['schema'])->findOrFail($data['cal_tariff']);
+          $totalCharge = 0;
+          $subTotal = 0;
+          $days = $data['cal_days'];
+  
+          $output = '';
+  
+          $charges = $tariff->schema->where('is_fixed', false)
+                                    ->where('column', 'ChargeableWeight')
+                                    ->sortBy('urut');
+          $others = $tariff->schema->whereNotIn('id', $charges->pluck('id')->toArray())
+                                  ->sortBy('urut');
+  
+          foreach ($charges as $charge) {
+            $column = $charge->column;
+  
+            if($charge->as_one == true){
+              $days -= $charge->days;
+              $countDays = 1;            
+            } else if($charge->days > 0){
+              $countDays = ( ($days - $charge->days) > 0 ) ? $charge->days : $days;
+              $days -= $countDays;
+            } else {
+              $countDays = $days;
+              $days -= $countDays;
+            }
+            ${'charge_'.$charge->id} = $charge->rate * ($house->$column ?? 0) * $countDays;
+  
+            $output .= '<tr>'
+                        .'<td>
+                        <input type="hidden" name="is_vat[]" value="false">
+                        <input type="hidden" name="item[]" value="'.$charge->name.'">'
+                        .$charge->name.'</td>'
+                        .'<td><input type="hidden" name="days[]" value="'.$countDays.'">'
+                        .$countDays.'</td>'
+                        .'<td><input type="hidden" name="weight[]" value="'.$house->$column.'">'
+                        .number_format(($house->$column ?? 0), 2, ',','.').'</td>'
+                        .'<td class="text-right"><input type="hidden" name="rate[]" value="'.$charge->rate.'">'.number_format($charge->rate, 2, ',','.').'</td>'                      
+                        .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'charge_'.$charge->id}.'">'.number_format((${'charge_'.$charge->id} ?? 0), 2, ',','.').'</td>';
+  
+            $totalCharge += ${'charge_'.$charge->id};
+          }        
+          $output .= '<tr>
+                        <input type="hidden" name="is_vat[]" value="0">'
+                      .'<td><input type="hidden" name="item[]" value="Minimum Charge">Minimum Charge</td>'
+                      .'<td><input type="hidden" name="days[]" value=""></td>'
+                      .'<td><input type="hidden" name="weight[]" value=""></td>'
+                      .'<td><input type="hidden" name="rate[]" value=""></td>'
+                      .'<td class="text-right"><input type="hidden" name="total[]" value="'.$tariff->minimum.'">'.number_format($tariff->minimum, 2, ',', '.').'</td>'
+                      .'</tr>';
+  
+          if($totalCharge < $tariff->minimum){
+            $totalCharge = $tariff->minimum;
+          }
+          
+          $subTotal += $totalCharge;
+  
+          foreach ($others as $other ) {
+            if($other->is_fixed == true){
+              ${'other_'.$other->id} = $other->rate;
+            } else if($other->column == 'CDC'){
+              $chPU = $others->where('name', 'Charge PU')->first()->rate ?? 0;
+              $dcFee = $others->filter(function($df){
+                              return str_contains($df->name, 'Admin');
+                            })->first()->rate ?? 0;
+              ${'other_'.$other->id} = $other->rate * ($totalCharge + $chPU + $dcFee);
+            } else if($other->column == 'CHARGE'){
+              ${'other_'.$other->id} = $other->rate * $totalCharge;
+            } else {
+              $column = $other->column;
+              ${'other_'.$other->id} = $other->rate * $house->$column;
+            }
+            
+            if($other->rate < 1){
+              $rateShow = ($other->rate * 100) . ' %';
+            } else {
+              $rateShow = number_format($other->rate, 2, ',', '.');
+            }
+  
+            $output .= '<tr>
+                          <input type="hidden" name="is_vat[]" value="0">'
+                        .'<td><input type="hidden" name="item[]" value="'.$other->name.'">'
+                        .$other->name.'</td>'
+                        .'<td><input type="hidden" name="days[]" value=""></td>'                      
+                        .'<td><input type="hidden" name="weight[]" value=""></td>'
+                        .'<td class="text-right"><input type="hidden" name="rate[]" value="'.$other->rate.'">'.$rateShow.'</td>'
+                        .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'other_'.$other->id}.'">'.number_format(${'other_'.$other->id}, 2, ',','.').'</td>'
+                        .'</tr>';
+  
+            $subTotal += ${'other_'.$other->id};
+          }
+  
+          $output .= '<tr>'
+                      .'<td colspan="4" class="text-right"><b>Sub Total</b></td>'
+                      .'<td class="text-right"><b>'.number_format($subTotal, 2, ',', '.').'</b></td>'
+                      .'</tr>';
+  
+          if($tariff->vat){
+            $vat = $subTotal * ($tariff->vat / 100);
+            $output .= '<tr>'
+                        .'<td colspan="4" class="text-right">'
+                        .'<input type="hidden" name="is_vat[]" value="1">
+                          <input type="hidden" name="item[]" value="VAT '.$tariff->vat.' %">VAT '.$tariff->vat.' %</td>'
+                        .'<input type="hidden" name="days[]" value="">
+                          <input type="hidden" name="weight[]" value="">
+                          <input type="hidden" name="rate[]" value="">'
+                        .'<td class="text-right">
+                          <input type="hidden" name="total[]" value="'.round($vat).'"><b>'.number_format(round($vat), 2, ',', '.').'</b></td>'
+                        .'</tr>';
+          }
+  
+          $output .= '<tr>'
+                      .'<td colspan="4" class="text-right"><b>TOTAL</b></td>'
+                      .'<td class="text-right"><b>'.number_format(($subTotal + (round($vat) ?? 0)), 2, ',', '.').'</b></td>'
+                      .'</tr>';
+          
+        }        
       }
+
+      echo $output;
+      
     }
 
     public function storecalculate(Request $request, House $house)

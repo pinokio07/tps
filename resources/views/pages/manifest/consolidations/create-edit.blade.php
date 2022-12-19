@@ -1333,6 +1333,7 @@
         $('#'+target).removeClass('show');
 
         $('#detailCalculate').html(code);
+        $('#tblIsiCalculate').html('');
 
         $.ajax({
           url:"/manifest/houses/"+id,
@@ -1362,6 +1363,12 @@
 
             $('#cal_chargable').val(msg.ChargeableWeight).trigger('change');
             $('#cal_gross').val(msg.BRUTO).trigger('change');
+
+            if(msg.estimated_tariff.length > 0){
+              $('#btnShowEstimated').removeClass('d-none');
+            } else {
+              $('#btnShowEstimated').addClass('d-none');
+            }
 
             $('#formCalculate').attr('action', "/manifest/calculate/"+id);
             $('#formStoreCalculate').attr('action', "/manifest/save-calculate/"+id);
@@ -1552,7 +1559,15 @@
       });
       $(document).on("change.datetimepicker", '.withtime', function (e) {          
           calDays();
-      });     
+      });
+      $(document).on('click', '#btnCalculate', function(){
+        $('#show_estimate').val(0);
+        $('#show_actual').val(0);
+
+        $('#formCalculate').submit();
+
+        $('.saveCalculation').removeClass('d-none');
+      });
       $(document).on('submit', '#formCalculate', function(e){
         e.preventDefault();
         var action = $(this).attr('action');        
@@ -1621,7 +1636,14 @@
             })
           }
         });
-      })
+      });
+      $(document).on('click', '#btnShowEstimated', function(){
+        $('#show_estimate').val(1);
+
+        $('#formCalculate').submit();
+
+        $('.saveCalculation').addClass('d-none');
+      });
       $('#formDetails').dirty({
         preventLeaving: true,
       });

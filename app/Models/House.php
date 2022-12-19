@@ -55,12 +55,12 @@ class House extends Model
 
     public function estimatedTariff()
     {
-      return $this->tariff()->estimate();
+      return $this->tariff()->estimate()->orderBy('urut');
     }
 
     public function actualTariff()
     {
-      return $this->tariff()->actual();
+      return $this->tariff()->actual()->orderBy('urut');
     }
 
     public function tegah()
