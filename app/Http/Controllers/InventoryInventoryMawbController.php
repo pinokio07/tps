@@ -129,6 +129,11 @@ class InventoryInventoryMawbController extends Controller
                             ->addColumn('TGL_PLP', function($row){
                               return "TGL PLP";
                             })
+                            ->editColumn('NO_HOUSE_BLAWB', function($row){
+                              $btn = '<a href="'.route('manifest.shipments.show', ['shipment' => Crypt::encrypt($row->id)]).'">'.$row->NO_HOUSE_BLAWB.'</a>';
+  
+                              return $btn;
+                            })
                             ->addColumn('UR_BRG', function($row){
                               $brg = '';
                               $count = $row->details->count();
@@ -142,6 +147,7 @@ class InventoryInventoryMawbController extends Controller
 
                               return $brg;
                             })
+                            ->rawColumns(['NO_HOUSE_BLAWB'])
                             ->toJson();
         }
 
