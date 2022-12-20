@@ -1,19 +1,32 @@
 @extends('layouts.master')
-@section('title') Scan In @endsection
-@section('page_name') Scan In @endsection
+@section('title') Scan {{ Str::title($type) }} @endsection
+@section('page_name') Scan {{ Str::title($type) }} @endsection
 
 @section('content')
 <!-- Main content -->
 <section class="content">
   <div class="container-fluid">
+    @if (count($errors) > 0)
+      <div class="row">
+        <div class="col-12">
+          <div class="alert alert-danger">
+              <ul>
+                  @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                  @endforeach
+              </ul>
+          </div>
+        </div>
+      </div>
+    @endif
     <div class="row">
       <div class="col-lg-6">
         <div class="card card-primary card-outline">
           <div class="card-header">
-            <h3 class="card-title">Scan In</h3>
+            <h3 class="card-title">Scan {{ Str::title($type) }}</h3>
           </div>
           <div class="card-body">
-            <form action="{{ route('tps-online.scan-in.store') }}" 
+            <form action="{{ route('tps-online.scan-'.$type.'.store') }}" 
                   method="post"
                   class="needs-validation"
                   novalidate
@@ -84,5 +97,7 @@
 @endsection
 
 @section('footer')
-  
+  <script>
+
+  </script>
 @endsection

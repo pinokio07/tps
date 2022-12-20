@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\House;
 use Carbon\Carbon;
-use Crypt, DB;
+use Crypt, Str, DB;
 
 class TpsOnlineScanInController extends Controller
 {
@@ -18,26 +18,11 @@ class TpsOnlineScanInController extends Controller
     public function index()
     {
         $item = new House;
+        $type = 'in';
 
-        return view('pages.tpsonline.scan_in', compact(['item']));
+        return view('pages.tpsonline.scan', compact(['item', 'type']));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -70,15 +55,19 @@ class TpsOnlineScanInController extends Controller
           DB::beginTransaction();
 
           try {
-            $now = now();
+            $now = now()->timeZone('UTC');
             $house->update([
-              'SCAN_IN_DATE' => $now->format('Y-m-d'),
+              'SCAN_IN_DATE' => now(),
               'SCAN_IN' => 'Y'
             ]);
 
             DB::commit();
 
+            createLog('App\Models\House', $house->id, 'SCAN IN');
+
             $gowia = $this->createXML($house, $now);
+
+            DB::commit();
 
             return redirect()->route('tps-online.scan-in.show', [
                             'scan_in' => Crypt::encrypt($house->id)
@@ -103,8 +92,9 @@ class TpsOnlineScanInController extends Controller
     public function show(House $scan_in)
     {
         $item = $scan_in;
+        $type = 'in';
 
-        return view('pages.tpsonline.scan_in', compact(['item']));
+        return view('pages.tpsonline.scan', compact(['item', 'type']));
     }
 
     public function createXML(House $house, Carbon $time)
@@ -153,8 +143,10 @@ class TpsOnlineScanInController extends Controller
                   </Event>
               </UniversalEvent>
               ';
-      $gowiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FLO_'.round(microtime(true), 0).'.xml';
-      $giwiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FUL_'.round(microtime(true), 0).'.xml';
+      
+
+      $gowiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FLO_'.Str::uuid().'.xml';
+      $giwiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FUL_'.Str::uuid().'.xml';
 
       try {
         $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);

@@ -93,8 +93,7 @@
                                         id="KPBC" 
                                         style="width: 100%;"
                                         class="select2kpbc"
-                                        required
-                                        >
+                                        required>
                                   @if($item->KPBC)
                                   <option value="{{ $item->KPBC }}"
                                           selected>
@@ -792,6 +791,9 @@
       var npwp = $('#mBRANCH').find(':selected').attr('data-npwp');
 
       $('#NPWP').val(npwp);
+      @if(!$item->id)
+      $('#KPBC').append('<option value="050100" selected>050100 - KPPBC Soekarno-Hatta</option>').trigger('change');
+      @endif
     }
     function getTblHouse() {
       $('#tblHouses').DataTable().destroy();

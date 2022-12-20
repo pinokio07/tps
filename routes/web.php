@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +13,51 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/randomize', function(){
+  $shipments = ['S00117299','S00120513','S00119068','S00120153','S00120150','S00117103','S00117300','S00116832','S00118522','S00113637','S00112446','S00118525','S00109316','S00109315','S00111845','S00117297','S00083632','S00117105'];
+
+  $consols = ['C00081545','C00082162','C00080948','C00081834','C00081833','C00079487','C00081544','C00079268','C00080551','C00076768','C00075785','C00080554','C00073382','C00073381','C00075283','C00081548','C00055726','C00079489'];
+
+  $hawb = ['IN101115858','VN100120513','12341313112','12209645','12209643','SG100117103','N1212653','CDG1234','SG100920627','US10056087','SG100920620','ARN12345','US100XXXX','EFGH123','SG100813840','IN100083632','GA131231311','JT131313111'];
+
+  $mawb = ['08163294895','61829617081','15757584100','17257584100','12689348000','17652661593','17258752783','12689250733','12675676252','17680809013','12689250730','17686288985','17623456020','60769863986','12689151311','15740125245','1234567895','54231231350'];
+
+  foreach ($shipments as $key => $shipment) {
+    $cek = App\Models\House::where('ShipmentNumber', $shipment)->first();
+
+    if(!$cek){
+      $house = App\Models\House::inRandomOrder()->first();
+    } else {
+      $house = $cek;
+    }   
+
+    DB::beginTransaction();
+    try {
+      $house->update([
+              'NO_MASTER_BLAWB' => $mawb[$key],
+              'ShipmentNumber' => $shipment,
+              'NO_HOUSE_BLAWB' => $hawb[$key],
+              'NO_BARANG' => $hawb[$key],
+              'SCAN_IN_DATE' => NULL,
+              'SCAN_OUT_DATE' => NULL,
+              'SCAN_IN' => NULL,
+              'SCAN_OUT' => NULL,
+              'ExitDate' => NULL,
+              'ExitTime' => NULL,
+            ]);
+      $house->master->update([
+                    'ConsolNumber' => $consols[$key],
+                    'MAWBNumber' => $mawb[$key],
+                  ]);
+
+      DB::commit();
+      
+    } catch (\Throwable $th) {
+      throw $th;
+    }
+  }
+});
 
 //Main Routing
 Route::get('/', 'AuthController@index')->name('login');
