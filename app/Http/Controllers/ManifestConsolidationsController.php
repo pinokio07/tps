@@ -229,7 +229,7 @@ class ManifestConsolidationsController extends Controller
 
               foreach ($consolidation->getChanges() as $kc => $cChange) {
                 if($kc != 'updated_at'){
-                  $infoConsol .= '<li> Update '.$kc.' to '. $cChange. '</li>';
+                  $infoConsol .= '<li> Update '.$kc.' to '. ($cChange ?? 'NULL') . '</li>';
                 }                
               }
               $infoConsol .= '</ul>';
@@ -292,7 +292,6 @@ class ManifestConsolidationsController extends Controller
       $data = collect([
         'id' => 'id',
         'NO_HOUSE_BLAWB' => 'HAWB No',
-        // 'X_Ray' => 'X-Ray Date',
         'NO_FLIGHT' => 'Flight No',
         'NO_BC11' => 'BC 1.1',
         'NO_POS_BC11' => 'POS BC 1.1',
@@ -344,7 +343,7 @@ class ManifestConsolidationsController extends Controller
         'Origin' => 'required',
         'Transit' => 'nullable',
         'Destination' => 'required',
-        'ShipmentNumber' => 'nullable',
+        'ConsolNumber' => 'nullable',
         'MAWBNumber' => 'required|numeric',
         'MAWBDate' => 'required|date',
         'HAWBCount' => 'required|numeric',
@@ -357,7 +356,7 @@ class ManifestConsolidationsController extends Controller
         'PUDate' => 'nullable|date',
         'OriginWarehouse' => 'nullable',
         'MasukGudang' => 'exclude',
-        'NO_SEGEL' => 'required',
+        'NO_SEGEL' => 'nullable',
       ]);
     }
 }

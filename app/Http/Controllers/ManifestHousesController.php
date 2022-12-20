@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\House;
 use App\Models\Master;
+use App\Models\House;
+use App\Models\HouseDetail;
 use App\Models\Tariff;
 use App\Models\HouseTariff;
 use DB, DataTables, Crypt, Auth;
@@ -132,6 +133,27 @@ class ManifestHousesController extends Controller
             }
 
             $house->refresh();
+
+            if($request->UR_BRG != ''){
+              $hscode = HouseDetail::updateOrCreate([
+                'HouseID' => $house->id,
+                'HS_CODE' => '00000000'
+              ],[
+                'UR_BRG' => $request->UR_BRG
+              ]);
+
+              DB::commit();
+
+              if($house->wasRecentlyCreated){
+                $hsinfo = 'Add HS Code '.$request->UR_BRG;
+              } else {
+                $hsinfo = 'Update HS Code to '.$request->UR_BRG;
+              }
+
+              createLog('App\Models\HouseDetail', $hscode->id, $hsinfo);
+
+              DB::commit();
+            }
 
             if($request->ajax()){
               return response()->json(['status' => 'OK', 'house' => $house->NO_HOUSE_BLAWB]);
@@ -430,6 +452,7 @@ class ManifestHousesController extends Controller
       return request()->validate([
         'JNS_AJU' => 'required|numeric',
         'KD_JNS_PIBK' => 'required|numeric',
+        'ShipmentNumber' => 'required',
         'SPPBNumber' => 'nullable',
         'SPPBDate' => 'nullable|date',
         'BCF15_Status' => 'nullable',

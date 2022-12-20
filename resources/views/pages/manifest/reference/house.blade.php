@@ -61,6 +61,7 @@
               <select name="KD_KANTOR" 
                       id="KD_KANTOR" 
                       class="select2kpbc"
+                      style="width: 100%;"
                       disabled>
                 @if($item->KPBC)
                 <option value="{{ $item->KPBC }}"
@@ -437,6 +438,22 @@
           </div> 
         </div>
         <div class="row">
+          <!-- House No -->
+          <div class="col-12">
+            <div class="form-group form-group-sm">
+              <label for="ShipmentNumber">Shipment Number</label>
+              <input type="text" 
+                    class="form-control form-control-sm" 
+                    id="ShipmentNumber"
+                    name="ShipmentNumber"
+                    placeholder="Shipment Number"
+                    value="{{ old('ShipmentNumber')
+                              ?? $item->ShipmentNumber
+                              ?? '' }}"
+                    required
+                    {{ $disabled }}>
+            </div>
+          </div>
           <!-- House No -->
           <div class="col-6">
             <div class="form-group form-group-sm">
@@ -897,6 +914,21 @@
       </div>
       <div class="card-body">
         <div class="row">
+          <!-- Description -->
+          <div class="col-12">
+            <div class="form-group form-group-sm">
+              <label for="UR_BRG">Description</label>
+              <input type="text"
+                    id="UR_BRG"
+                    name="UR_BRG"
+                    class="form-control form-control-sm"
+                    placeholder="Uraian Barang"
+                    value="{{ old('UR_BRG')
+                              ?? optional($item->details)->first()->UR_BRG
+                              ?? '' }}"
+                    {{ $disabled }}>
+            </div>
+          </div>
           <!-- ASURANSI -->
           <div class="col-12">
             <div class="form-group form-group-sm">

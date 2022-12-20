@@ -12,10 +12,10 @@
           <div class="card-header">
             <h3 class="card-title">Shipments</h3>
             <div class="card-tools">              
-              <a href="{{ route('manifest.shipments.create') }}" 
+              {{-- <a href="{{ route('manifest.shipments.create') }}" 
                  class="btn btn-sm btn-primary elevation-2">
                  <i class="fas fa-plus"></i>
-              </a>
+              </a> --}}
               <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
               </button>

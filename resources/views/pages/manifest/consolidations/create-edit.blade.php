@@ -300,18 +300,18 @@
                               </div>
                             </div>
                             <div class="form-group row">
-                              <!-- ShipmentNumber -->
-                              <label for="ShipmentNumber" 
+                              <!-- ConsolNumber -->
+                              <label for="ConsolNumber" 
                                      class="col-sm-3 col-lg-1 col-form-label">
-                                     Shipment No</label>
+                                     Consolidation Number</label>
                               <div class="col-9 col-lg-3">
                                 <input type="text" 
-                                       name="ShipmentNumber" 
-                                       id="ShipmentNumber" 
+                                       name="ConsolNumber" 
+                                       id="ConsolNumber" 
                                        class="form-control form-control-sm"
                                        placeholder="Shipment Number"
-                                       value="{{ old('ShipmentNumber')
-                                                 ?? $item->ShipmentNumber
+                                       value="{{ old('ConsolNumber')
+                                                 ?? $item->ConsolNumber
                                                  ?? ''}}"
                                        >
                               </div>
@@ -557,9 +557,7 @@
                                        placeholder="No Segel PLP Bea Cukai"
                                        value="{{ old('NO_SEGEL')
                                                  ?? $item->NO_SEGEL
-                                                 ?? '' }}"
-                                       required
-                                       >
+                                                 ?? '' }}">
                               </div>
                             </div>
                           </div>
@@ -1151,6 +1149,25 @@
         $('#'+ganti).val(tanggal).trigger('change');
         
       });
+      $(document).on('change', '#MAWBNumber', function(){
+        var val = $(this).val().replace(/[^0-9]/gi, '');
+        
+        if(val.length == 11){
+          var end = val.substr(10,1);
+          var code = val.substr(3,7);
+          var divseven = code / 7;
+          var substr = divseven.toString().split('.');
+          console.log('substr: '+substr[1]);
+          var nbr = (0+'.'+substr[1]) * 7;
+          console.log('nbr:' + nbr);
+          var checkNum = Math.round(nbr);
+          console.log('check:' + checkNum);
+          
+          if(end != checkNum){
+            alert('Please provide a valid MAWB Number!');
+          }
+        }
+      });
       $(document).on('click', '.edit', function(){
         var target = $(this).attr('data-target');
         var id = $(this).attr('data-id');
@@ -1208,6 +1225,7 @@
 
             $('#TOTAL_PARTIAL').val(msg.TOTAL_PARTIAL).trigger('change');
 
+            $('#ShipmentNumber').val(msg.ShipmentNumber).trigger('change');
             $('#NO_HOUSE_BLAWB').val(msg.NO_HOUSE_BLAWB).trigger('change');
 
             if(msg.TGL_HOUSE_BLAWB){
@@ -1261,6 +1279,12 @@
             $('#FREIGHT').val(msg.FREIGHT).trigger('change');
             $('#VOLUME').val(msg.VOLUME).trigger('change');
 
+            if(msg.details.length > 0){
+              $('#UR_BRG').val(msg.details[0].UR_BRG).trigger('change');
+            } else {
+              $('#UR_BRG').val('').trigger('change');
+            }
+            
             $('#ASURANSI').val(msg.ASURANSI).trigger('change');
             $('#JML_BRG').val(msg.JML_BRG).trigger('change');
             $('#JNS_KMS').val(msg.JNS_KMS).trigger('change');
