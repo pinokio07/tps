@@ -89,6 +89,32 @@
           </div>
         </div>
       @endif
+      @if($item->id
+          && app()->isLocal())
+        <div class="col-lg-4">
+          <div class="card card-success card-outline">
+            <div class="card-header">
+              <h3 class="card-title">SFTP FILES</h3>
+            </div>
+            <div class="card-body">
+              <div class="card-responsive">
+                @php
+                    $files = \Storage::disk('sftp')->files('/');
+                @endphp
+                <table class="table table-sm" style="width:100%;">
+                  @forelse ($files as $file)                    
+                    <tr>
+                      <td><a href="{{ route('download.tps-online.scan-'.$type, ['file' => $file]) }}" target="_blank">{{ $file }}</a></td>
+                    </tr>
+                  @empty
+                    
+                  @endforelse
+                </table>
+              </div>              
+            </div>
+          </div>
+        </div>
+      @endif
     </div>
     <!-- /.row -->
   </div><!-- /.container-fluid -->

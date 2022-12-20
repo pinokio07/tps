@@ -162,4 +162,9 @@ class TpsOnlineScanInController extends Controller
       } 
 
     }
+
+    public function download(Request $request)
+    {
+      return Storage::disk('sftp')->download($request->file);
+    }
 }
