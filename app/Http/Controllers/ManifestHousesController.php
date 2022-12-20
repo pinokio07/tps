@@ -214,7 +214,7 @@ class ManifestHousesController extends Controller
           $output .= '<tr>'                        
                       .'<td>'.$tariff->item.'</td>'
                       .'<td>'.$tariff->days.'</td>'
-                      .'<td>'.$tariff->weight.'</td>'
+                      .'<td>'.number_format($tariff->weight, 2, ',', '.').'</td>'
                       .'<td class="text-right">'.$rateShow.'</td>'
                       .'<td class="text-right">'.number_format($tariff->total, 2, ',', '.').'</td>'
                       .'</tr>';
