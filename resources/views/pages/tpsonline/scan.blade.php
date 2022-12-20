@@ -90,7 +90,6 @@
         </div>
       @endif
       @if($item->id
-          && $type == 'in'
           && app()->isLocal())
         <div class="col-lg-4">
           <div class="card card-success card-outline">
@@ -98,18 +97,18 @@
               <h3 class="card-title">SFTP FILES</h3>
             </div>
             <div class="card-body">
-              <div class="card-responsive">
-                @php
-                    $files = \Storage::disk('sftp')->files('/');
-                @endphp
+              <div class="card-responsive">                
                 <table class="table table-sm" style="width:100%;">
-                  @forelse ($files as $file)                    
-                    <tr>
-                      <td><a href="{{ route('download.tps-online.scan-'.$type, ['file' => $file]) }}" target="_blank">{{ $file }}</a></td>
-                    </tr>
-                  @empty
-                    
-                  @endforelse
+                  @php
+                    if($type == 'in'){
+                      $file = $item->CW_Ref_GateIn;
+                    } else {
+                      $file = $item->CW_Ref_GateOut;
+                    }
+                  @endphp
+                  <tr>
+                    <td><a href="{{ route('download.tps-online.scan-'.$type, ['file' => $file]) }}" target="_blank">{{ $file }}</a></td>
+                  </tr>
                 </table>
               </div>              
             </div>

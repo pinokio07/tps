@@ -9,12 +9,7 @@ use Carbon\Carbon;
 use Crypt, Str, DB;
 
 class TpsOnlineScanInController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+{    
     public function index()
     {
         $item = new House;
@@ -55,9 +50,9 @@ class TpsOnlineScanInController extends Controller
           DB::beginTransaction();
 
           try {
-            $now = now()->timeZone('UTC');
+            $now = now();
             $house->update([
-              'SCAN_IN_DATE' => now(),
+              'SCAN_IN_DATE' => $now,
               'SCAN_IN' => 'Y'
             ]);
 
@@ -65,7 +60,11 @@ class TpsOnlineScanInController extends Controller
 
             createLog('App\Models\House', $house->id, 'SCAN IN');
 
-            $gowia = $this->createXML($house, $now);
+            $giwi = $this->createXML($house, $now->setTimeZone('UTC'));
+
+            $house->update([
+              'CW_Ref_GateIn' => $giwi
+            ]);
 
             DB::commit();
 
@@ -83,12 +82,6 @@ class TpsOnlineScanInController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(House $scan_in)
     {
         $item = $scan_in;
@@ -121,41 +114,16 @@ class TpsOnlineScanInController extends Controller
                   </Event>
               </UniversalEvent>
               ';
-      $gowiaTxt = '<UniversalEvent xmlns="http://www.cargowise.com/Schemas/Universal/2011/11">		<!--xmlns is mandatory-->
-                  <Event>
-                      <DataContext>
-                          <Company>
-                              <Code>ID1</Code>						<!--Company Code-->
-                          </Company>
-                    <EnterpriseID>B52</EnterpriseID>			<!--EnterpriseID=B52 all the time and in all environments-->
-                    <ServerID>TS2</ServerID>					<!--Server=TS2 in UAT and Server=PRO in production-->
-                          <DataTargetCollection>
-                              <DataTarget>
-                                  <Type>ForwardingShipment</Type>		<!--Key Type=ForwardingShipment when the key start by "S", it is required-->
-                                  <Key>'.$house->ShipmentNumber.'</Key>				<!--Key is mandatory, otherwise the XML will fail-->
-                              </DataTarget>
-                          </DataTargetCollection>
-                      </DataContext>
-                      <EventTime>'.$time->toDateTimeLocalString().'</EventTime>	<!--EventTime -->
-                      <EventType>FLO</EventType>					<!--EventCode is required, FUL event for GIWIA and FLO for GOWIA -->
-                      <EventReference>|EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA|LOC=yyyyyy|REF=xxxxxxx|</EventReference>	<!--EventReference: |EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA| is a mandatory part, you can other info like LOC, REF etc-->
-                      <IsEstimate>false</IsEstimate>				<!--Set IsEstimate=false all the time-->
-                  </Event>
-              </UniversalEvent>
-              ';
-      
-
-      $gowiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FLO_'.Str::uuid().'.xml';
+              
       $giwiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FUL_'.Str::uuid().'.xml';
 
-      try {
-        $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);
-
-        createLog('App\Models\House', $house->id, 'Create file '.$gowiName.' at '.$time->translatedFormat('l d F Y H:i'));
+      try {        
 
         $giwia = Storage::disk('sftp')->put($giwiName, $giwiaTxt);
 
         createLog('App\Models\House', $house->id, 'Create file '.$giwiName.' at '.$time->translatedFormat('l d F Y H:i'));
+
+        return $giwiName;
 
       } catch (\Throwable $th) {
         throw $th;
