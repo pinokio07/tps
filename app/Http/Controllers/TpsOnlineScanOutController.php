@@ -112,8 +112,9 @@ class TpsOnlineScanOutController extends Controller
               </UniversalEvent>
               ';
       
+      $micro = $time->format('u');
 
-      $gowiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FLO_'.Str::uuid().'.xml';
+      $gowiName = 'XUE_TPSID_'.$house->ShipmentNumber.'_GOWIA_'.$time->format('YmdHms').substr($micro, 0,3).'_'.Str::uuid().'.xml';
 
       try {
         $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);

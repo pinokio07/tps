@@ -115,7 +115,9 @@ class TpsOnlineScanInController extends Controller
               </UniversalEvent>
               ';
               
-      $giwiName = $house->ShipmentNumber.'_XUE_TPS_EVENT_FUL_'.Str::uuid().'.xml';
+      $micro = $time->format('u');
+
+      $giwiName = 'XUE_TPSID_'.$house->ShipmentNumber.'_GIWIA_'.$time->format('YmdHms').substr($micro, 0,3).'_'.Str::uuid().'.xml';
 
       try {        
 
