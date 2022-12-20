@@ -90,6 +90,7 @@
         </div>
       @endif
       @if($item->id
+          && $type == 'in'
           && app()->isLocal())
         <div class="col-lg-4">
           <div class="card card-success card-outline">
