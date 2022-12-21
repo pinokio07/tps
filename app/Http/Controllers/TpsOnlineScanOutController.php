@@ -106,7 +106,7 @@ class TpsOnlineScanOutController extends Controller
                       </DataContext>
                       <EventTime>'.$time->toDateTimeLocalString().'</EventTime>	<!--EventTime -->
                       <EventType>FLO</EventType>					<!--EventCode is required, FUL event for GIWIA and FLO for GOWIA -->
-                      <EventReference>|EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA|LOC=yyyyyy|REF=xxxxxxx|</EventReference>	<!--EventReference: |EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA| is a mandatory part, you can other info like LOC, REF etc-->
+                      <EventReference>|EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA|LOC=IDJKT|</EventReference>	<!--EventReference: |EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA| is a mandatory part, you can other info like LOC, REF etc-->
                       <IsEstimate>false</IsEstimate>				<!--Set IsEstimate=false all the time-->
                   </Event>
               </UniversalEvent>
