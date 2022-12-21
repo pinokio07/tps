@@ -124,6 +124,8 @@
 
 @section('footer')
   <script>
-
+    jQuery(document).ready(function(){
+      $('#NO_HOUSE_BLAWB').val('').focus();
+    });
   </script>
 @endsection
