@@ -92,25 +92,25 @@ class TpsOnlineScanInController extends Controller
 
     public function createXML(House $house, Carbon $time)
     {
-      $giwiaTxt = '<UniversalEvent xmlns="http://www.cargowise.com/Schemas/Universal/2011/11">		<!--xmlns is mandatory-->
+      $giwiaTxt = '<UniversalEvent xmlns="http://www.cargowise.com/Schemas/Universal/2011/11">
                   <Event>
                       <DataContext>
                           <Company>
-                              <Code>ID1</Code>						<!--Company Code-->
+                              <Code>ID1</Code>
                           </Company>
-                    <EnterpriseID>B52</EnterpriseID>			<!--EnterpriseID=B52 all the time and all environment-->
-                    <ServerID>TS2</ServerID>					<!--Server=TS2 in UAT and Server=PRO in production-->
+                    <EnterpriseID>B52</EnterpriseID>
+                    <ServerID>TS2</ServerID>
                           <DataTargetCollection>
                               <DataTarget>
-                                  <Type>ForwardingShipment</Type>		<!--Key Type=ForwardingShipment when the key start by "S", it is required-->
-                                  <Key>'.$house->ShipmentNumber.'</Key>				<!--Key is mandatory, otherwise the XML will fail-->
+                                  <Type>ForwardingShipment</Type>
+                                  <Key>'.$house->ShipmentNumber.'</Key>
                               </DataTarget>
                           </DataTargetCollection>
                       </DataContext>
-                      <EventTime>'.$time->toDateTimeLocalString().'</EventTime>	<!--EventTime -->
-                      <EventType>FUL</EventType>					<!--EventCode is required, FUL event for GIWIA and FLO for GOWIA -->
-                      <EventReference>|EXT_SOFTWARE=TPS|FAC=CFS|LNK=GIWIA|LOC=IDJKT</EventReference>	<!--EventReference: |EXT_SOFTWARE=TPS|FAC=CFS|LNK=GOWIA| is a mandatory part, you can other info like LOC, REF etc. Each part separated by | -->
-                      <IsEstimate>false</IsEstimate>				<!--Set IsEstimate=false all the time-->
+                      <EventTime>'.$time->toDateTimeLocalString().'</EventTime>
+                      <EventType>FUL</EventType>
+                      <EventReference>|EXT_SOFTWARE=TPS|FAC=CFS|LNK=GIWIA|LOC=IDJKT|</EventReference>
+                      <IsEstimate>false</IsEstimate>
                   </Event>
               </UniversalEvent>
               ';
