@@ -20,7 +20,7 @@
       </div>
     @endif
     <div class="row">
-      <div class="col-lg-6">
+      <div class="col-lg-4">
         <div class="card card-primary card-outline">
           <div class="card-header">
             <h3 class="card-title">Scan {{ Str::title($type) }}</h3>
@@ -50,7 +50,7 @@
       </div>
       <!-- /.col -->
       @if($item->id)
-        <div class="col-lg-4">
+        <div class="col-lg-6">
           <div class="card card-success card-outline">
             <div class="card-header">
               <h3 class="card-title">Response</h3>
@@ -88,10 +88,12 @@
             </div>
           </div>
         </div>
-      @endif
-      @if($item->id
-          && app()->isLocal())
-        <div class="col-lg-4">
+      @endif      
+    </div>
+    @if($item->id
+        && app()->isLocal())
+      <div class="row">
+        <div class="col-lg-10">
           <div class="card card-success card-outline">
             <div class="card-header">
               <h3 class="card-title">SFTP FILES</h3>
@@ -107,15 +109,17 @@
                     }
                   @endphp
                   <tr>
-                    <td><a href="{{ route('download.tps-online.scan-'.$type, ['file' => $file]) }}" target="_blank">{{ $file }}</a></td>
+                    <td>
+                      <a href="{{ route('download.tps-online.scan-'.$type, ['file' => $file]) }}" target="_blank">{{ $file }}</a>
+                    </td>
                   </tr>
                 </table>
               </div>              
             </div>
           </div>
         </div>
-      @endif
-    </div>
+      </div>      
+    @endif
     <!-- /.row -->
   </div><!-- /.container-fluid -->
 </section>
