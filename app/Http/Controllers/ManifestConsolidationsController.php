@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
+use CodeDredd\Soap\Facades\Soap;
 use Carbon\Carbon;
 use App\Models\Master;
 use App\Models\House;
 use App\Models\Tariff;
-use DataTables, Auth, DB, Arr;
+use DataTables, Crypt, Auth, DB, Arr;
 
 class ManifestConsolidationsController extends Controller
 {
@@ -87,9 +87,10 @@ class ManifestConsolidationsController extends Controller
         $disabled = false;
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $headerPlp = $this->headerPlp();
         $tariff = Tariff::all();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'tariff']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'headerPlp', 'tariff']));
     }
     
     public function store(Request $request)
@@ -142,7 +143,7 @@ class ManifestConsolidationsController extends Controller
     
     public function show(Master $consolidation)
     {
-        $item = $consolidation->load(['houses']);
+        $item = $consolidation->load(['houses', 'plponline']);
         $disabled = 'disabled';
 
         if(auth()->user()->can('edit_manifest_consolidations')){
@@ -151,20 +152,22 @@ class ManifestConsolidationsController extends Controller
         
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $headerPlp = $this->headerPlp();
         $tariff = Tariff::all();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'tariff']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'headerPlp', 'tariff']));
     }
     
     public function edit(Master $consolidation)
     {
-        $item = $consolidation->load(['houses']);
+        $item = $consolidation->load(['houses', 'plponline']);
         $disabled = false;
         $headerHouse = $this->headerHouse();
         $headerDetail = $this->headerHouseDetail();
+        $headerPlp = $this->headerPlp();
         $tariff = Tariff::all();
 
-        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'tariff']));
+        return view('pages.manifest.consolidations.create-edit', compact(['item', 'disabled', 'headerHouse', 'headerDetail', 'headerPlp', 'tariff']));
     }
     
     public function update(Request $request, Master $consolidation)
@@ -253,6 +256,31 @@ class ManifestConsolidationsController extends Controller
         //
     }
 
+    public function sendResponsePlp(Master $master)
+    {
+           
+      $response = Soap::baseWsdl('https://tpsonline.beacukai.go.id/tps/service.asmx?wsdl')
+                      ->withOptions([
+                        'encoding' => 'UTF-8',
+                        'verifypeer' => false,
+                        'verifyhost' => false,
+                        'soap_version' => SOAP_1_2,
+                        'keep_alive' => false,
+                        'connection_timeout' => 180,
+                        'stream_context' => stream_context_create($opts)
+                      ])
+                      ->GetResponPlp_onDemands([
+                        'UserName' => config('tps.username'),
+                        'Password' => config('tps.password'), 
+                        'KdGudang' => 'TE11',
+                        'RefNumber' => $master->pendingPlp()->REF_NUMBER, 
+                      ])
+                      ->call()
+                      ->throw()
+                      ->json();
+                      
+    }
+
     public function getHouse(Master $master, $count)
     {
       $data = [        
@@ -324,6 +352,19 @@ class ManifestConsolidationsController extends Controller
         'BActualPPN' => 'PPN',
         'BActualPPH' => 'PPH',
         'actions' => 'Actions',
+      ]);
+
+      return $data;
+    }
+
+    public function headerPlp()
+    {
+      $data = collect([
+        'id' => 'id',
+        'REF_NUMBER' => 'Reference Number',
+        'user_id' => 'User',
+        'Service' => 'Service',
+        'response' => 'Response'
       ]);
 
       return $data;

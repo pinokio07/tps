@@ -23,6 +23,7 @@ Route::group(['middleware' => 'auth'], function(){
 
   //Get Logs
   Route::get('/logs', 'LogsController@show')->name('logs.show');
+  Route::get('/logs-plp', 'LogsController@plp')->name('logs.plp');
 
   //Schema Route
     Route::post('/setup/schema', 'SetupTariffSchemaController@storechema')

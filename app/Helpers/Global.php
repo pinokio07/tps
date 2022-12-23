@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\View;
+use App\Helpers\Running;
 
 function getMenu($name)
 {
@@ -74,4 +75,22 @@ function createLog($model, $id, $status)
     'user_id' => \Auth::id(),
     'keterangan' => $status
   ]);
+}
+
+function getRunning($module, $type, $date)
+{
+    //Create New Running Class
+    $run = new Running;
+    //Get Code
+    $cek = $run->getCode($module, $type, $date);
+    //Check for existing Code
+    if($cek != 'FALSE'){
+      //If Found, Set Variable
+      $running = $cek;
+    } else {
+      //If Not Found, Set New Default Code
+      $running = $run->setCode($module, $type, $date);
+    }
+
+    return $running;
 }

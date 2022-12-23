@@ -147,5 +147,12 @@
       Save as Actual
     </button>
   </div> --}}
+  <div class="col-lg-6">
+    <button type="button"
+            data-estimate="1"
+            class="btn btn-xm btn-primary btn-block elevation-2 print">
+      Print
+    </button>
+  </div>
   @endif
 </div>

@@ -56,6 +56,12 @@ class TpsOnlineScanInController extends Controller
               'SCAN_IN' => 'Y'
             ]);
 
+            if(!$house->master->MasukGudang){
+              $house->master->update([
+                'MasukGudang' => $now
+              ]);
+            }
+
             DB::commit();
 
             createLog('App\Models\House', $house->id, 'SCAN IN');

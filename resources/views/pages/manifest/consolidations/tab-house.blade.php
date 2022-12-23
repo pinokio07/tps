@@ -89,7 +89,7 @@
         </div>
       </div>      
       <div class="card-body">
-        RESPONSES
+        @include('pages.manifest.reference.response')
       </div>
     </div>
   </div>

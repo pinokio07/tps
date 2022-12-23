@@ -36,6 +36,9 @@
                   <a class="nav-link" id="tab-houses" data-toggle="pill" href="#tab-houses-content" role="tab" aria-controls="tab-houses-content" aria-selected="false">Houses</a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link" id="tab-plp" data-toggle="pill" href="#tab-plp-content" role="tab" aria-controls="tab-plp-content" aria-selected="false">PLP</a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" id="tab-summary" data-toggle="pill" href="#tab-summary-content" role="tab" aria-controls="tab-summary-content" aria-selected="false">Summary</a>
                 </li>
                 <li class="nav-item">
@@ -542,7 +545,7 @@
                                        id="MasukGudang" 
                                        class="form-control form-control-sm"
                                        readonly
-                                       >
+                                       value="{{ $item->MasukGudang }}">
                               </div>
                               <!-- No Segel PLP BC -->
                               <label for="NO_SEGEL" 
@@ -589,6 +592,12 @@
                 <div class="tab-pane fade" id="tab-houses-content" role="tabpanel" aria-labelledby="tab-houses">
                   <div class="row mt-2">
                    @include('pages.manifest.consolidations.tab-house')
+                  </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-plp-content" role="tabpanel" aria-labelledby="tab-plp">
+                  <div class="row mt-2">
+                   @include('pages.manifest.consolidations.tab-plp')
                   </div>
                 </div>
 
@@ -905,6 +914,43 @@
 
       })
     }
+    function getTblPlp(){
+      $('#tblPlp').DataTable().destroy();
+
+      $.ajax({
+        url: "{{ route('logs.plp') }}",
+        type: "GET",
+        data:{
+          id: "{{ $item->id }}",
+        },
+        success: function(msg){
+          $('#tblPlp').DataTable({
+            data:msg.data,
+            columns:[
+              @forelse ($headerPlp as $key => $value)
+                @if($key == 'id')
+                {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false, className:"h-10"},
+                @else
+                {data:"{{ $key }}", name: "{{ $key }}"},
+                @endif
+              @empty                
+              @endforelse
+            ],
+            buttons: [                
+                'excelHtml5',
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+                'print',
+            ],
+          }).buttons().container().appendTo('#tblPlp_wrapper .col-md-6:eq(0)');
+        }
+
+      })
+    }
+    
     function calDays() {
       var one = $('#cal_arrival').val();
       var two = $('#cal_out').val();
@@ -1075,6 +1121,10 @@
         switch (e.target.id){
             case "tab-houses":{
                 getTblHouse(); 
+                break;
+            }
+            case "tab-plp":{
+                getTblPlp();
                 break;
             }
             case "tab-log":{

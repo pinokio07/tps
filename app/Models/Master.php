@@ -75,6 +75,31 @@ class Master extends Model
       return $this->hasMany(House::class, 'MasterID');
     }
 
+    public function plponline()
+    {
+      return $this->hasMany(PlpOnline::class, 'master_id');
+    }
+
+    public function pendingPlp()
+    {
+      return $this->plponline()->pending();
+    }
+
+    public function pendingBatalPlp()
+    {
+      return $this->plponline()->pendingBatal();
+    }
+    
+    public function approvedPlp()
+    {
+      return $this->plponline()->approved();
+    }
+
+    public function approvedBatalPlp()
+    {
+      return $this->plponline()->ApprovedBatal();
+    }
+
     public function logs()
     {
       return $this->morphMany(TpsLog::class, 'logable');

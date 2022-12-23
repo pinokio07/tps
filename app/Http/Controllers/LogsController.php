@@ -7,6 +7,7 @@ use App\Models\TpsLog;
 use App\Models\Master;
 use App\Models\House;
 use App\Models\HouseDetail;
+use App\Models\PlpOnlineLog;
 use DataTables;
 
 class LogsController extends Controller
@@ -61,7 +62,7 @@ class LogsController extends Controller
                   });
             break;
           
-            default:
+          default:
             $query = '';
             break;
         }
@@ -80,5 +81,22 @@ class LogsController extends Controller
                          ->toJson();
       }
       
+    }
+
+    public function plp(Request $request)
+    {
+      $master = Master::findOrFail($request->id);
+      $plp = $master->plponline()->pluck('id')->toArray();
+
+      $query = PlpOnlineLog::whereIn('plp_id', $plp)
+                           ->orderBy('created_at', 'desc');
+
+      return DataTables::eloquent($query)
+                       ->addIndexColumn()
+                       ->addColumn('response', function($row){
+                        return $row->res_parse;
+                       })
+                       ->toJson();
+
     }
 }
