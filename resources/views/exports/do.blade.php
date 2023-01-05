@@ -47,14 +47,14 @@
   <table style="width: 100%;">
     <tr>
       <td style="width: 25%;height:18mm;padding:2mm;" class="border">
-        {{-- @php
+        @php
             $imgPath = public_path('/img/companies/'.$company->GC_Logo);
             if(is_dir($imgPath) || !file_exists($imgPath)){
               $imgPath = public_path('/img/default-logo-light.png');
             }
           @endphp
           <img src="{{ $imgPath }}" alt="Company Logo"
-                height="50"> --}}
+                height="50">
       </td>
       <td style="width: 75%; text-align:right;padding:2mm;font-weight:bolder;line-height:100%;"
           class="border">
