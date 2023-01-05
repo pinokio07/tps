@@ -433,11 +433,11 @@ class SetupOrganizationController extends Controller
             
         }
 
-        if($data->isEmpty()){
+        // if($data->isEmpty()){
 
-          $data[] = ['id' => $request->q, 'name' => $request->q];
+        //   $data[] = ['id' => $request->q, 'name' => $request->q];
  
-         }   
+        //  }   
 
         return response()->json($data);
     }
