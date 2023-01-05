@@ -254,7 +254,7 @@
               <input type="text" 
                       id="tglbcf"
                       class="form-control datetimepicker-input tanggal"
-                      placeholder="SPPB Date"
+                      placeholder="BCF 1.5 Date"
                       data-target="#datetimepicker5"                      
                       data-ganti="BCF15_Date"
                       value="{{ $bcfParse }}"
@@ -272,6 +272,61 @@
                     id="BCF15_Date" 
                     class="form-control form-control-sm"
                     value="{{ old('BCF15_Date') ?? $item->BCF15_Date ?? '' }}"
+                    {{ $disabled }}>
+          </div>
+        </div>
+        <div class="row">
+          <!-- PABEAN No -->
+          <div class="col-lg-6">
+            <div class="form-group form-group-sm">
+              <label for="NO_DAFTAR_PABEAN">Pabean No</label>
+              <input type="text" 
+                    class="form-control form-control-sm" 
+                    id="NO_DAFTAR_PABEAN"
+                    name="NO_DAFTAR_PABEAN"
+                    placeholder="No Daftar Pabean"
+                    value="{{ old('NO_DAFTAR_PABEAN') ?? $item->NO_DAFTAR_PABEAN ?? "" }}"
+                    {{ $disabled }}>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <!-- Pabean Date -->
+            <label for="tglpabean">Pabean Date</label>                    
+            <div class="input-group input-group-sm date onlydate" 
+                  id="datetimepicker9" 
+                  data-target-input="nearest">
+                @php
+                    $pabeanDate = old('TGL_DAFTAR_PABEAN') 
+                                ?? $item->TGL_DAFTAR_PABEAN 
+                                ?? '';
+                    if($pabeanDate != ''){
+                      $pabeanParse = \Carbon\Carbon::parse($pabeanDate)->format('d-m-Y');
+                    } else {
+                      $pabeanParse = '';
+                    }
+                    
+                @endphp
+              <input type="text" 
+                      id="tglsppb"
+                      class="form-control datetimepicker-input tanggal"
+                      placeholder="SPPB Date"
+                      data-target="#datetimepicker9"
+                      data-ganti="TGL_DAFTAR_PABEAN"
+                      value="{{ $pabeanParse }}"
+                      {{ $disabled }}>
+              <div class="input-group-append" 
+                    data-target="#datetimepicker9" 
+                    data-toggle="datetimepicker">
+                <div class="input-group-text">
+                  <i class="fa fa-calendar"></i>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" 
+                    name="TGL_DAFTAR_PABEAN" 
+                    id="TGL_DAFTAR_PABEAN" 
+                    class="form-control form-control-sm"
+                    value="{{ old('TGL_DAFTAR_PABEAN') ?? $item->TGL_DAFTAR_PABEAN ?? "" }}"
                     {{ $disabled }}>
           </div>
         </div>

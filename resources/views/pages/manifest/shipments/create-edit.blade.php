@@ -24,6 +24,19 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Shipment</h3>
+            <div class="card-tools">
+              <button type="button" class="btn btn-xs btn-success dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                <i class="fa fa-print"></i>
+                Print DO
+              </button>
+              <div class="dropdown-menu">                
+                <a class="dropdown-item" href="{{ route('download.manifest.shipments', ['shipment' => $item->id, 'header' => 1]) }}" target="_blank">With Header</a>
+                <a class="dropdown-item" href="{{ route('download.manifest.shipments', ['shipment' => $item->id, 'header' => 0]) }}" target="_blank">Without Header</a>
+              </div>
+              <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+              </button>
+            </div>
           </div>
 
             <div class="card-body">
@@ -485,6 +498,7 @@
           processResults: function (data) {
             return {
               results:  $.map(data, function (item) {
+                  if($.isNumeric(item.id)){
                     return {
                         text: (item.OH_LegacyCode ?? item.OH_Code)+" - "+item.OH_FullName + " || " + item.OA_Address1,
                         id: item.OH_FullName,
@@ -493,6 +507,17 @@
                         tax: item.OA_TaxID,
                         phone: item.OA_Phone,
                     }
+                  } else {
+                    return {
+                        text: item.name,
+                        id: item.id,
+                        name: item.name,
+                        address: '',
+                        tax: '',
+                        phone: '',
+                    }
+                  }
+                    
                 })
             };
           },

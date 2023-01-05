@@ -5,19 +5,45 @@
     </div>
     <div class="card-body">
       <div class="row">
-        @if($item->pendingPlp->isEmpty())
+        @if(!$item->PUNumber)
+
+        @endif
+        @if($item->pendingPlp->isEmpty()
+            && $item->approvedPlp->isEmpty()
+            && $item->pendingBatalPlp->isEmpty()
+            && $item->PUNumber != '')
         <div class="col-6">
           <button id="sendRequestPlp"
-                  class="btn btn-sm btn-success btn-block elevation-2">
+                  data-jenis="plp-request"
+                  class="btn btn-sm btn-success btn-block elevation-2 plp">
             <i class="fas fa-paper-plane"></i> Request PLP
           </button>
         </div>
         @endif
         @if(!$item->pendingPlp->isEmpty())
         <div class="col-6">
-          <button id="sendRequestPlp"
-                  class="btn btn-sm btn-info btn-block elevation-2">
+          <button id="sendResponsePlp"
+                  data-jenis="plp-response"
+                  class="btn btn-sm btn-info btn-block elevation-2 plp">
             <i class="fas fa-sync-alt"></i> Get Response
+          </button>
+        </div>
+        @endif
+        @if(!$item->approvedPlp->isEmpty())
+        <div class="col-6">
+          <button id="sendRequestBatalPlp"
+                  data-jenis="plp-batal"
+                  class="btn btn-sm btn-danger btn-block elevation-2 plp">
+            <i class="fas fa-paper-plane"></i> Request Batal PLP
+          </button>
+        </div>
+        @endif
+        @if(!$item->pendingBatalPlp->isEmpty())
+        <div class="col-6">
+          <button id="sendResponseBatalPlp"
+                  data-jenis="plp-resbatal"
+                  class="btn btn-sm btn-warning btn-block elevation-2 plp">
+            <i class="fas fa-paper-plane"></i> Get Response Batal
           </button>
         </div>
         @endif

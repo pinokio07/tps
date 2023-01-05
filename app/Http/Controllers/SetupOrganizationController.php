@@ -433,6 +433,12 @@ class SetupOrganizationController extends Controller
             
         }
 
+        if($data->isEmpty()){
+
+          $data[] = ['id' => $request->q, 'name' => $request->q];
+ 
+         }   
+
         return response()->json($data);
     }
 
@@ -584,12 +590,14 @@ class SetupOrganizationController extends Controller
       if($request->duplicate == '1'){
         $newAddress = $address->replicate()
                               ->fill($request->except(['organization_id', 'duplicate']));
-        $address->OA_CompanyNameOverride = $organization->OH_FullName;
+        $newAddress->OA_CompanyNameOverride = $organization->OH_FullName;
         $newAddress->save();
       } else {
         $address->update($request->except(['organization_id', 'duplicate']));
-        $address->OA_CompanyNameOverride = $organization->OH_FullName;
-        $address->save();
+        if($address->OA_CompanyNameOverride == ''){
+          $address->OA_CompanyNameOverride = $organization->OH_FullName;
+          $address->save();
+        }        
       }
     }
 

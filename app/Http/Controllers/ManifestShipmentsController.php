@@ -7,7 +7,7 @@ use App\Models\House;
 use App\Models\HouseDetail;
 use App\Models\Tariff;
 use Carbon\Carbon;
-use DataTables, Auth, Crypt, Str, DB;
+use DataTables, Auth, Crypt, Str, DB, PDF;
 
 class ManifestShipmentsController extends Controller
 {
@@ -149,6 +149,42 @@ class ManifestShipmentsController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function download(Request $request)
+    {
+      $shipment = House::with('details')->findOrFail($request->shipment);
+      $today = today();
+      $header = $request->header;
+      $company = activeCompany();
+
+      if(!$shipment->DOID){
+        DB::beginTransaction();
+
+        try {
+          $running = getRunning('DO', 'NO_SURAT', today()->format('Y-m-d'));
+          $shipment->update(['DOID' => $running, 'DODATE' => $today->format('Y-m-d')]);
+          DB::commit();
+        } catch (\Throwable $th) {
+          DB::rollback();
+          throw $th;
+        }
+        
+      }
+
+      $pdf = PDF::setOption([
+        'enable_php' => true,
+      ]);
+
+      if($header > 0){
+        $page = 'exports.do';
+      } else {
+        $page = 'exports.donoheader';
+      }
+
+      $pdf->loadView($page, compact(['shipment', 'header', 'company']));
+
+      return $pdf->stream();
     }
 
     public function headerHouse()

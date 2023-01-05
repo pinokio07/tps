@@ -20,6 +20,10 @@ Route::group(['middleware' => 'auth'], function(){
   Route::post('/manifest/save-calculate/{house}', 'ManifestHousesController@storecalculate')
         ->name('save.calculate.house')
         ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
+  //PLP Route
+  Route::post('/manifest/plp-online/{master}', 'PlpController@index')
+       ->name('manifest.plp')
+       ->middleware('can:edit_manifest_consolidations');
 
   //Get Logs
   Route::get('/logs', 'LogsController@show')->name('logs.show');

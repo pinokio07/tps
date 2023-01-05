@@ -1720,6 +1720,35 @@
 
         $('.saveCalculation').addClass('d-none');
       });
+      $(document).on('click', '.plp', function(){
+        var jenis = $(this).attr('data-jenis');
+
+        $('.btn').prop('disabled', 'disabled');
+
+        $.ajax({
+          url: "{{ route('manifest.plp', ['master' => \Crypt::encrypt($item->id)]) }}",
+          type: "POST",
+          data:{
+            _token: "{{ csrf_token() }}",
+            jenis: jenis
+          },
+          success: function(msg){
+            if(msg.status == 'OK'){
+              toastr.success("Send "+jenis+" Success", "Success!", {timeOut: 3000, closeButton: true,progressBar: true});              
+            } else {
+              toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+            }
+            $('.btn').prop('disabled', false);
+            getTblPlp();
+          },
+          error:function(jqXHR){
+            jsonValue = jQuery.parseJSON( jqXHR.responseText );
+            toastr.error(jqXHR.status + ' || ' + jsonValue.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
+
+            $('.btn').prop('disabled', false);
+          }
+        })
+      });
       $('#formDetails').dirty({
         preventLeaving: true,
       });

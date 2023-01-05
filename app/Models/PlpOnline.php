@@ -28,12 +28,12 @@ class PlpOnline extends Model
 
     public function scopeApproved($query)
     {
-      return $this->where('status', 'Approved');
+      return $query->where('status', 'Approved');
     }
 
     public function scopeApprovedBatal($query)
     {
-      return $this->where('status', 'ApprovedBatal');
+      return $query->where('status', 'ApprovedBatal');
     }
 
     public function logs()
