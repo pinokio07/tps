@@ -122,7 +122,7 @@
         </td>
         <td style="border: 1px solid #0000;">
           @php
-              $plpdate = optional($item->master)->PLPNumber;
+              $plpdate = optional($item->master)->PLPDate;
           @endphp
           @if($plpdate)
             {{ \Carbon\Carbon::parse($plpdate)->format('d-m-Y') }}
