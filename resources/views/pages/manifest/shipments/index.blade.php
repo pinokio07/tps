@@ -53,7 +53,7 @@
               @forelse ($items as $keys => $item)
                 @if($keys == 'id')
                   {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false},
-                @elseif(in_array($keys, ['ArrivalDate', 'ExitDate']))
+                @elseif(in_array($keys, ['ArrivalDate', 'ExitDate', 'SCAN_IN_DATE']))
                 {
                   data: {
                     _: "{{ $keys }}.display",

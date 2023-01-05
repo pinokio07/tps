@@ -74,14 +74,14 @@
           -
           @endif
         </td>
-        <td>
+        <td style="border: 1px solid #0000;">
           @if($item->SCAN_IN_DATE)
             {{ \Carbon\Carbon::parse($item->SCAN_IN_DATE)->format('d-m-Y H:i:s') }}
           @else
           -
           @endif
         </td>
-        <td>
+        <td style="border: 1px solid #0000;">
           @if($item->SCAN_OUT_DATE)
             {{ \Carbon\Carbon::parse($item->SCAN_OUT_DATE)->format('d-m-Y H:i:s') }}
           @else
