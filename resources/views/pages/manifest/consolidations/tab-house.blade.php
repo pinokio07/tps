@@ -26,6 +26,14 @@
       <div class="card-header">
         <h3 class="card-title">House <span id="detailHouse"></span></h3>
         <div class="card-tools">
+          <button type="button" class="btn btn-xs btn-success dropdown-toggle dropdown-icon" data-toggle="dropdown">
+            <i class="fa fa-print"></i>
+            Print DO
+          </button>
+          <div class="dropdown-menu">                
+            <a class="dropdown-item" id="printWithHeader" target="_blank">With Header</a>
+            <a class="dropdown-item" id="printNoHeader" target="_blank">Without Header</a>
+          </div>
           <button id="hideHouse" type="button" class="btn btn-tool">
             <i class="fas fa-times"></i>
           </button>

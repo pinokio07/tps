@@ -1359,6 +1359,9 @@
 
             $('#TOT_DIBAYAR').val(msg.TOT_DIBAYAR).trigger('change');
 
+            $('#printWithHeader').attr('href', "{{ route('download.manifest.shipments') }}?shipment="+msg.id+"&header=1");
+            $('#printNoHeader').attr('href', "{{ route('download.manifest.shipments') }}?shipment="+msg.id+"&header=0");
+
             $('#'+target).addClass('show');            
             console.log(msg);
           }

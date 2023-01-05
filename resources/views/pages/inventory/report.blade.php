@@ -48,6 +48,7 @@
                            name="period" 
                            id="period" 
                            class="form-control daterange"
+                           autocomplete="off"
                            required>
                   </div>                  
                 </div>                
