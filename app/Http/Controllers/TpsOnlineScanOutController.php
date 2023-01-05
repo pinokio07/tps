@@ -33,6 +33,11 @@ class TpsOnlineScanOutController extends Controller
                             ->with('gagal', 'House Number not Found!.');
           }
 
+          if(!$house->SCAN_IN_DATE){
+            return redirect()->route('tps-online.scan-out')
+                            ->with('gagal', 'This house is not yet Scan In!.');
+          }
+
           if($house->SCAN_OUT_DATE){
             return redirect()->route('tps-online.scan-out.show', [
                                       'scan_out' => Crypt::encrypt($house->id)
