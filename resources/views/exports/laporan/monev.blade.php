@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <th colspan="4">Laporan Konfirmasi Data Timbun</th>
+    <th colspan="10">Laporan Konfirmasi Data Timbun - {{ Str::upper(\Carbon\Carbon::parse($start)->translatedFormat('d-m-Y')) }} s/d {{ Str::upper(\Carbon\Carbon::parse($end)->translatedFormat('d-m-Y')) }}</th>
   </tr>
 </table>
 <table>

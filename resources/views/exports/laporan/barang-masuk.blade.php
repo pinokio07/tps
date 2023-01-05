@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <th colspan="2">LAPORAN BARANG</th>
+    <th colspan="10">LAPORAN BARANG {{ Str::title(Str::replace('-', ' ', $jenis)) }} - {{ Str::upper(\Carbon\Carbon::parse($start)->translatedFormat('d-m-Y')) }} s/d {{ Str::upper(\Carbon\Carbon::parse($end)->translatedFormat('d-m-Y')) }}</th>
   </tr>
 </table>
 <table>

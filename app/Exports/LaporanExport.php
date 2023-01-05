@@ -27,7 +27,7 @@ class LaporanExport implements FromView, ShouldAutoSize
       $start = $this->start;
       $end = $this->end;
 
-      return view('exports.laporan.'.$jenis, compact(['items', 'start', 'end']));
+      return view('exports.laporan.'.$jenis, compact(['items', 'jenis', 'start', 'end']));
 
     }
 }
