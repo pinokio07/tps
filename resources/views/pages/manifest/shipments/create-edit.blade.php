@@ -23,7 +23,15 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Shipment</h3>
+            <h3 class="card-title">Shipment - 
+              @if($item->SCAN_OUT_DATE)
+              Gate Out
+              @elseif($item->SCAN_IN_DATE)
+              Gate In
+              @else
+              Not Scanned
+              @endif
+            </h3>
             <div class="card-tools">
               <button type="button" class="btn btn-xs btn-success dropdown-toggle dropdown-icon" data-toggle="dropdown">
                 <i class="fa fa-print"></i>
