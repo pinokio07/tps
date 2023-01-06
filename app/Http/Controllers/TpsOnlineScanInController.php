@@ -51,9 +51,17 @@ class TpsOnlineScanInController extends Controller
 
           try {
             $now = now();
+
+            createLog('App\Models\House', $house->id, 'SCAN IN');
+
+            $giwi = $this->createXML($house, $now->setTimeZone('UTC'));
+
+            createLog('App\Models\House', $house->id, 'Create file '.$giwi.' at '.$now->translatedFormat('l d F Y H:i'));
+
             $house->update([
               'SCAN_IN_DATE' => $now,
-              'SCAN_IN' => 'Y'
+              'SCAN_IN' => 'Y',
+              'CW_Ref_GateIn' => $giwi
             ]);
 
             if(!$house->master->MasukGudang){
@@ -64,16 +72,6 @@ class TpsOnlineScanInController extends Controller
 
             DB::commit();
 
-            createLog('App\Models\House', $house->id, 'SCAN IN');
-
-            $giwi = $this->createXML($house, $now->setTimeZone('UTC'));
-
-            $house->update([
-              'CW_Ref_GateIn' => $giwi
-            ]);
-
-            DB::commit();
-
             return redirect()->route('tps-online.scan-in.show', [
                             'scan_in' => Crypt::encrypt($house->id)
                           ])
@@ -81,9 +79,11 @@ class TpsOnlineScanInController extends Controller
 
           } catch (\Throwable $th) {
             DB::rollback();
-
-            return redirect()->route('tps-online.scan-in')
-                             ->with('gagal', $th->getMessage());
+            
+            return redirect()->route('tps-online.scan-in.show', [
+                                      'scan_in' => Crypt::encrypt($house->id)
+                                    ])
+                            ->withErrors($th->getMessage());
           }
         }
     }
@@ -127,15 +127,17 @@ class TpsOnlineScanInController extends Controller
 
       try {        
 
+        // $giwia = Storage::disk('sftp')->put($giwiName, $giwiaTxt);
         $giwia = Storage::disk('sftp')->put($giwiName, $giwiaTxt);
-
-        createLog('App\Models\House', $house->id, 'Create file '.$giwiName.' at '.$time->translatedFormat('l d F Y H:i'));
-
+        
         return $giwiName;
 
-      } catch (\Throwable $th) {
-        createLog('App\Models\House', $house->id, 'Error => '.$th->getMessage());
-        throw $th;
+      } catch (FilesystemException | UnableToWriteFile $th) {
+        
+        return redirect()->route('tps-online.scan-in.show', [
+                                  'scan_in' => Crypt::encrypt($house->id)
+                                ])
+                        ->withErrors($th->getMessage());
       } 
 
     }

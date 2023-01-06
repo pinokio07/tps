@@ -51,20 +51,17 @@ class TpsOnlineScanOutController extends Controller
 
             $now = now();
 
+            createLog('App\Models\House', $house->id, 'SCAN OUT');
+
+            $gowia = $this->createXML($house, $now->setTimeZone('UTC'));
+
+            createLog('App\Models\House', $house->id, 'Create file '.$gowia.' at '.$now->translatedFormat('l d F Y H:i'));
+
             $house->update([
               'SCAN_OUT_DATE' => $now,
               'SCAN_OUT' => 'Y',
               'ExitDate' => $now->format('Y-m-d'),
               'ExitTime' => $now->format('H:i:s'),
-            ]);
-
-            DB::commit();
-
-            createLog('App\Models\House', $house->id, 'SCAN OUT');
-
-            $gowia = $this->createXML($house, $now->setTimeZone('UTC'));
-
-            $house->update([
               'CW_Ref_GateOut' => $gowia
             ]);
 
@@ -77,9 +74,11 @@ class TpsOnlineScanOutController extends Controller
 
           } catch (\Throwable $th) {
             DB::rollback();
-
-            return redirect()->route('tps-online.scan-out')
-                            ->with('gagal', $th->getMessage());
+            
+            return redirect()->route('tps-online.scan-out.show', [
+                              'scan_out' => Crypt::encrypt($house->id)
+                            ])
+                            ->withErrors($th->getMessage());
           }
         }
     }
@@ -122,15 +121,18 @@ class TpsOnlineScanOutController extends Controller
       $gowiName = 'XUE_TPSID_'.$house->ShipmentNumber.'_GOWIA_'.$time->format('YmdHms').substr($micro, 0,3).'_'.Str::uuid().'.xml';
 
       try {
-        $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);
 
-        createLog('App\Models\House', $house->id, 'Create file '.$gowiName.' at '.$time->translatedFormat('l d F Y H:i'));        
+        // $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);
+        $gowia = Storage::disk('ftp')->put($gowiName, $gowiaTxt);
 
         return $gowiName;
 
-      } catch (\Throwable $th) {
-        createLog('App\Models\House', $house->id, 'Error => '.$th->getMessage());
-        throw $th;
+      } catch (FilesystemException | UnableToWriteFile $th) {
+
+        return redirect()->route('tps-online.scan-out.show', [
+                          'scan_out' => Crypt::encrypt($house->id)
+                        ])
+                        ->withErrors($th->getMessage());
       } 
 
     }
