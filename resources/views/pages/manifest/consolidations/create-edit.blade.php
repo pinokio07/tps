@@ -37,22 +37,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="tab-plp" data-toggle="pill" href="#tab-plp-content" role="tab" aria-controls="tab-plp-content" aria-selected="false">PLP</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="tab-summary" data-toggle="pill" href="#tab-summary-content" role="tab" aria-controls="tab-summary-content" aria-selected="false">Summary</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="tab-document" data-toggle="pill" href="#tab-document-content" role="tab" aria-controls="tab-document-content" aria-selected="false">Documents</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="tab-kirim-data" data-toggle="pill" href="#tab-kirim-data-content" role="tab" aria-controls="tab-kirim-data-content" aria-selected="false">Kirim Data</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="tab-partial" data-toggle="pill" href="#tab-partial-content" role="tab" aria-controls="tab-partial-content" aria-selected="false">Partial</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="tab-estimasi" data-toggle="pill" href="#tab-estimasi-content" role="tab" aria-controls="tab-estimasi-content" aria-selected="false">Estimasi Billing</a>
-                </li>
+                </li>                
                 <li class="nav-item">
                   <a class="nav-link" id="tab-log" data-toggle="pill" href="#tab-log-content" role="tab" aria-controls="tab-log-content" aria-selected="false">Logs</a>
                 </li>
@@ -786,7 +771,7 @@
         });       
 
         $('.mawb-mask').inputmask({
-          mask: "999 9999 9999",
+          mask: "999-99999999",
           removeMaskOnSubmit: true
         });
 
@@ -1445,8 +1430,12 @@
 
             if(msg.estimated_tariff.length > 0){
               $('#btnShowEstimated').removeClass('d-none');
+              $('#btnEstimateH').attr('href', "/manifest/download-calculated/"+id+"?header=1");
+              $('#btnEstimateWH').attr('href', "/manifest/download-calculated/"+id+"?header=0");
             } else {
               $('#btnShowEstimated').addClass('d-none');
+              $('#btnEstimateH').addClass('d-none');
+              $('#btnEstimateWH').addClass('d-none');
             }
 
             $('#formCalculate').attr('action', "/manifest/calculate/"+id);

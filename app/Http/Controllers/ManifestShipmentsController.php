@@ -61,19 +61,9 @@ class ManifestShipmentsController extends Controller
                               return $row->master->ArrivalTime;
                            })
                            ->editColumn('NO_MASTER_BLAWB', function($row){
-                            $first = '';
-                            $second = '';
-                            $third = '';
-
-                            $num = str_replace(' ', '', $row->NO_MASTER_BLAWB);
-                            if($num != ''){
-                              $first = substr($num, 0, 3);
-                              $second = substr($num, 3, 4);
-                              $third = substr($num, 7, 4);
-                            }
-
+                            
                             $show = [
-                              'display' => $first .' '. $second .' '. $third,
+                              'display' => $row->mawb_parse,
                               'filter' => $row->NO_MASTER_BLAWB
                             ];
 

@@ -217,4 +217,9 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
     ])->toArray(),
 
+    'tps' => [
+      'user' => env('TPSONLINE_USER', ''),
+      'password' => env('TPSONLINE_PASSWORD', '')
+    ]
+
 ];

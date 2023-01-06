@@ -103,6 +103,13 @@
               @forelse ($items as $keys => $item)
                 @if($keys == 'id')
                   {data:"DT_RowIndex", name: "DT_RowIndex", searchable: false},
+                @elseif($keys == 'MAWBNumber')
+                {
+                  data: {
+                    _: "{{ $keys }}.display",
+                    filter: "{{ $keys }}.filter", 
+                  }
+                },
                 @else
                 {data: "{{$keys}}", name: "{{$keys}}"},
                 @endif
@@ -122,7 +129,7 @@
                     window.open("{{ route('download.bea-cukai.stop-system', ['jenis' => 'pdf']) }}");
                   }
                 }
-            ],
+            ],            
             initComplete: function () {
               this.api().columns([1,2,3,4,5,6,7,8]).every( function () {
                 var column = this;

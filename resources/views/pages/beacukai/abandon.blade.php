@@ -159,6 +159,13 @@
                   }
                 },
             ],
+            createdRow: function( row, data, dataIndex ) {
+                // Set the data-status attribute, and add a class
+                // console.log(data['AL_PENERIMA']);
+              $( 'td' , row ).eq(11)
+                  .attr('data-toggle', 'tooltip')
+                  .attr('title', data['AL_PENERIMA']);                 
+            },
             initComplete: function () {
               this.api().columns([2,3,6,8,9,10,12,13]).every( function () {
                 var column = this;

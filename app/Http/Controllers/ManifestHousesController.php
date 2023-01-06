@@ -223,6 +223,7 @@ class ManifestHousesController extends Controller
 
         foreach ($tariffs->where('is_vat', false) as $key => $tariff) {
           $rateShow = '';
+          $weight = '';
           
           if($tariff->rate){
             $subTotal += $tariff->total;
@@ -232,11 +233,15 @@ class ManifestHousesController extends Controller
               $rateShow = number_format($tariff->rate, 2, ',', '.');
             }
           }
+
+          if($tariff->weight){
+            $weight = number_format($tariff->weight, 2, ',', '.');
+          }
           
           $output .= '<tr>'                        
                       .'<td>'.$tariff->item.'</td>'
                       .'<td>'.$tariff->days.'</td>'
-                      .'<td>'.number_format($tariff->weight, 2, ',', '.').'</td>'
+                      .'<td>'.$weight.'</td>'
                       .'<td class="text-right">'.$rateShow.'</td>'
                       .'<td class="text-right">'.number_format($tariff->total, 2, ',', '.').'</td>'
                       .'</tr>';

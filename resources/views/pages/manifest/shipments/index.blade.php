@@ -103,6 +103,13 @@
                   exportOptions: { orthogonal: 'export' }
                 },
             ],
+            createdRow: function( row, data, dataIndex ) {
+                // Set the data-status attribute, and add a class
+                // console.log(data['AL_PENERIMA']);
+              $( 'td' , row ).eq(5)
+                  .attr('data-toggle', 'tooltip')
+                  .attr('title', data['AL_PENERIMA']);                 
+            },
             initComplete: function () {
               this.api().columns([1,2,3,4,5,6,8]).every( function () {
                 var column = this;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\House;
 use Carbon\Carbon;
-use DataTables;
+use DataTables, Crypt;
 
 use Illuminate\Http\Request;
 
@@ -27,7 +27,7 @@ class BeaCukaiAbandonController extends Controller
                          ->addColumn('TGL_PLP', function($row){
                           return "TGL PLP";
                          })
-                         ->addColumn('Age', function($row){
+                         ->addColumn('AGE', function($row){
                           $diff = 0;
                           if($row->SCAN_IN_DATE){
                             $lama = Carbon::parse($row->SCAN_IN_DATE);
@@ -50,6 +50,7 @@ class BeaCukaiAbandonController extends Controller
 
                           return $btn;
                          })
+                         ->rawColumns(['Penegahan'])
                          ->toJson();
       }
 

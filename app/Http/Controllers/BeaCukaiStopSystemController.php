@@ -21,6 +21,15 @@ class BeaCukaiStopSystemController extends Controller
 
           return DataTables::eloquent($query)
                             ->addIndexColumn()
+                            ->editColumn('MAWBNumber', function($row){
+                            
+                              $show = [
+                                'display' => $row->mawb_parse,
+                                'filter' => $row->MAWBNumber
+                              ];
+    
+                              return $show;
+                             })
                             ->addColumn('actions', function($row){
                               $btn = '<button id="btnTegah_'.$row->id.'"
                                             data-toggle="modal"

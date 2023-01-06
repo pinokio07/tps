@@ -150,6 +150,13 @@
                     }
                   }
                 },
+                @elseif($keys == 'NO_MASTER_BLAWB')
+                {
+                  data: {
+                    _: "{{ $keys }}.display",
+                    filter: "{{ $keys }}.filter", 
+                  }
+                },
                 @else
                 {data: "{{$keys}}", name: "{{$keys}}"},
                 @endif
@@ -187,6 +194,13 @@
                   }
                 },
             ],
+            createdRow: function( row, data, dataIndex ) {
+                // Set the data-status attribute, and add a class
+                // console.log(data['AL_PENERIMA']);
+              $( 'td' , row ).eq(15)
+                  .attr('data-toggle', 'tooltip')
+                  .attr('title', data['AL_PENERIMA']);                 
+            },
             initComplete: function () {
               this.api().columns([1,2,3,4,5,6,7,8,11,12,13,14,16,17,18]).every( function () {
                 var column = this;

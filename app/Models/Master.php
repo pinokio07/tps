@@ -34,10 +34,10 @@ class Master extends Model
     {
       $num = str_replace(' ', '', $this->MAWBNumber);
       $first = substr($num, 0, 3);
-      $second = substr($num, 3, 4);
-      $third = substr($num, 7, 4);
+      $second = substr($num, 3, 11);
+      // $third = substr($num, 7, 4);
 
-      return $first .' '. $second .' '. $third;
+      return $first .'-'. $second;
     }
 
     public function branch()

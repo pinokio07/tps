@@ -134,6 +134,14 @@ class InventoryInventoryMawbController extends Controller
   
                               return $btn;
                             })
+                            ->editColumn('NO_MASTER_BLAWB', function($row){
+                              $show = [
+                                'display' => $row->mawb_parse,
+                                'filter' => $row->NO_MASTER_BLAWB
+                              ];
+    
+                              return $show;
+                            })
                             ->addColumn('UR_BRG', function($row){
                               $brg = '';
                               $count = $row->details->count();

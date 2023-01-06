@@ -20,7 +20,7 @@ class ManifestConsolidationsController extends Controller
           return DataTables::eloquent($query)
                            ->addIndexColumn()
                            ->editColumn('AirlineCode', function($row){
-                            $url = url()->current().'/'.Crypt::encrypt($row->id).'#tab-summary-content';
+                            $url = url()->current().'/'.Crypt::encrypt($row->id);
 
                             $show = '<a href="'.$url.'">'.$row->AirlineCode.'</a>';
 
@@ -44,22 +44,12 @@ class ManifestConsolidationsController extends Controller
                             return $show; 
                            })
                            ->editColumn('MAWBNumber', function($row){
-                            $first = '';
-                            $second = '';
-                            $third = '';
-
-                            $num = str_replace(' ', '', $row->MAWBNumber);
-                            if($num != ''){
-                              $first = substr($num, 0, 3);
-                              $second = substr($num, 3, 4);
-                              $third = substr($num, 7, 4);
-                            }
-
+                            
                             $show = [
-                              'display' => $first .' '. $second .' '. $third,
+                              'display' => $row->mawb_parse,
                               'filter' => $row->MAWBNumber
                             ];
-
+  
                             return $show;
                            })
                            ->rawColumns(['AirlineCode'])

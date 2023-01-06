@@ -39,6 +39,14 @@ class BeaCukaiCurrentNowController extends Controller
                            ->addColumn('TGL_PLP', function($row){
                             return "TGL PLP";
                            })
+                           ->editColumn('NO_MASTER_BLAWB', function($row){
+                            $show = [
+                              'display' => $row->mawb_parse,
+                              'filter' => $row->NO_MASTER_BLAWB
+                            ];
+  
+                            return $show;
+                          })
                            ->addColumn('NO_SEGEL', function($row){
                             return $row->master->NO_SEGEL;
                            })

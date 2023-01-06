@@ -21,7 +21,7 @@ Route::group(['middleware' => 'auth'], function(){
         ->name('save.calculate.house')
         ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
   //Download Tariff
-  Route::get('/manifest/download-calculate/{house}', 'SewaGudangController@download')
+  Route::get('/manifest/download-calculated/{house}', 'SewaGudangController@download')
         ->name('download.calculate.house')
         ->middleware('can:open_sewa-gudang');
   //PLP Route

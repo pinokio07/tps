@@ -35,6 +35,14 @@ class BeaCukaiInventoryHawbController extends Controller
                             ->addColumn('TGL_PLP', function($row){
                               return "TGL PLP";
                             })
+                            ->editColumn('NO_MASTER_BLAWB', function($row){
+                              $show = [
+                                'display' => $row->mawb_parse,
+                                'filter' => $row->NO_MASTER_BLAWB
+                              ];
+    
+                              return $show;
+                            })
                             ->addColumn('UR_BRG', function($row){
                               $brg = '';
                               $count = $row->details->count();

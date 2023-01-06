@@ -24,8 +24,8 @@ class InventoryReportController extends Controller
           $jenis = $request->jenis;
           $period = explode(' - ', $request->period);
 
-          $start = $period[0];
-          $end = $period[1];
+          $start = $period[0] . ' 00:00:00';
+          $end = $period[1] . ' 23:59:59';
 
           $query = House::with(['master']);
 
