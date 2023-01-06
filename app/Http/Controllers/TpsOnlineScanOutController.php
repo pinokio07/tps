@@ -129,6 +129,7 @@ class TpsOnlineScanOutController extends Controller
         return $gowiName;
 
       } catch (\Throwable $th) {
+        createLog('App\Models\House', $house->id, 'Error => '.$th->getMessage());
         throw $th;
       } 
 
