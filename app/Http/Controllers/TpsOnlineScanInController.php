@@ -134,6 +134,7 @@ class TpsOnlineScanInController extends Controller
         return $giwiName;
 
       } catch (\Throwable $th) {
+        createLog('App\Models\House', $house->id, 'Error => '.$th->getMessage());
         throw $th;
       } 
 
