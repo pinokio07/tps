@@ -128,7 +128,7 @@ class TpsOnlineScanInController extends Controller
       try {        
 
         // $giwia = Storage::disk('sftp')->put($giwiName, $giwiaTxt);
-        $giwia = Storage::disk('sftp')->put($giwiName, $giwiaTxt);
+        $giwia = Storage::disk('ftp')->put($giwiName, $giwiaTxt);
         
         return $giwiName;
 
