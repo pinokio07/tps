@@ -1414,11 +1414,11 @@
             if(msg.ExitDate && msg.ExitTime){
               var parseOut = moment(msg.ExitDate + ' ' + msg.ExitTime).format('DD/MM/YYYY HH:mm');
 
-              $('#cal_out').val(parseOut).attr('readonly', true);
+              $('#cal_out').val(parseOut);
 
               calDays();
             } else {
-              $('#cal_out').val('').removeAttr('readonly');
+              $('#cal_out').val('');
             }
 
             if(msg.tariff_id){

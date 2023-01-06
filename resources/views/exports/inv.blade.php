@@ -107,81 +107,70 @@
       </h4>
     </span>
   </div>
-  <table style="width: 100%;">
-    <tr>
-      <td style="width: 20%;">Kepada Yth / To:</td>
-      <td style="width: 50%">
-        {{ $shipment->NM_PENERIMA }}
+  <table style="width: 100%; margin-top:40px;">
+    <tr style="vertical-align: top;">
+      <td style="width: 12%;">Scheme</td>
+      <td style="width: 1%;">:</td>
+      <td style="width: 53%;">{{ $shipment->schemaTariff->name ?? "-" }}</td>
+      <td style="width: 10%;">ISSUED</td>
+      <td style="width: 1%;">:</td>
+      <td style="width: 20%;">Jakarta, {{ today()->translatedFormat('d F Y') }}</td>
+    </tr>
+    <tr style="vertical-align: top;">
+      <td>Document Number</td>
+      <td>:</td>
+      <td>{{ rand(000001, 999999) . '/SDV/'.today()->format('Ymd') }}</td>
+      <td>ATA</td>
+      <td>:</td>
+      <td>
+        @php
+          if($shipment->TGL_TIBA){
+            $tiba = \Carbon\Carbon::parse($shipment->TGL_TIBA);
+            $showTiba = $tiba->translatedFormat('d F Y');
+          } else {
+            $tiba = null;
+            $showTiba = '-';
+          }
+        @endphp
+        {{ $showTiba }}
       </td>
-      <td style="width:15%;">
-        <b>NO. : CDO</b> 
+    </tr>
+    <tr style="vertical-align: top;">
+      <td>Shipper</td>
+      <td>:</td>
+      <td>{{ $shipment->NM_PENGIRIM ?? "-" }}</td>
+      <td>Cargo Out</td>
+      <td>:</td>
+      <td>
+        @php
+          $count = $shipment->estimatedTariff->sum('days');
+          if($tiba){
+            $keluar = $tiba->copy()->addDays($count)->translatedFormat('d F Y');
+          }
+        @endphp
+        {{ $keluar }}
       </td>
-      <td style="width:15%;text-align:right;">
-        {{ $shipment->DOID ?? "-" }}
+    </tr>
+    <tr style="vertical-align: top;">
+      <td>Airport Origin</td>
+      <td>:</td>
+      <td>{{ $shipment->unlocoOrigin->RL_PortName ?? "-" }}</td>
+      <td>Total Days</td>
+      <td>:</td>
+      <td>
+        {{ $count }}
+      </td>
+    </tr>
+    <tr style="vertical-align: top;">
+      <td>Commodity</td>
+      <td>:</td>
+      <td>{{ $shipment->unlocoOrigin->RL_PortName ?? "-" }}</td>
+      <td>Total Days</td>
+      <td>:</td>
+      <td>
+        {{ $count }}
       </td>
     </tr>
   </table>
-  <table class="table table-bordered" style="width: 100%;margin-top:10px;">
-    <tr style="text-align: center;">
-      <td>No AWB / HAWB</td>
-      <td>No. PU / POS</td>
-      <td>PCS / KG</td>
-      <td>JENIS BARANG</td>
-      <td>FLIGHT / DATE</td>
-    </tr>
-    <tr style="text-align: center;">
-      <td style="height: 200px;">{{ $shipment->NO_HOUSE_BLAWB ?? "-" }}</td>
-      <td>{{ $shipment->NO_BC11 ?? "-" }} / {{ $shipment->NO_POS_BC11 ?? "-" }}</td>
-      <td>
-        {{ $shipment->JML_BRG ?? 0 }} <br>
-        GW {{ $shipment->BRUTO ?? 0 }} Kgs<br>
-        CW {{ $shipment->ChargeableWeight ?? "-" }} Kgs<br>
-      </td>
-      <td>
-        @forelse ($shipment->details as $detail)
-          {{ $detail->UR_BRG }}
-          @if(!$loop->last)
-          <br>
-          @endif
-        @empty          
-        @endforelse
-      </td>
-      <td>
-        {{ $shipment->NO_FLIGHT ?? "-" }} <br>
-        @if($shipment->TGL_TIBA)
-        {{ \Carbon\Carbon::parse($shipment->TGL_TIBA)->translatedFormat('d F Y') }}
-        @endif
-      </td>
-    </tr>
-  </table>
-  <div style="margin-top: 5px;font-size:10pt;">
-    SPPB NO: {{ $shipment->SPPBNumber }}
-  </div>
-  <div>
-    <p style="margin:0 auto;">
-      BARANG DITERIMA DALAM KEADAAN BAIK & LENGKAP
-    </p>
-    <p style="text-decoration: overline; margin: 0 auto;">
-      CARGO IS COMPLETELY RECEIVED IN GOOD CONDITIONS
-    </p>
-  </div>
-  <table class="ttd" style="width: 100%;margin-top:20px;">
-		<tr>
-			<td></td>
-			<td style="width: 100mm;"></td>
-			<td style="text-align: right;width:60mm;">
-        @if($shipment->DODATE)
-        {{ \Carbon\Carbon::parse($shipment->DODATE)->translatedFormat('d F Y') }}
-        @else
-        {{ today()->translatedFormat('d F Y') }}
-        @endif
-      </td>
-		</tr>
-		<tr>
-			<td style="vertical-align: top;">Penerima, </td>
-			<td></td>
-			<td>Jakarta, <br> PT BOLLORE LOGISTICS INDONESIA</td>
-		</tr>
-	</table>
 </body>
 </html>

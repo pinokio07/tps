@@ -38,6 +38,21 @@ class House extends Model
       return $this->hasMany(HouseDetail::class, 'HouseID');
     }
 
+    public function unlocoOrigin()
+    {
+      return $this->belongsTo(RefUnloco::class, 'KD_PEL_MUAT', 'RL_Code');
+    }
+
+    public function unlocoTransit()
+    {
+      return $this->belongsTo(RefUnloco::class, 'KD_PEL_TRANSIT', 'RL_Code');
+    }
+
+    public function unlocoDestination()
+    {
+      return $this->belongsTo(RefUnloco::class, 'KD_PEL_BONGKAR', 'RL_Code');
+    }
+
     public function customs()
     {
       return $this->belongsTo(RefCustomsOffice::class, 'KD_KANTOR', 'Kdkpbc');
@@ -46,6 +61,11 @@ class House extends Model
     public function logs()
     {
       return $this->morphMany(TpsLog::class, 'logable');
+    }
+
+    public function schemaTariff()
+    {
+      return $this->belongsTo(Tariff::class, 'tariff_id');
     }
 
     public function tariff()
