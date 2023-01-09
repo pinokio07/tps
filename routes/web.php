@@ -59,7 +59,8 @@ Route::get('/randomize', function(){
   }
 });
 
-Route::get('/cek-koneksi', function(){
+Route::get('/cek-koneksi', function(Request $request){
+  $shipment = $request->shipment ?? 'S00117299';
   $time = now()->setTimeZone('UTC');
   $giwiaTxt = '<UniversalEvent xmlns="http://www.cargowise.com/Schemas/Universal/2011/11">
               <Event>
@@ -72,7 +73,7 @@ Route::get('/cek-koneksi', function(){
                       <DataTargetCollection>
                           <DataTarget>
                               <Type>ForwardingShipment</Type>
-                              <Key>S00117299</Key>
+                              <Key>'.$shipment.'</Key>
                           </DataTarget>
                       </DataTargetCollection>
                   </DataContext>
@@ -86,7 +87,7 @@ Route::get('/cek-koneksi', function(){
               
   $micro = $time->format('u');
 
-  $giwiName = 'XUE_TPSID_S00117299_GIWIA_'.$time->format('YmdHms').substr($micro, 0,3).'_'.Str::uuid().'.xml';
+  $giwiName = 'XUE_TPSID_'.$shipment.'_GIWIA_'.$time->format('YmdHms').substr($micro, 0,3).'_'.Str::uuid().'.xml';
 
   try {        
 
