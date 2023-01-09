@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\Master;
 use App\Models\House;
 use App\Models\HouseDetail;
@@ -268,11 +269,12 @@ class ManifestHousesController extends Controller
       } else {
         $data = $request->validate([
           'cal_tariff' => 'required|numeric',
-          'cal_days' => 'required|numeric'
+          'cal_days' => 'required|numeric',
         ]);
   
         if($data){
           $tariff = Tariff::with(['schema'])->findOrFail($data['cal_tariff']);
+          
           $totalCharge = 0;
           $subTotal = 0;
           $days = $data['cal_days'];
@@ -292,10 +294,12 @@ class ManifestHousesController extends Controller
               $days -= $charge->days;
               $countDays = 1;            
             } else if($charge->days > 0){
-              $countDays = ( ($days - $charge->days) > 0 ) ? $charge->days : $days;
+              $countDays = ( ($days - $charge->days) > 0 ) 
+                              ? $charge->days 
+                              : ( ($days < 0) ? 0 : $days );
               $days -= $countDays;
             } else {
-              $countDays = $days;
+              $countDays = ($days < 0) ? 0 : $days;
               $days -= $countDays;
             }
             ${'charge_'.$charge->id} = $charge->rate * ($house->$column ?? 0) * $countDays;
@@ -313,8 +317,9 @@ class ManifestHousesController extends Controller
                         .'<td class="text-right"><input type="hidden" name="total[]" value="'.${'charge_'.$charge->id}.'">'.number_format((${'charge_'.$charge->id} ?? 0), 2, ',','.').'</td>';
   
             $totalCharge += ${'charge_'.$charge->id};
-          }        
-          $output .= '<tr>
+          }
+          if($totalCharge < $tariff->minimum){
+            $output .= '<tr>
                         <input type="hidden" name="is_vat[]" value="0">'
                       .'<td><input type="hidden" name="item[]" value="Minimum Charge">Minimum Charge</td>'
                       .'<td><input type="hidden" name="days[]" value=""></td>'
@@ -322,8 +327,7 @@ class ManifestHousesController extends Controller
                       .'<td><input type="hidden" name="rate[]" value=""></td>'
                       .'<td class="text-right"><input type="hidden" name="total[]" value="'.$tariff->minimum.'">'.number_format($tariff->minimum, 2, ',', '.').'</td>'
                       .'</tr>';
-  
-          if($totalCharge < $tariff->minimum){
+
             $totalCharge = $tariff->minimum;
           }
           
@@ -399,11 +403,21 @@ class ManifestHousesController extends Controller
     {
         DB::beginTransaction();
         try {
+          $ids = [];
           if($house->tariff->where('is_estimate', $request->is_estimate) != ''){
             $info = 'Update ';
           } else {
             $info = 'Create ';
           }
+
+          $estimatedDate = Carbon::createFromFormat('d/m/Y H:i', $request->cal_date);
+         
+          $house->update([
+            'estimatedExitDate' => $estimatedDate,
+            'tariff_id' => $request->cal_tariff_id
+          ]);
+
+          DB::commit();
 
           foreach($request->item as $key => $value){
             $tariff = HouseTariff::updateOrCreate([
@@ -419,6 +433,7 @@ class ManifestHousesController extends Controller
               'is_vat' => $request->is_vat[$key]
             ]);
             DB::commit();
+            $ids[] = $tariff->id;
           }
 
           if($request->is_estimate > 0){
@@ -431,10 +446,17 @@ class ManifestHousesController extends Controller
 
           DB::commit();
 
+          HouseTariff::where('house_id', $house->id)
+                      ->whereNotIn('id', $ids)
+                      ->delete();
+
+          DB::commit();
+
           if($request->ajax()){
             return response()->json([
               'status' => 'OK',
-              'estimate' => $request->is_estimate
+              'estimate' => $request->is_estimate,
+              'id' => Crypt::encrypt($house->id),
             ]);
           }
 

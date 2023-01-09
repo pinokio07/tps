@@ -934,8 +934,7 @@
         }
 
       })
-    }
-    
+    }    
     function calDays() {
       var one = $('#cal_arrival').val();
       var two = $('#cal_out').val();
@@ -947,6 +946,8 @@
         if(diff != NaN){
           $('#cal_days').val(diff + 1);
         }
+
+        $('#cal_date').val(two);
       }
     }
     jQuery(document).ready(function(){ 
@@ -1155,6 +1156,11 @@
           console.log(count.lenght);
           $('#JNS_ID_PENERIMA').val(value).trigger('change');
         }
+      });
+      $(document).on('change', '#cal_tariff', function(){
+        var val = $(this).find(':selected').val();
+
+        $('#cal_tariff_id').val(val);
       });
       $(document).on('input paste', '#arrivals', function(){
         var tgl = $(this).val().split(' ');
@@ -1403,6 +1409,8 @@
           url:"/manifest/houses/"+id,
           type: "GET",
           success:function(msg){
+
+            console.log(msg);
 
             var arrival = "{{ $item->ArrivalDate }} {{ $item->ArrivalTime }}";
 
@@ -1693,6 +1701,10 @@
                   } else {
                     $('#btnShowEstimated').removeClass('d-none');
                   }
+                  $('#btnEstimateH').attr('href', "/manifest/download-calculated/"+msg.id+"?header=1");
+                  $('#btnEstimateWH').attr('href', "/manifest/download-calculated/"+msg.id+"?header=0");
+                  $('#btnEstimateH').removeClass('d-none');
+                  $('#btnEstimateWH').removeClass('d-none');
                 } else {
                   toastr.error(msg.message, "Failed!", {timeOut: 3000, closeButton: true,progressBar: true});
                 }

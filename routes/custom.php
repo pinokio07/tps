@@ -15,15 +15,15 @@ Route::group(['middleware' => 'auth'], function(){
   //Calculate Tariff Route
   Route::get('/manifest/calculate/{house}', 'ManifestHousesController@calculate')
        ->name('calculate.house')
-       ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
+       ->middleware('permission:edit_manifest_consolidations|edit_manifest_shipments');
   //Save Tariff 
   Route::post('/manifest/save-calculate/{house}', 'ManifestHousesController@storecalculate')
         ->name('save.calculate.house')
-        ->middleware('can:edit_manifest_consolidations|edit_manifest_shipments');
+        ->middleware('permission:edit_manifest_consolidations|edit_manifest_shipments');
   //Download Tariff
   Route::get('/manifest/download-calculated/{house}', 'SewaGudangController@download')
         ->name('download.calculate.house')
-        ->middleware('can:open_sewa-gudang');
+        ->middleware('permission:open_sewa-gudang|edit_manifest_consolidations|edit_manifest_shipments');
   //PLP Route
   Route::post('/manifest/plp-online/{master}', 'PlpController@index')
        ->name('manifest.plp')

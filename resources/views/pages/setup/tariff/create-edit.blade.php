@@ -196,10 +196,10 @@
                             <i class="fas fa-save"></i>
                           </button>
                           <button type="button"
-                                  class="btn btn-danger btn-xs elevation-2 hapusRow"
+                                  class="btn btn-danger btn-xs elevation-2 delete"
                                   data-row="{{ $loop->iteration }}"
                                   data-id="{{ $schema->id }}"
-                                  data-action="{{ route('schema.destroy', ['schema' => $schema->id]) }}">
+                                  data-href="{{ route('schema.destroy', ['schema' => $schema->id]) }}">
                             <i class="fas fa-trash"></i>
                           </button>              
                         </td>

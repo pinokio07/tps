@@ -48,6 +48,10 @@
     .text-center{
       text-align: center !important;
     }
+    .text-middle{
+      vertical-align: middle !important;
+      text-align: center !important;
+    }
   </style>
 </head>
 <body>
@@ -111,7 +115,7 @@
     <tr style="vertical-align: top;">
       <td style="width: 12%;">Scheme</td>
       <td style="width: 1%;">:</td>
-      <td style="width: 53%;">{{ $shipment->schemaTariff->name ?? "-" }}</td>
+      <td colspan="2" style="width: 53%;">{{ $shipment->schemaTariff->name ?? "-" }}</td>
       <td style="width: 10%;">ISSUED</td>
       <td style="width: 1%;">:</td>
       <td style="width: 20%;">Jakarta, {{ today()->translatedFormat('d F Y') }}</td>
@@ -119,7 +123,7 @@
     <tr style="vertical-align: top;">
       <td>Document Number</td>
       <td>:</td>
-      <td>{{ rand(000001, 999999) . '/SDV/'.today()->format('Ymd') }}</td>
+      <td colspan="2">{{ rand(000001, 999999) . '/SDV/'.today()->format('Ymd') }}</td>
       <td>ATA</td>
       <td>:</td>
       <td>
@@ -138,39 +142,153 @@
     <tr style="vertical-align: top;">
       <td>Shipper</td>
       <td>:</td>
-      <td>{{ $shipment->NM_PENGIRIM ?? "-" }}</td>
+      <td colspan="2">{{ $shipment->NM_PENGIRIM ?? "-" }}</td>
       <td>Cargo Out</td>
       <td>:</td>
       <td>
         @php
-          $count = $shipment->estimatedTariff->sum('days');
-          if($tiba){
-            $keluar = $tiba->copy()->addDays($count)->translatedFormat('d F Y');
+          if($shipment->estimatedExitDate){
+            $keluar = \Carbon\Carbon::parse($shipment->estimatedExitDate);
+            $showKeluar = $keluar->translatedFormat('d F Y');
+          } elseif($shipment->SCAN_OUT_DATE) {
+            $keluar = \Carbon\Carbon::parse($shipment->SCAN_OUT_DATE);
+            $showKeluar = $keluar->translatedFormat('d F Y');
+          } else {
+            $keluar = null;
+            $showKeluar = '-';
           }
         @endphp
-        {{ $keluar }}
+        {{ $showKeluar }}
       </td>
     </tr>
     <tr style="vertical-align: top;">
       <td>Airport Origin</td>
       <td>:</td>
-      <td>{{ $shipment->unlocoOrigin->RL_PortName ?? "-" }}</td>
+      <td colspan="2">{{ $shipment->unlocoOrigin->RL_PortName ?? "-" }}</td>
       <td>Total Days</td>
       <td>:</td>
       <td>
-        {{ $count }}
+        @php
+            if($tiba && $keluar){
+              $beda = $tiba->diffInDays($keluar);
+            } else {
+              $beda = 0;
+            }
+        @endphp
+        {{ $beda + 1 }}
       </td>
     </tr>
     <tr style="vertical-align: top;">
       <td>Commodity</td>
       <td>:</td>
-      <td>{{ $shipment->unlocoOrigin->RL_PortName ?? "-" }}</td>
-      <td>Total Days</td>
-      <td>:</td>
       <td>
-        {{ $count }}
+        @forelse ($shipment->details as $detail)
+          {{ $detail->UR_BRG }} @if(!$loop->last) / @endif
+        @empty          
+        @endforelse
+      </td>
+      <td style="text-align: right; padding-right:50px;">
+        @forelse ($shipment->details as $detail)
+          {{ $detail->HS_CODE ?? 00000000 }} @if(!$loop->last) / @endif
+        @empty          
+        @endforelse
+      </td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr style="vertical-align: top;">
+      <td>No HAWB</td>
+      <td>:</td>
+      <td>{{ $shipment->NO_HOUSE_BLAWB ?? "-" }}</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+  <table class="table table-bordered" style="width: 100%;margin-top:5px;">
+    <tr>
+      <td colspan="6">
+        <b>CONSIGNEE : {{ $shipment->NM_PENGIRIM ?? "-" }}</b>
       </td>
     </tr>
+    <tr class="text-center">
+      <td><b>No. AWB</b></td>
+      <td><b>No. P.U/Pos</b></td>
+      <td><b>FLIGHT</b></td>
+      <td><b>CARGO IN</b></td>
+      <td><b>HARI</b></td>
+      <td><b>Coli - Kg/Ch. Weight</b></td>
+    </tr>
+    <tr>
+      <td class="text-middle">
+        {{ $shipment->mawb_parse ?? "-" }}
+      </td>
+      <td class="text-middle">
+        {{ $shipment->NO_BC11 ?? "-" }}
+      </td>
+      <td class="text-middle">
+        {{ $shipment->NO_FLIGHT ?? "-" }}
+      </td>
+      <td class="text-middle">
+        @php
+          $inDate = $shipment->SCAN_IN_DATE ?? $shipment->TGL_TIBA;
+          $tglTiba = \Carbon\Carbon::parse($inDate)->translatedFormat('d F Y');
+        @endphp
+        {{ $tglTiba ?? "-" }}
+      </td>
+      <td class="text-middle">
+        {{ $beda + 1 }}
+      </td>
+      <td>
+        Coli : {{ $shipment->JML_BRG ?? 0 }}<br>
+        KG : {{ $shipment->BRUTO ?? 0 }}<br>
+        CH. Weight : {{ $shipment->ChargeableWeight ?? 0 }}
+      </td>
+    </tr>
+  </table>
+  <table class="table table-bordered" style="width: 100%;margin-top:20px;">
+    <tr class="text-center">
+      <td colspan="4"><b>KETERANGAN</b></td>
+      <td><b>JUMLAH</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <table>
+        @php
+          $subTotal = 0;
+        @endphp
+        @forelse ($shipment->estimatedTariff->where('is_vat', false) as $tariff)
+          @php
+            $rateShow = '';
+            
+            if($tariff->rate){
+              $subTotal += $tariff->total;
+              if($tariff->rate < 1){
+                $rateShow = ($tariff->rate * 100);
+              } else {
+                $rateShow = number_format($tariff->rate, 2, ',', '.');
+              }
+            }
+          @endphp
+          <tr style="border: none;">
+            <td style="border: none;">{{ $tariff->item }}</td>
+            <td class="text-right" style="border: none;">
+              {{ ($rateShow == 0) ? '' : $rateShow }}
+            </td>
+            <td style="border: none;">
+              {{ ($tariff->days < 1) ? '' : $tariff->days }}
+            </td>
+          </tr>
+        @empty
+          
+        @endforelse
+        </table>
+      </td>
+      <td></td>
+    </tr>
+    
   </table>
 </body>
 </html>

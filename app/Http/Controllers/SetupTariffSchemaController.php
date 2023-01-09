@@ -232,4 +232,33 @@ class SetupTariffSchemaController extends Controller
           throw $th;
         }
     }
+
+    public function destroyschema(TariffSchema $schema)
+    {
+      DB::beginTransaction();
+
+      try {
+        $tariff = $schema->tariff;
+
+        $schema->delete();
+        DB::commit();
+
+        $others = $tariff->schema;
+
+        $no = 1;
+
+        foreach ($others->sortBy('urut') as $item) {
+          // if($item->urut < $count){
+            $item->update(['urut' => ($no++)]);
+            DB::commit();
+          // }                
+        }        
+
+        return redirect('/setup/tariff-schema/'.$tariff->id.'/edit')->with('sukses', 'Delete Tariff Success.');
+
+      } catch (\Throwable $th) {
+        DB::rollback();
+        throw $th;
+      }
+    }
 }

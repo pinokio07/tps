@@ -27,7 +27,8 @@
         <div class="input-group-text">
           <i class="fa fa-calendar"></i>
         </div>
-      </div>      
+      </div>
+      
     </div>    
     </div>
   </div> 
@@ -117,6 +118,8 @@
       <form id="formStoreCalculate" method="POST">
         @csrf
         <input type="hidden" name="is_estimate" id="is_estimate" value="1">
+        <input type="hidden" name="cal_date" id="cal_date" value="">
+        <input type="hidden" name="cal_tariff_id" id="cal_tariff_id" value="">
         <table class="table table-sm">
           <thead>
             <tr>
@@ -136,7 +139,7 @@
   <div class="col-lg-6">
     <button type="button"
             data-estimate="1"
-            class="btn btn-xm btn-primary btn-block elevation-2 saveCalculation">
+            class="btn btn-xm btn-primary btn-block elevation-2 d-none saveCalculation">
       Save as Estimated
     </button>
   </div>
