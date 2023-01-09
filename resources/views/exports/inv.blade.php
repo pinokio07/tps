@@ -52,6 +52,9 @@
       vertical-align: middle !important;
       text-align: center !important;
     }
+    .text-right{
+      text-align: right !important;
+    }
   </style>
 </head>
 <body>
@@ -256,39 +259,111 @@
     <tr>
       <td colspan="4">
         <table>
-        @php
-          $subTotal = 0;
-        @endphp
-        @forelse ($shipment->estimatedTariff->where('is_vat', false) as $tariff)
-          @php
-            $rateShow = '';
-            
-            if($tariff->rate){
-              $subTotal += $tariff->total;
-              if($tariff->rate < 1){
-                $rateShow = ($tariff->rate * 100);
-              } else {
-                $rateShow = number_format($tariff->rate, 2, ',', '.');
-              }
-            }
-          @endphp
           <tr style="border: none;">
-            <td style="border: none;">{{ $tariff->item }}</td>
-            <td class="text-right" style="border: none;">
-              {{ ($rateShow == 0) ? '' : $rateShow }}
-            </td>
-            <td style="border: none;">
-              {{ ($tariff->days < 1) ? '' : $tariff->days }}
-            </td>
-          </tr>
-        @empty
-          
-        @endforelse
+            <td style="border: none;">Name (Special Rules)</td>
+            <td class="text-right" style="border: none;">Rate/Days</td>
+            <td class="text-center" style="border: none;">Days</td>
+          </tr>          
+          @forelse ($shipment->estimatedTariff->where('is_vat', false) as $tariff)
+            @php
+              $rateShow = '';
+              
+              if($tariff->rate){
+                
+                if($tariff->rate < 1){
+                  $rateShow = ($tariff->rate * 100);
+                } else {
+                  $rateShow = number_format($tariff->rate, 0, ',', '.');
+                }
+              }
+            @endphp
+            <tr style="border: none;">
+              <td style="border: none;">{{ $tariff->item }}</td>
+              <td class="text-right" style="border: none;">
+                {{ ($rateShow == 0) ? '' : $rateShow }}
+              </td>
+              <td class="text-center" style="border: none;width:80px;">
+                {{ ($tariff->days < 1) ? '' : $tariff->days }}
+              </td>
+            </tr>
+          @empty            
+          @endforelse
         </table>
       </td>
-      <td></td>
+      <td>
+        <table>
+          <tr style="border: none;">
+            <td style="border: none;">&nbsp;</td>
+          </tr>
+          @php
+            $subTotal = 0;
+          @endphp
+          @forelse ($shipment->estimatedTariff->where('is_vat', false) as $tariff)
+            @php
+              $subTotal += $tariff->total;
+            @endphp
+            <tr style="border: none;">
+              <td class="text-right" style="border: none;">
+                {{ number_format($tariff->total, 0, ',', '.') }}
+              </td>
+            </tr>
+          @empty            
+          @endforelse
+        </table>
+      </td>     
     </tr>
-    
+    <tr>
+      <td colspan="4" class="text-center"><b>SUB TOTAL</b></td>
+      <td class="text-right"><b>Rp. {{ number_format($subTotal, 0, ',','.') }}</b></td>
+    </tr>
+    @php
+      $vatTariff = $shipment->estimatedTariff->where('is_vat', true)->first();
+    @endphp
+    <tr>
+      <td colspan="4">
+        <table>
+          <tr style="border: none;">
+            <td style="border: none;">VAT</td>
+            <td class="text-right" style="border: none;">
+              {{ ($shipment->schemaTariff->vat + 0) }} %
+            </td>
+            <td style="border: none;width:80px;"></td>
+          </tr>
+        </table>
+      </td>
+      <td class="text-right">{{ number_format(round($vatTariff->total), 0, ',', '.') }}</td>
+    </tr>
+    <tr>
+      @php
+        $grandTotal = $subTotal + round($vatTariff->total);
+      @endphp
+      <td colspan="4" class="text-center"><b>TOTAL</b></td>
+      <td class="text-right"><b>Rp. {{ number_format($grandTotal, 0, ',','.') }}</b></td>
+    </tr>
+    <tr>
+      <td colspan="5" >
+        @php
+          $number = explode('.', $grandTotal);
+          $nf2 = new \NumberFormatter('id_ID', \NumberFormatter::SPELLOUT);
+        @endphp
+        <table>
+          <tr>
+            <td style="width:60px;border:none;height:80px;">Terbilang</td>
+            <td style="width: 4px;border:none;">:</td>
+            <td style="border:none;">
+              {{ Str::title($nf2->format($number[0])) }} rupiah
+            </td>
+          </tr>
+          <tr>
+            <td style="width:60px;border:none;">Invoice To</td>
+            <td style="width: 4px;border:none;">:</td>
+            <td style="text-decoration: underline;border:none;">
+              {{ $shipment->NM_PENERIMA }}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
   </table>
 </body>
 </html>

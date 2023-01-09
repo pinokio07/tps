@@ -378,7 +378,7 @@ class ManifestHousesController extends Controller
             $output .= '<tr>'
                         .'<td colspan="4" class="text-right">'
                         .'<input type="hidden" name="is_vat[]" value="1">
-                          <input type="hidden" name="item[]" value="VAT '.$tariff->vat.' %">VAT '.$tariff->vat.' %</td>'
+                          <input type="hidden" name="item[]" value="VAT '.($tariff->vat + 0).' %">VAT '.($tariff->vat + 0).' %</td>'
                         .'<input type="hidden" name="days[]" value="">
                           <input type="hidden" name="weight[]" value="">
                           <input type="hidden" name="rate[]" value="">'
