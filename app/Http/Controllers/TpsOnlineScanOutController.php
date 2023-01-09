@@ -122,8 +122,8 @@ class TpsOnlineScanOutController extends Controller
 
       try {
 
-        // $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);
-        $gowia = Storage::disk('ftp')->put($gowiName, $gowiaTxt);
+        $gowia = Storage::disk('sftp')->put($gowiName, $gowiaTxt);
+        // $gowia = Storage::disk('ftp')->put($gowiName, $gowiaTxt);
 
         return $gowiName;
 
