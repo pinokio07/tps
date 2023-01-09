@@ -59,6 +59,49 @@ Route::get('/randomize', function(){
   }
 });
 
+Route::get('/cek-koneksi', function(){
+  $time = now()->setTimeZone('UTC');
+  $giwiaTxt = '<UniversalEvent xmlns="http://www.cargowise.com/Schemas/Universal/2011/11">
+              <Event>
+                  <DataContext>
+                      <Company>
+                          <Code>ID1</Code>
+                      </Company>
+                <EnterpriseID>B52</EnterpriseID>
+                <ServerID>TS2</ServerID>
+                      <DataTargetCollection>
+                          <DataTarget>
+                              <Type>ForwardingShipment</Type>
+                              <Key>S00117299</Key>
+                          </DataTarget>
+                      </DataTargetCollection>
+                  </DataContext>
+                  <EventTime>'.$time->toDateTimeLocalString().'</EventTime>
+                  <EventType>FUL</EventType>
+                  <EventReference>|EXT_SOFTWARE=TPS|FAC=CFS|LNK=GIWIA|LOC=IDJKT|</EventReference>
+                  <IsEstimate>false</IsEstimate>
+              </Event>
+          </UniversalEvent>
+          ';
+              
+  $micro = $time->format('u');
+
+  $giwiName = 'XUE_TPSID_S00117299_GIWIA_'.$time->format('YmdHms').substr($micro, 0,3).'_'.Str::uuid().'.xml';
+
+  try {        
+
+    $giwia = Storage::disk('sftp')->put($giwiName, $giwiaTxt);
+    // $giwia = Storage::disk('ftp')->put($giwiName, $giwiaTxt);
+    
+    return $giwiName;
+
+  } catch (FilesystemException | UnableToWriteFile $th) {
+    
+    // return redirect('/cek-koneksi')->withErrors($th->getMessage());
+    throw $th;
+  } 
+});
+
 //Main Routing
 Route::get('/', 'AuthController@index')->name('login');
 Route::post('/', 'AuthController@postlogin');
