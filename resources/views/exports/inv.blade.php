@@ -61,14 +61,14 @@
   <table class="table table-bordered line-100" style="width: 100%;">
     <tr>
       <td rowspan="3" style="width: 13%;">
-        {{-- @php
+        @php
             $imgPath = public_path('/img/companies/'.$company->GC_Logo);
             if(is_dir($imgPath) || !file_exists($imgPath)){
               $imgPath = public_path('/img/default-logo-light.png');
             }
           @endphp
           <img src="{{ $imgPath }}" alt="Company Logo"
-                height="50"> --}}
+                height="50">
       </td>
       <td rowspan="2" style="width: 55%;">
         <b>PT Bollore Logistics Indonesia</b><br>
